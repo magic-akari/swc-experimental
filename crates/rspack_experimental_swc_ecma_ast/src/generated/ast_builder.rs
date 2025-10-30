@@ -6,8 +6,8 @@ use crate::{
 };
 
 impl Ast {
-    pub fn build_module(&mut self, span: Span, body: NodeId, shebang: AtomRef) -> NodeId {
-        let body = self.add_extra(ExtraData { node: body });
+    pub fn build_module(&mut self, span: Span, body: SubRange, shebang: AtomRef) -> NodeId {
+        let body = self.add_extra(ExtraData { sub_range: body });
         let shebang = self.add_extra(ExtraData { atom: shebang });
         self.add_node(AstNode {
             span,
@@ -18,8 +18,8 @@ impl Ast {
         })
     }
 
-    pub fn build_script(&mut self, span: Span, body: NodeId, shebang: AtomRef) -> NodeId {
-        let body = self.add_extra(ExtraData { node: body });
+    pub fn build_script(&mut self, span: Span, body: SubRange, shebang: AtomRef) -> NodeId {
+        let body = self.add_extra(ExtraData { sub_range: body });
         let shebang = self.add_extra(ExtraData { atom: shebang });
         self.add_node(AstNode {
             span,

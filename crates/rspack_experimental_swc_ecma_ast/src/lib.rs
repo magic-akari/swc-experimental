@@ -28,7 +28,6 @@ pub struct AstNode {
     data: NodeData,
 }
 
-// TODO: more cases to reduce the count to lookup extra data table
 pub union NodeData {
     empty: (),
     bool: bool,
@@ -43,6 +42,7 @@ pub union ExtraData {
     optional_atom: OptionalAtomRef,
 
     number: f64,
+    sub_range: SubRange,
 }
 
 pub enum NodeKind {
@@ -286,5 +286,9 @@ impl Ast {
 
     pub fn add_atom_ref(&mut self, atom: Atom) -> AtomId {
         self.allocated_str.push(atom)
+    }
+
+    pub fn add_bigint(&mut self, big_int: BigInt) -> BigIntId {
+        self.bigint.push(big_int)
     }
 }

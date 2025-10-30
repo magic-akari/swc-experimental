@@ -8,3 +8,5 @@ num-bigint = { workspace = true }
 oxc_index  = { workspace = true }
 swc_atoms  = { workspace = true }
 swc_common = { workspace = true }
+
+rspack_experimental_swc_ast_macros = { workspace = true }

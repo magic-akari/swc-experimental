@@ -13,18 +13,18 @@ pub enum Lit {
 }
 
 pub struct Str {
-    span: Span,
-    value: AtomRef,
-    raw: OptionalAtomRef,
+    pub span: Span,
+    pub value: AtomRef,
+    pub raw: OptionalAtomRef,
 }
 
 pub struct Bool {
-    span: Span,
-    value: bool,
+    pub span: Span,
+    pub value: bool,
 }
 
 pub struct Null {
-    span: Span,
+    pub span: Span,
 }
 
 pub struct Number {
@@ -40,9 +40,9 @@ pub struct BigInt {
 }
 
 pub struct Regex {
-    span: Span,
-    exp: AtomRef,
-    flags: AtomRef,
+    pub span: Span,
+    pub exp: AtomRef,
+    pub flags: AtomRef,
 }
 
 pub struct JSXText {
