@@ -1,6 +1,6 @@
 use swc_common::Span;
 
-use crate::node_id::{AtomRef, OptionalAtomRef};
+use crate::node_id::{AtomRef, BigIntId, OptionalAtomRef};
 
 pub enum Lit {
     Str(Str),
@@ -35,7 +35,7 @@ pub struct Number {
 
 pub struct BigInt {
     pub span: Span,
-    // pub value: Box<BigIntValue>,
+    pub value: BigIntId,
     pub raw: OptionalAtomRef,
 }
 

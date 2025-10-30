@@ -335,6 +335,7 @@ dependencies = [
 name = "rspack_experimental_swc_ecma_ast"
 version = "0.1.0"
 dependencies = [
+ "num-bigint",
  "oxc_index",
  "swc_atoms",
  "swc_common",

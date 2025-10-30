@@ -77,3 +77,7 @@ impl SubRange {
         Self { start, end }
     }
 }
+
+oxc_index::define_index_type! {
+    pub struct BigIntId = u32;
+}

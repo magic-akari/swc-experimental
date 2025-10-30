@@ -3,6 +3,7 @@ members  = ["crates/*"]
 resolver = "2"
 
 [workspace.dependencies]
+num-bigint = "0.4.6"
 oxc_index  = "4.1.0"
 swc_atoms  = "7.0.0"
 swc_common = "15.0.0"

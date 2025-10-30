@@ -5,31 +5,43 @@ mod generated {
 }
 
 pub use ast::ident::Ident;
+use num_bigint::BigInt;
 use oxc_index::IndexVec;
 use swc_atoms::Atom;
 use swc_common::Span;
 
 use crate::node_id::{
-    AtomId, AtomRef, ExtraDataId, NodeId, OptionalAtomRef, OptionalNodeId, SubRange,
+    AtomId, AtomRef, BigIntId, ExtraDataId, NodeId, OptionalAtomRef, OptionalNodeId, SubRange,
 };
 
 pub struct Ast {
     nodes: IndexVec<NodeId, AstNode>,
     extra_data: IndexVec<ExtraDataId, ExtraData>,
     allocated_str: IndexVec<AtomId, Atom>,
+    bigint: IndexVec<BigIntId, BigInt>,
 }
 
 pub struct AstNode {
     span: Span,
     kind: NodeKind,
-    data: SubRange,
+    data: NodeData,
+}
+
+// TODO: more cases to reduce the count to lookup extra data table
+pub union NodeData {
+    empty: (),
+    bool: bool,
+    sub_range: SubRange,
 }
 
 pub union ExtraData {
     node: NodeId,
     atom: AtomRef,
+    bigint: BigIntId,
     optional_node: OptionalNodeId,
     optional_atom: OptionalAtomRef,
+
+    number: f64,
 }
 
 pub enum NodeKind {

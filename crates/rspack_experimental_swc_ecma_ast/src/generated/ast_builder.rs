@@ -1,8 +1,8 @@
 use swc_common::Span;
 
 use crate::{
-    Ast, AstNode, ExtraData, NodeKind,
-    node_id::{AtomRef, NodeId, SubRange},
+    Ast, AstNode, ExtraData, NodeData, NodeKind,
+    node_id::{AtomRef, BigIntId, NodeId, OptionalAtomRef, SubRange},
 };
 
 impl Ast {
@@ -12,7 +12,9 @@ impl Ast {
         self.add_node(AstNode {
             span,
             kind: NodeKind::Module,
-            data: SubRange::new(body, shebang),
+            data: NodeData {
+                sub_range: SubRange::new(body, shebang),
+            },
         })
     }
 
@@ -22,7 +24,85 @@ impl Ast {
         self.add_node(AstNode {
             span,
             kind: NodeKind::Script,
-            data: SubRange::new(body, shebang),
+            data: NodeData {
+                sub_range: SubRange::new(body, shebang),
+            },
+        })
+    }
+
+    pub fn build_str(&mut self, span: Span, value: AtomRef, raw: OptionalAtomRef) -> NodeId {
+        let value = self.add_extra(ExtraData { atom: value });
+        let raw = self.add_extra(ExtraData { optional_atom: raw });
+        self.add_node(AstNode {
+            span,
+            kind: NodeKind::Str,
+            data: NodeData {
+                sub_range: SubRange::new(value, raw),
+            },
+        })
+    }
+
+    pub fn build_bool(&mut self, span: Span, value: bool) -> NodeId {
+        self.add_node(AstNode {
+            span,
+            kind: NodeKind::Bool,
+            data: NodeData { bool: value },
+        })
+    }
+
+    pub fn build_null(&mut self, span: Span) -> NodeId {
+        self.add_node(AstNode {
+            span,
+            kind: NodeKind::Null,
+            data: NodeData { empty: () },
+        })
+    }
+
+    pub fn build_number(&mut self, span: Span, value: f64, raw: OptionalAtomRef) -> NodeId {
+        let value = self.add_extra(ExtraData { number: value });
+        let raw = self.add_extra(ExtraData { optional_atom: raw });
+        self.add_node(AstNode {
+            span,
+            kind: NodeKind::Number,
+            data: NodeData {
+                sub_range: SubRange::new(value, raw),
+            },
+        })
+    }
+
+    pub fn build_regex(&mut self, span: Span, exp: AtomRef, flags: AtomRef) -> NodeId {
+        let exp = self.add_extra(ExtraData { atom: exp });
+        let flags = self.add_extra(ExtraData { atom: flags });
+        self.add_node(AstNode {
+            span,
+            kind: NodeKind::Regex,
+            data: NodeData {
+                sub_range: SubRange::new(exp, flags),
+            },
+        })
+    }
+
+    pub fn build_bigint(&mut self, span: Span, value: BigIntId, raw: OptionalAtomRef) -> NodeId {
+        let value = self.add_extra(ExtraData { bigint: value });
+        let raw = self.add_extra(ExtraData { optional_atom: raw });
+        self.add_node(AstNode {
+            span,
+            kind: NodeKind::BigInt,
+            data: NodeData {
+                sub_range: SubRange::new(value, raw),
+            },
+        })
+    }
+
+    pub fn build_jsx_text(&mut self, span: Span, value: AtomRef, raw: AtomRef) -> NodeId {
+        let value = self.add_extra(ExtraData { atom: value });
+        let raw = self.add_extra(ExtraData { atom: raw });
+        self.add_node(AstNode {
+            span,
+            kind: NodeKind::JSXText,
+            data: NodeData {
+                sub_range: SubRange::new(value, raw),
+            },
         })
     }
 }
