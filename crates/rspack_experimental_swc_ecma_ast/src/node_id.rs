@@ -47,8 +47,6 @@ pub struct AtomRef {
     pub hi: BytePos,
 }
 
-define_optional_index_type!(OptionalAtomRef, AtomRef);
-
 impl AtomRef {
     pub const fn new_ref(lo: BytePos, hi: BytePos) -> Self {
         Self { lo, hi }
@@ -64,6 +62,43 @@ impl AtomRef {
 
 oxc_index::define_index_type! {
     pub struct ExtraDataId = u32;
+}
+
+#[derive(Debug, Clone, Copy, Hash)]
+pub struct OptionalAtomRef {
+    pub lo: BytePos,
+    pub hi: BytePos,
+}
+
+impl OptionalAtomRef {
+    pub const fn new_ref(lo: BytePos, hi: BytePos) -> Self {
+        Self { lo, hi }
+    }
+
+    pub const fn new_alloc(atom: AtomId) -> Self {
+        Self {
+            lo: STR_REF_ATOM_LO,
+            hi: BytePos(atom.0),
+        }
+    }
+
+    pub const fn new_none() -> Self {
+        Self {
+            lo: BytePos(0),
+            hi: BytePos(u32::MAX),
+        }
+    }
+
+    pub const fn unwrap(self) -> Option<AtomRef> {
+        if self.hi.0 == u32::MAX {
+            return None;
+        }
+
+        Some(AtomRef {
+            lo: self.lo,
+            hi: self.hi,
+        })
+    }
 }
 
 #[derive(Debug, Clone, Copy, Hash)]

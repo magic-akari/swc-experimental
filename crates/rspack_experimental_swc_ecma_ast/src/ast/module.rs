@@ -23,6 +23,10 @@ impl Program {}
 pub struct Module(NodeId);
 
 impl Module {
+    pub fn node_id(&self) -> NodeId {
+        self.0
+    }
+
     pub fn span(&self, ast: &Ast) -> Span {
         ast.nodes[self.0].span
     }
