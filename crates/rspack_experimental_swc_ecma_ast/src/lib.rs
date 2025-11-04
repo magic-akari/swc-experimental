@@ -3,7 +3,7 @@ mod ast;
 mod node_id;
 mod generated {
     mod ast_builder;
-    mod ast_visitor;
+    // mod ast_visitor;
 }
 
 pub use ast::ident::Ident;

@@ -49,7 +49,7 @@ fn expand_struct(item: ItemStruct) -> TokenStream {
             pub fn #getter_name(&self, ast: &Ast) -> #field_ty {
                 let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + #offset;
                 let ret = unsafe { ast.extra_data[offset].#extra_data_name };
-                ret
+                ret.into()
             }
         });
 
@@ -57,7 +57,7 @@ fn expand_struct(item: ItemStruct) -> TokenStream {
         field_setters.extend(quote! {
             pub fn #setter_name(&self, ast: &mut Ast, #field_name: #field_ty) {
                 let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + #offset;
-                ast.extra_data[offset].#extra_data_name = #field_name;
+                ast.extra_data[offset].#extra_data_name = #field_name.into();
             }
         });
     }
@@ -83,7 +83,10 @@ fn get_extra_data_name_from_field(ty: &Type) -> Option<Ident> {
         return None;
     };
 
-    let ty_name = ty.path.get_ident()?.to_string();
+    let ty_name = match ty.path.get_ident() {
+        Some(ident) => Some(ident.to_string()),
+        None => ty.path.segments.first().map(|s| s.ident.to_string()),
+    }?;
     let name = match ty_name.as_str() {
         "NodeId" => "node",
         "AtomRef" => "atom",
@@ -91,7 +94,7 @@ fn get_extra_data_name_from_field(ty: &Type) -> Option<Ident> {
         "OptionalNodeId" => "optional_node",
         "OptionalAtomRef" => "optional_atom",
         "f64" => "number",
-        "SubRange" => "sub_range",
+        "TypedSubRange" => "sub_range",
         _ => return None,
     };
 

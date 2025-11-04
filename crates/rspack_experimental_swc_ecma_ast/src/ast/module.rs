@@ -3,7 +3,8 @@ use swc_common::Span;
 
 use crate::{
     Ast,
-    node_id::{NodeId, OptionalAtomRef, SubRange},
+    ast::{TypedSubRange, module_decl::ModuleDecl, stmt::Stmt},
+    node_id::{NodeId, OptionalAtomRef},
 };
 
 #[ast]
@@ -14,18 +15,18 @@ pub enum Program {
 
 #[ast]
 pub struct Module {
-    pub body: SubRange,
-    pub shebang: OptionalAtomRef,
+    body: TypedSubRange<ModuleItem>,
+    shebang: OptionalAtomRef,
 }
 
 #[ast]
 pub struct Script {
-    pub body: SubRange,
-    pub shebang: OptionalAtomRef,
+    body: TypedSubRange<Stmt>,
+    shebang: OptionalAtomRef,
 }
 
-// #[ast]
-// pub enum ModuleItem {
-//     ModuleDecl,
-//     Stmt,
-// }
+#[ast]
+pub enum ModuleItem {
+    ModuleDecl(ModuleDecl),
+    Stmt(Stmt),
+}
