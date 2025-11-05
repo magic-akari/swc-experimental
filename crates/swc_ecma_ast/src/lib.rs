@@ -198,6 +198,7 @@ pub enum NodeKind {
     // ident.rs
     Ident,
     IdentName,
+    BindingIdent,
     PrivateName,
 
     // jsx.rs

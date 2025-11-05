@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use oxc_index::IndexVec;
 use proc_macro2::{Span, TokenStream};
-use quote::{format_ident, quote};
+use quote::{ToTokens, format_ident, quote};
 use syn::Ident;
 
 oxc_index::define_index_type! {
@@ -75,6 +75,25 @@ impl AstType {
             AstType::Primitive(ast_primitive) => &ast_primitive.name,
         }
     }
+
+    pub fn wrapper_name(&self) -> &str {
+        match self {
+            AstType::Struct(ast_struct) => &ast_struct.name,
+            AstType::Enum(ast_enum) => &ast_enum.name,
+            AstType::TypedId(ast_typed_id) => &ast_typed_id.wrapper_name,
+            AstType::Primitive(ast_primitive) => &ast_primitive.name,
+        }
+    }
+
+    /// Ident with lifetimes and generics (Path Segment)
+    pub fn full_ident(&self, schema: &Schema) -> TokenStream {
+        match self {
+            AstType::Struct(ast_struct) => ast_struct.full_ident(schema),
+            AstType::Enum(ast_enum) => ast_enum.full_ident(schema),
+            AstType::TypedId(ast_typed_id) => ast_typed_id.full_ident(schema),
+            AstType::Primitive(ast_primitive) => ast_primitive.full_ident(schema),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -85,6 +104,12 @@ pub struct AstStruct {
     pub has_lifetime: bool,
     pub fields: Vec<AstStructField>,
     pub attrs: AstAttrs,
+}
+
+impl AstStruct {
+    pub fn full_ident(&self, _schema: &Schema) -> TokenStream {
+        format_ident!("{}", self.name).to_token_stream()
+    }
 }
 
 #[derive(Debug)]
@@ -101,6 +126,12 @@ pub struct AstEnum {
     pub has_lifetime: bool,
     pub variants: Vec<AstEnumVariant>,
     pub attrs: AstAttrs,
+}
+
+impl AstEnum {
+    pub fn full_ident(&self, _schema: &Schema) -> TokenStream {
+        format_ident!("{}", self.name).to_token_stream()
+    }
 }
 
 impl AstEnum {
@@ -124,13 +155,28 @@ pub struct AstEnumVariant {
 pub struct AstTypedId {
     pub type_id: TypeId,
     pub name: String,
+    pub wrapper_name: String,
     pub inner_type_id: TypeId,
+}
+
+impl AstTypedId {
+    pub fn full_ident(&self, schema: &Schema) -> TokenStream {
+        let wrapper_name = format_ident!("{}", self.wrapper_name);
+        let inner_ty_name = schema.types[self.inner_type_id].full_ident(schema);
+        quote!( #wrapper_name<#inner_ty_name> )
+    }
 }
 
 #[derive(Debug)]
 pub struct AstPrimitive {
     pub type_id: TypeId,
     pub name: &'static str,
+}
+
+impl AstPrimitive {
+    pub fn full_ident(&self, _schema: &Schema) -> TokenStream {
+        format_ident!("{}", self.name).to_token_stream()
+    }
 }
 
 #[derive(Debug)]

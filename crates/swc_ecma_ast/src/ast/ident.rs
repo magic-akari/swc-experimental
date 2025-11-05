@@ -14,7 +14,7 @@ pub struct IdentName {
 }
 
 #[ast]
-pub struct Privatename {
+pub struct PrivateName {
     name: AtomRef,
 }
 

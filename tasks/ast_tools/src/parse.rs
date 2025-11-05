@@ -345,6 +345,7 @@ impl Parser {
                 let ast_type = AstType::TypedId(AstTypedId {
                     type_id: TypeId::DUMMY,
                     name,
+                    wrapper_name: wrapper_name.to_string(),
                     inner_type_id,
                 });
                 self.create_new_type(ast_type)

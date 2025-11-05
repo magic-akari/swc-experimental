@@ -1,12 +1,16 @@
 use std::{
     fs,
     io::{self, Write},
-    path::{Path, PathBuf},
+    path::Path,
     process::{Command, Stdio},
 };
 
 use proc_macro2::TokenStream;
 use syn::{File, parse2};
+
+pub fn output_path(krate: &str, path: &str) -> String {
+    format!("crates/{krate}/src/generated/{path}.rs")
+}
 
 pub struct RawOutput {
     pub path: String,

@@ -9,5 +9,6 @@ proc-macro2  = { workspace = true }
 quote        = { workspace = true }
 syn          = { workspace = true, features = ["full", "parsing", "printing", "proc-macro", "clone-impls"] }
 
-indexmap  = { workspace = true }
-oxc_index = { workspace = true }
+convert_case = { workspace = true }
+indexmap     = { workspace = true }
+oxc_index    = { workspace = true }

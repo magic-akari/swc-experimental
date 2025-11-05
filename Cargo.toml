@@ -12,8 +12,9 @@ proc-macro2  = "1"
 quote        = "1"
 syn          = { version = "2", default-features = false }
 
-swc_atoms  = "7.0.0"
-swc_common = "15.0.0"
+convert_case = "0.8.0"
+swc_atoms    = "7.0.0"
+swc_common   = "15.0.0"
 
 rspack_experimental_swc_ast_macros  = { path = "crates/swc_ast_macros" }
 rspack_experimental_swc_ecma_ast    = { path = "crates/swc_ecma_ast" }
