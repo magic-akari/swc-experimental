@@ -113,7 +113,6 @@ pub enum NodeKind {
     CallExpr,
     NewExpr,
     SeqExpr,
-    Lit,
     TplExpr,
     TaggedTpl,
     TplElement,

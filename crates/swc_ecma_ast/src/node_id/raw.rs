@@ -107,12 +107,6 @@ pub struct SubRange {
     pub end: ExtraDataId,
 }
 
-impl SubRange {
-    pub const fn new(start: ExtraDataId, end: ExtraDataId) -> Self {
-        Self { start, end }
-    }
-}
-
 oxc_index::define_index_type! {
     pub struct BigIntId = u32;
 }

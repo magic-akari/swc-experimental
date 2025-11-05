@@ -5,7 +5,7 @@ use quote::{format_ident, quote};
 use crate::{
     AST_CRATE_PATH,
     output::{RawOutput, RustOutput, output_path},
-    schema::{AstStruct, AstType, Schema},
+    schema::{AstEnum, AstStruct, AstType, Schema},
 };
 
 pub fn ast_builder(schema: &Schema) -> RawOutput {
@@ -15,26 +15,16 @@ pub fn ast_builder(schema: &Schema) -> RawOutput {
             AstType::Struct(ast_struct) => {
                 build_functions.extend(generate_build_function_for_struct(ast_struct, schema))
             }
-            AstType::Enum(_ast_enum) => {
-                continue;
-                // for variant in ast_enum.variants.iter() {
-                //     let Some(ty_id) = variant.type_id else {
-                //         continue;
-                //     };
-
-                //     let ty_name = schema.types[ty_id].name();
-                //     let fn_name = Ident::new(
-                //         &format!("{}{}", ast_enum.name, variant.name).to_case(Case::Snake),
-                //         Span::call_site(),
-                //     );
-                //     // let ty_name = variant.type_id
-
-                //     let tokens = quote! {
-                //         // pub fn #fn_name(&mut self) {}
-                //     };
-
-                //     build_functions.extend(tokens);
-                // }
+            AstType::Enum(ast_enum) => {
+                let mut context = RecursiveEnumContext {
+                    ret_ty: ast_enum.full_ident(schema),
+                    ..Default::default()
+                };
+                build_functions.extend(generate_build_function_for_enum(
+                    ast_enum,
+                    schema,
+                    &mut context,
+                ));
             }
             _ => continue,
         };
@@ -64,7 +54,7 @@ pub fn ast_builder(schema: &Schema) -> RawOutput {
 fn generate_build_function_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream {
     let fn_name = format_ident!("{}", ast.name.to_case(Case::Snake));
     let ret_ty = ast.full_ident(schema);
-    let fn_params = generate_fn_params(ast, schema);
+    let fn_params = generate_fn_params_decl(ast, schema);
 
     let mut add_extra_data = TokenStream::new();
     let node_kind = ast.full_ident(schema);
@@ -86,6 +76,7 @@ fn generate_build_function_for_struct(ast: &AstStruct, schema: &Schema) -> Token
     };
 
     let tokens = quote! {
+        #[inline]
         pub fn #fn_name(&mut self, span: Span, #fn_params) -> TypedNodeId<#ret_ty> {
             #add_extra_data
 
@@ -105,12 +96,93 @@ fn generate_build_function_for_struct(ast: &AstStruct, schema: &Schema) -> Token
     tokens
 }
 
-fn generate_fn_params(ast: &AstStruct, schema: &Schema) -> TokenStream {
+#[derive(Default)]
+struct RecursiveEnumContext {
+    ret_ty: TokenStream,
+    name: Vec<String>,
+    constructor: Vec<TokenStream>,
+}
+
+fn generate_build_function_for_enum(
+    ast: &AstEnum,
+    schema: &Schema,
+    recursive_context: &mut RecursiveEnumContext,
+) -> TokenStream {
+    let mut build_variants = TokenStream::new();
+
+    let enum_name = format_ident!("{}", ast.name);
+    recursive_context.name.push(ast.name.clone());
+
+    for variant in ast.variants.iter() {
+        let Some(payload_ty_id) = variant.type_id else {
+            continue;
+        };
+
+        let variant_name = format_ident!("{}", variant.name);
+        recursive_context
+            .constructor
+            .push(quote!( #enum_name::#variant_name ));
+
+        match &schema.types[payload_ty_id] {
+            AstType::Struct(ast_struct) => {
+                let ret_ty = &recursive_context.ret_ty;
+                let fn_name = {
+                    let mut fn_name = String::new();
+                    for name in recursive_context.name.iter() {
+                        fn_name.push_str(name);
+                    }
+                    fn_name.push_str(&ast_struct.name);
+                    format_ident!("{}", fn_name.to_case(Case::Snake))
+                };
+
+                let args = generate_fn_args(ast_struct);
+                let constructor = format_ident!("{}", ast_struct.name.to_case(Case::Snake));
+                let body = recursive_context.constructor.iter().rev().fold(
+                    quote!(self.#constructor(span, #args).into()),
+                    |acc, construcotr| quote!(#construcotr(#acc)),
+                );
+
+                let fn_params = generate_fn_params_decl(ast_struct, schema);
+                build_variants.extend(quote! {
+                    #[inline]
+                    pub fn #fn_name(&mut self, span: Span, #fn_params) -> #ret_ty {
+                        #body
+                    }
+                });
+            }
+            AstType::Enum(inner_enum) => {
+                build_variants.extend(generate_build_function_for_enum(
+                    inner_enum,
+                    schema,
+                    recursive_context,
+                ));
+            }
+            AstType::TypedId(_) | AstType::Primitive(_) => unreachable!(),
+        }
+
+        recursive_context.constructor.pop();
+    }
+    recursive_context.name.pop();
+
+    build_variants
+}
+
+fn generate_fn_params_decl(ast: &AstStruct, schema: &Schema) -> TokenStream {
     let mut fields = Vec::default();
     for field in ast.fields.iter() {
         let field_name = format_ident!("{}", field.name);
         let field_ty = schema.types[field.type_id].full_ident(schema);
         fields.push(quote!(#field_name: #field_ty));
+    }
+
+    quote!( #(#fields),* )
+}
+
+fn generate_fn_args(ast: &AstStruct) -> TokenStream {
+    let mut fields = Vec::default();
+    for field in ast.fields.iter() {
+        let field_name = format_ident!("{}", field.name);
+        fields.push(quote!(#field_name));
     }
 
     quote!( #(#fields),* )

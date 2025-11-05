@@ -69,6 +69,14 @@ fn expand_struct(item: ItemStruct) -> TokenStream {
         });
     }
 
+    let typed_node_id = quote! {
+        impl From<crate::node_id::TypedNodeId<#name>> for #name {
+            fn from(value: crate::node_id::TypedNodeId<#name>) -> Self {
+                Self(value.into())
+            }
+        }
+    };
+
     quote! {
         #decl
 
@@ -77,6 +85,8 @@ fn expand_struct(item: ItemStruct) -> TokenStream {
             #field_getters
             #field_setters
         }
+
+        #typed_node_id
     }
     .into()
 }
