@@ -1,7 +1,7 @@
 use rspack_experimental_swc_ast_macros::ast;
 
 use crate::{
-    ast::{module_decl::ModuleDecl, stmt::Stmt},
+    ast::{ModuleDecl, Stmt},
     node_id::{OptionalAtomRef, TypedSubRange},
 };
 

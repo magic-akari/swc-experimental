@@ -1,12 +1,7 @@
 use rspack_experimental_swc_ast_macros::ast;
 
 use crate::{
-    Ident,
-    ast::{
-        decl::Decl,
-        expr::{ClassExpr, Expr, FnExpr, ObjectLit},
-        lit::Str,
-    },
+    ast::{ClassExpr, Decl, Expr, FnExpr, Ident, ObjectLit, Str},
     node_id::{TypedNodeId, TypedOptionalNodeId, TypedSubRange},
 };
 

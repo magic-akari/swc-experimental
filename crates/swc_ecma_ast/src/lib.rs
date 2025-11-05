@@ -6,7 +6,6 @@ mod generated {
     // mod ast_visitor;
 }
 
-pub use ast::ident::Ident;
 use num_bigint::BigInt;
 use oxc_index::IndexVec;
 use swc_atoms::Atom;
