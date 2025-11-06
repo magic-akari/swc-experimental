@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::node_id::{NodeId, OptionalNodeId, SubRange};
+use crate::node_id::SubRange;
 
 pub struct TypedSubRange<T> {
     inner: SubRange,
@@ -20,22 +20,4 @@ impl SubRange {
             _phantom: PhantomData::default(),
         }
     }
-}
-
-#[allow(dead_code)]
-pub struct TypedNode<T> {
-    inner: NodeId,
-    _phantom: PhantomData<T>,
-}
-
-#[allow(dead_code)]
-pub struct TypedOptionalNode<T> {
-    inner: OptionalNodeId,
-    _phantom: PhantomData<T>,
-}
-
-#[allow(dead_code)]
-pub struct AnyExtraData<T> {
-    inner: u64,
-    _phantom: PhantomData<T>,
 }

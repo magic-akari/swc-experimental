@@ -1,6 +1,6 @@
 use convert_case::{Case, Casing};
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::{ToTokens, format_ident, quote};
 
 use crate::{
     AST_CRATE_PATH,
@@ -18,7 +18,7 @@ pub fn ast_builder(schema: &Schema) -> RawOutput {
             }
             AstType::Enum(ast_enum) => {
                 let mut context = RecursiveEnumContext {
-                    ret_ty: ast_enum.full_ident(schema),
+                    ret_ty: format_ident!("{}", ast_enum.name).to_token_stream(),
                     ..Default::default()
                 };
                 build_functions.extend(generate_build_function_for_enum(
@@ -66,10 +66,10 @@ fn generate_build_function_for_struct(ast: &AstStruct, schema: &Schema) -> Token
 
         let field_ty = schema.types[field.type_id].wrapper_name();
         let field_value = match &schema.types[field.type_id] {
-            AstType::TypedId(ast) if ast.is_optional => {
+            AstType::Node(ast) if ast.is_optional => {
                 quote!( #field_name.optional_node_id().into() )
             }
-            AstType::TypedId(ast) if !ast.is_optional => {
+            AstType::Node(ast) if !ast.is_optional => {
                 quote!( #field_name.node_id().into() )
             }
             _ => quote!( #field_name.into() ),
@@ -183,7 +183,7 @@ fn generate_fn_params_decl(ast: &AstStruct, schema: &Schema) -> TokenStream {
         let field_name = format_ident!("{}", field.name);
         let field_ty = &schema.types[field.type_id];
         let field_ty = match field_ty {
-            AstType::TypedId(ast_typed_id) if ast_typed_id.is_optional => {
+            AstType::Node(ast_typed_id) if ast_typed_id.is_optional => {
                 let inner = field_ty.repr_ident(schema);
                 quote!( Option<#inner> )
             }

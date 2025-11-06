@@ -58,18 +58,18 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
         let field_ty = &schema.types[field.type_id];
 
         let (ret_ty, cast_expr) = match &field_ty {
-            AstType::SubRange(_) => (
+            AstType::Vec(_) => (
                 field_ty.repr_ident(schema),
                 quote!(unsafe { ret.cast_to_typed() }),
             ),
-            AstType::TypedId(ast) if !ast.is_optional => {
+            AstType::Node(ast) if !ast.is_optional => {
                 let field_inner_ty = field_ty.repr_ident(schema);
                 (
                     field_inner_ty.clone(),
                     quote!( #field_inner_ty::from_node_id(ret, ast) ),
                 )
             }
-            AstType::TypedId(ast) if ast.is_optional => {
+            AstType::Node(ast) if ast.is_optional => {
                 let field_inner_ty = field_ty.repr_ident(schema);
                 (
                     quote!( Option<#field_inner_ty> ),
@@ -92,10 +92,10 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
         });
 
         let extra_data_value = match &field_ty {
-            AstType::TypedId(ast) if ast.is_optional => {
+            AstType::Node(ast) if ast.is_optional => {
                 quote!(#field_name.optional_node_id().into())
             }
-            AstType::TypedId(ast) if !ast.is_optional => quote!(#field_name.node_id().into()),
+            AstType::Node(ast) if !ast.is_optional => quote!(#field_name.node_id().into()),
             _ => quote!(#field_name.into()),
         };
         let setter_name = format_ident!("set_{}", field_name);

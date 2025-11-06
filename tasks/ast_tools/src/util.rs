@@ -1,8 +1,8 @@
-use std::{collections::BTreeMap, env::var};
+use std::collections::BTreeMap;
 
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use syn::{Ident, PathSegment};
+use syn::Ident;
 
 use crate::schema::{self, AstEnum, Schema};
 

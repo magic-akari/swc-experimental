@@ -9,8 +9,8 @@ use syn::{
 };
 
 use crate::schema::{
-    AstAttrs, AstEnum, AstEnumVariant, AstFile, AstPrimitive, AstStruct, AstStructField, AstType,
-    AstTypedId, AstTypedSubRange, FileId, Schema, TypeId,
+    AstAttrs, AstEnum, AstEnumVariant, AstNode, AstPrimitive, AstStruct, AstStructField, AstType,
+    AstVec, Schema, TypeId,
 };
 
 struct Parser {
@@ -23,14 +23,12 @@ struct Parser {
 pub fn parse_files(file_paths: &[&str]) -> Schema {
     struct PrototypeStruct {
         type_id: TypeId,
-        file_id: FileId,
         item: ItemStruct,
         attrs: AstAttrs,
     }
 
     struct PrototypeEnum {
         type_id: TypeId,
-        file_id: FileId,
         item: ItemEnum,
         attrs: AstAttrs,
     }
@@ -41,13 +39,9 @@ pub fn parse_files(file_paths: &[&str]) -> Schema {
     }
 
     // Collect declared enums and structs ahead of time and create their types
-    let mut files = IndexVec::with_capacity(file_paths.len());
     let mut type_names = IndexSet::new();
     let mut prototypes = Vec::new();
     for source in file_paths {
-        let file_id = FileId::from_usize(files.len());
-        files.push(AstFile::new(&source));
-
         let content = fs::read_to_string(source).expect(&format!("Cannot not find {}", source));
         let file = syn::parse_file(&content).unwrap();
         for item in file.items {
@@ -63,7 +57,6 @@ pub fn parse_files(file_paths: &[&str]) -> Schema {
                     type_names.insert(name);
                     prototypes.push(PrototypeStructOrEnum::Struct(PrototypeStruct {
                         type_id,
-                        file_id,
                         item,
                         attrs,
                     }));
@@ -79,7 +72,6 @@ pub fn parse_files(file_paths: &[&str]) -> Schema {
                     type_names.insert(name);
                     prototypes.push(PrototypeStructOrEnum::Enum(PrototypeEnum {
                         type_id,
-                        file_id,
                         item,
                         attrs,
                     }));
@@ -101,7 +93,6 @@ pub fn parse_files(file_paths: &[&str]) -> Schema {
             PrototypeStructOrEnum::Struct(prototype_struct) => {
                 types.push(parser.parse_struct(
                     prototype_struct.type_id,
-                    prototype_struct.file_id,
                     prototype_struct.attrs,
                     prototype_struct.item,
                 ));
@@ -109,7 +100,6 @@ pub fn parse_files(file_paths: &[&str]) -> Schema {
             PrototypeStructOrEnum::Enum(prototype_enum) => {
                 types.push(parser.parse_enum(
                     prototype_enum.type_id,
-                    prototype_enum.file_id,
                     prototype_enum.attrs,
                     prototype_enum.item,
                 ));
@@ -118,7 +108,7 @@ pub fn parse_files(file_paths: &[&str]) -> Schema {
     }
 
     types.extend(parser.extra_types);
-    Schema { files, types }
+    Schema { types }
 }
 
 impl Parser {
@@ -127,8 +117,8 @@ impl Parser {
         match &mut item {
             AstType::Struct(ast) => ast.type_id = type_id,
             AstType::Enum(ast) => ast.type_id = type_id,
-            AstType::SubRange(ast) => ast.type_id = type_id,
-            AstType::TypedId(ast) => ast.type_id = type_id,
+            AstType::Vec(ast) => ast.type_id = type_id,
+            AstType::Node(ast) => ast.type_id = type_id,
             AstType::Primitive(ast) => ast.type_id = type_id,
         }
 
@@ -220,15 +210,8 @@ fn parse_attrs(attrs: &[Attribute]) -> Option<AstAttrs> {
 }
 
 impl Parser {
-    fn parse_struct(
-        &mut self,
-        type_id: TypeId,
-        file_id: FileId,
-        attrs: AstAttrs,
-        item: ItemStruct,
-    ) -> AstType {
+    fn parse_struct(&mut self, type_id: TypeId, attrs: AstAttrs, item: ItemStruct) -> AstType {
         let name = item.ident.to_string();
-        let has_lifetime = item.generics.lifetimes().count() > 0;
         let fields = item
             .fields
             .into_iter()
@@ -236,9 +219,7 @@ impl Parser {
             .collect();
         AstType::Struct(AstStruct {
             type_id,
-            file_id,
             name,
-            has_lifetime,
             fields,
             attrs,
         })
@@ -252,15 +233,8 @@ impl Parser {
         AstStructField { type_id, name }
     }
 
-    fn parse_enum(
-        &mut self,
-        type_id: TypeId,
-        file_id: FileId,
-        attrs: AstAttrs,
-        item: ItemEnum,
-    ) -> AstType {
+    fn parse_enum(&mut self, type_id: TypeId, attrs: AstAttrs, item: ItemEnum) -> AstType {
         let name = item.ident.to_string();
-        let has_lifetime = item.generics.lifetimes().count() > 0;
         let variants = item
             .variants
             .into_iter()
@@ -268,9 +242,7 @@ impl Parser {
             .collect();
         AstType::Enum(AstEnum {
             type_id,
-            file_id,
             name,
-            has_lifetime,
             variants,
             attrs,
         })
@@ -343,7 +315,7 @@ impl Parser {
                     return Some(TypeId::from(type_id));
                 }
 
-                let ast_type = AstType::SubRange(AstTypedSubRange {
+                let ast_type = AstType::Vec(AstVec {
                     type_id: TypeId::DUMMY,
                     name,
                     wrapper_name: wrapper_name.to_string(),
@@ -361,7 +333,7 @@ impl Parser {
                     return Some(TypeId::from(type_id));
                 }
 
-                let ast_type = AstType::TypedId(AstTypedId {
+                let ast_type = AstType::Node(AstNode {
                     type_id: TypeId::DUMMY,
                     name,
                     wrapper_name: wrapper_name.to_string(),
