@@ -18,14 +18,28 @@ macro_rules! define_optional_index_type {
             }
         }
 
-        // impl $name {
-        //     pub fn unwrap(self) -> Option<$index_type> {
-        //         if self.0 == u32::MAX {
-        //             return None;
-        //         }
-        //         Some($index_type(self.0))
-        //     }
-        // }
+        impl From<$index_type> for $name {
+            fn from(value: $index_type) -> Self {
+                Self(value.0)
+            }
+        }
+
+        impl $name {
+            pub fn none() -> Self {
+                Self(u32::MAX)
+            }
+
+            pub fn map<U, F>(self, f: F) -> Option<U>
+            where
+                F: FnOnce($index_type) -> U,
+            {
+                if self.0 == u32::MAX {
+                    return None;
+                }
+
+                Some(f($index_type(self.0)))
+            }
+        }
     };
 }
 

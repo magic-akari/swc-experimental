@@ -3,6 +3,7 @@ mod ast;
 mod node_id;
 mod generated {
     mod ast_builder;
+    mod ast_property;
     // mod ast_visitor;
 }
 

@@ -10,7 +10,7 @@ use syn::{
 
 use crate::schema::{
     AstAttrs, AstEnum, AstEnumVariant, AstFile, AstPrimitive, AstStruct, AstStructField, AstType,
-    AstTypedId, FileId, Schema, TypeId,
+    AstTypedId, AstTypedSubRange, FileId, Schema, TypeId,
 };
 
 struct Parser {
@@ -125,10 +125,11 @@ impl Parser {
     fn create_new_type(&mut self, mut item: AstType) -> TypeId {
         let type_id = TypeId::from_usize(self.type_names.len());
         match &mut item {
-            AstType::Struct(ast_struct) => ast_struct.type_id = type_id,
-            AstType::Enum(ast_enum) => ast_enum.type_id = type_id,
-            AstType::TypedId(ast_typed_id) => ast_typed_id.type_id = type_id,
-            AstType::Primitive(ast_primitive) => ast_primitive.type_id = type_id,
+            AstType::Struct(ast) => ast.type_id = type_id,
+            AstType::Enum(ast) => ast.type_id = type_id,
+            AstType::SubRange(ast) => ast.type_id = type_id,
+            AstType::TypedId(ast) => ast.type_id = type_id,
+            AstType::Primitive(ast) => ast.type_id = type_id,
         }
 
         let not_contained = self.type_names.insert(item.name().to_string());
@@ -332,7 +333,25 @@ impl Parser {
 
         let inner_type_id = self.parse_type_name(ty_arg)?;
         let type_id = match wrapper_name {
-            "TypedSubRange" | "TypedNodeId" | "TypedOptionalNodeId" => {
+            "TypedSubRange" => {
+                let name = format!(
+                    "{}<{}>",
+                    wrapper_name,
+                    self.type_names[inner_type_id.index()]
+                );
+                if let Some(type_id) = self.type_names.get_index_of(&name) {
+                    return Some(TypeId::from(type_id));
+                }
+
+                let ast_type = AstType::SubRange(AstTypedSubRange {
+                    type_id: TypeId::DUMMY,
+                    name,
+                    wrapper_name: wrapper_name.to_string(),
+                    inner_type_id,
+                });
+                self.create_new_type(ast_type)
+            }
+            "TypedNode" | "TypedOptionalNode" => {
                 let name = format!(
                     "{}<{}>",
                     wrapper_name,
@@ -347,6 +366,7 @@ impl Parser {
                     name,
                     wrapper_name: wrapper_name.to_string(),
                     inner_type_id,
+                    is_optional: wrapper_name.contains("Optional"),
                 });
                 self.create_new_type(ast_type)
             }

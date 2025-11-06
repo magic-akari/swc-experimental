@@ -62,6 +62,7 @@ impl AstFile {
 pub enum AstType {
     Struct(AstStruct),
     Enum(AstEnum),
+    SubRange(AstTypedSubRange),
     TypedId(AstTypedId),
     Primitive(AstPrimitive),
 }
@@ -69,29 +70,39 @@ pub enum AstType {
 impl AstType {
     pub fn name(&self) -> &str {
         match self {
-            AstType::Struct(ast_struct) => &ast_struct.name,
-            AstType::Enum(ast_enum) => &ast_enum.name,
-            AstType::TypedId(ast_typed_id) => &ast_typed_id.name,
-            AstType::Primitive(ast_primitive) => &ast_primitive.name,
+            AstType::Struct(ast) => &ast.name,
+            AstType::Enum(ast) => &ast.name,
+            AstType::SubRange(ast) => &ast.name,
+            AstType::TypedId(ast) => &ast.name,
+            AstType::Primitive(ast) => &ast.name,
         }
     }
 
     pub fn wrapper_name(&self) -> &str {
         match self {
-            AstType::Struct(ast_struct) => &ast_struct.name,
-            AstType::Enum(ast_enum) => &ast_enum.name,
-            AstType::TypedId(ast_typed_id) => &ast_typed_id.wrapper_name,
-            AstType::Primitive(ast_primitive) => &ast_primitive.name,
+            AstType::Struct(ast) => &ast.name,
+            AstType::Enum(ast) => &ast.name,
+            AstType::SubRange(ast) => &ast.wrapper_name,
+            AstType::TypedId(ast) => &ast.wrapper_name,
+            AstType::Primitive(ast) => &ast.name,
         }
     }
 
-    /// Ident with lifetimes and generics (Path Segment)
-    pub fn full_ident(&self, schema: &Schema) -> TokenStream {
+    pub fn repr_ident<'a>(&'a self, schema: &'a Schema) -> TokenStream {
         match self {
-            AstType::Struct(ast_struct) => ast_struct.full_ident(schema),
-            AstType::Enum(ast_enum) => ast_enum.full_ident(schema),
-            AstType::TypedId(ast_typed_id) => ast_typed_id.full_ident(schema),
-            AstType::Primitive(ast_primitive) => ast_primitive.full_ident(schema),
+            AstType::Struct(ast) => Ident::new(&ast.name, Span::call_site()).into_token_stream(),
+            AstType::Enum(ast) => Ident::new(&ast.name, Span::call_site()).into_token_stream(),
+            AstType::SubRange(ast) => {
+                let name = Ident::new(&ast.wrapper_name, Span::call_site());
+                let inner_name =
+                    Ident::new(schema.types[ast.inner_type_id].name(), Span::call_site());
+                quote!( #name<#inner_name> )
+            }
+            AstType::TypedId(ast) => {
+                Ident::new(schema.types[ast.inner_type_id].name(), Span::call_site())
+                    .into_token_stream()
+            }
+            AstType::Primitive(ast) => Ident::new(&ast.name, Span::call_site()).into_token_stream(),
         }
     }
 }
@@ -152,31 +163,26 @@ pub struct AstEnumVariant {
 }
 
 #[derive(Debug)]
-pub struct AstTypedId {
+pub struct AstTypedSubRange {
     pub type_id: TypeId,
     pub name: String,
     pub wrapper_name: String,
     pub inner_type_id: TypeId,
 }
 
-impl AstTypedId {
-    pub fn full_ident(&self, schema: &Schema) -> TokenStream {
-        let wrapper_name = format_ident!("{}", self.wrapper_name);
-        let inner_ty_name = schema.types[self.inner_type_id].full_ident(schema);
-        quote!( #wrapper_name<#inner_ty_name> )
-    }
+#[derive(Debug)]
+pub struct AstTypedId {
+    pub type_id: TypeId,
+    pub name: String,
+    pub wrapper_name: String,
+    pub inner_type_id: TypeId,
+    pub is_optional: bool,
 }
 
 #[derive(Debug)]
 pub struct AstPrimitive {
     pub type_id: TypeId,
     pub name: &'static str,
-}
-
-impl AstPrimitive {
-    pub fn full_ident(&self, _schema: &Schema) -> TokenStream {
-        format_ident!("{}", self.name).to_token_stream()
-    }
 }
 
 #[derive(Debug)]

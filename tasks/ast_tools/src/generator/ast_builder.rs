@@ -6,6 +6,7 @@ use crate::{
     AST_CRATE_PATH,
     output::{RawOutput, RustOutput, output_path},
     schema::{AstEnum, AstStruct, AstType, Schema},
+    util::map_field_type_to_extra_field,
 };
 
 pub fn ast_builder(schema: &Schema) -> RawOutput {
@@ -64,9 +65,13 @@ fn generate_build_function_for_struct(ast: &AstStruct, schema: &Schema) -> Token
         let field_name = format_ident!("{}", field.name);
 
         let field_ty = schema.types[field.type_id].wrapper_name();
+        let field_value = match &schema.types[field.type_id] {
+            AstType::TypedId(_) => quote!( #field_name.node_id().into() ),
+            _ => quote!( #field_name.into() ),
+        };
         let extra_data_field = format_ident!("{}", map_field_type_to_extra_field(field_ty));
         add_extra_data.extend(quote! {
-            let #extra_data_id = self.add_extra(ExtraData { #extra_data_field: #field_name.into() });
+            let #extra_data_id = self.add_extra(ExtraData { #extra_data_field: #field_value });
         });
     }
 
@@ -77,10 +82,10 @@ fn generate_build_function_for_struct(ast: &AstStruct, schema: &Schema) -> Token
 
     let tokens = quote! {
         #[inline]
-        pub fn #fn_name(&mut self, span: Span, #fn_params) -> TypedNodeId<#ret_ty> {
+        pub fn #fn_name(&mut self, span: Span, #fn_params) -> #ret_ty {
             #add_extra_data
 
-            unsafe {
+            #ret_ty(
                 self.add_node(AstNode {
                     span,
                     kind: NodeKind::#node_kind,
@@ -88,8 +93,7 @@ fn generate_build_function_for_struct(ast: &AstStruct, schema: &Schema) -> Token
                         #node_data
                     },
                 })
-                .cast_to_typed()
-            }
+            )
         }
     };
 
@@ -157,7 +161,7 @@ fn generate_build_function_for_enum(
                     recursive_context,
                 ));
             }
-            AstType::TypedId(_) | AstType::Primitive(_) => unreachable!(),
+            _ => unreachable!(),
         }
 
         recursive_context.constructor.pop();
@@ -171,7 +175,14 @@ fn generate_fn_params_decl(ast: &AstStruct, schema: &Schema) -> TokenStream {
     let mut fields = Vec::default();
     for field in ast.fields.iter() {
         let field_name = format_ident!("{}", field.name);
-        let field_ty = schema.types[field.type_id].full_ident(schema);
+        let field_ty = &schema.types[field.type_id];
+        let field_ty = match field_ty {
+            AstType::TypedId(ast_typed_id) if ast_typed_id.is_optional => {
+                let inner = field_ty.repr_ident(schema);
+                quote!( Option<#inner> )
+            }
+            _ => field_ty.repr_ident(schema),
+        };
         fields.push(quote!(#field_name: #field_ty));
     }
 
@@ -186,19 +197,4 @@ fn generate_fn_args(ast: &AstStruct) -> TokenStream {
     }
 
     quote!( #(#fields),* )
-}
-
-fn map_field_type_to_extra_field(field_type: &str) -> &str {
-    match field_type {
-        "AtomRef" => "atom",
-        "OptionalAtomRef" => "optional_atom",
-        "BigIntId" => "bigint",
-        "bool" => "bool",
-        "f64" => "number",
-
-        "TypedSubRange" => "sub_range",
-        "TypedNodeId" => "node",
-        "TypedOptionalNodeId" => "optional_node",
-        _ => panic!("Unsupport field type {field_type}"),
-    }
 }

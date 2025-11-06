@@ -1,9 +1,6 @@
 use rspack_experimental_swc_ast_macros::ast;
 
-use crate::{
-    ast::{ClassExpr, Decl, Expr, FnExpr, Ident, ObjectLit, Str},
-    node_id::{TypedNodeId, TypedOptionalNodeId, TypedSubRange},
-};
+use crate::ast::{ClassExpr, Decl, Expr, FnExpr, Ident, ObjectLit, Str};
 
 #[ast]
 pub enum ModuleDecl {
@@ -21,9 +18,9 @@ pub enum ModuleDecl {
 #[ast]
 pub struct ImportDecl {
     specifiers: TypedSubRange<ImportSpecifier>,
-    src: TypedNodeId<Str>,
+    src: TypedNode<Str>,
     type_only: bool,
-    with: TypedOptionalNodeId<ObjectLit>,
+    with: TypedOptionalNode<ObjectLit>,
     // phase: ImportPhase,
 }
 
@@ -36,32 +33,32 @@ pub enum ImportSpecifier {
 
 #[ast]
 pub struct ImportNamedSpecifier {
-    local: TypedNodeId<Ident>,
-    imported: TypedOptionalNodeId<ModuleExportName>,
+    local: TypedNode<Ident>,
+    imported: TypedOptionalNode<ModuleExportName>,
     is_type_only: bool,
 }
 
 #[ast]
 pub struct ImportDefaultSpecifier {
-    local: TypedNodeId<Ident>,
+    local: TypedNode<Ident>,
 }
 
 #[ast]
 pub struct ImportStarAsSpecifier {
-    local: TypedNodeId<Ident>,
+    local: TypedNode<Ident>,
 }
 
 #[ast]
 pub struct ExportDecl {
-    decl: TypedNodeId<Decl>,
+    decl: TypedNode<Decl>,
 }
 
 #[ast]
 pub struct NamedExport {
     specifiers: TypedSubRange<ExportSpecifier>,
-    src: TypedOptionalNodeId<Str>,
+    src: TypedOptionalNode<Str>,
     type_only: bool,
-    with: TypedOptionalNodeId<ObjectLit>,
+    with: TypedOptionalNode<ObjectLit>,
 }
 
 #[ast]
@@ -73,7 +70,7 @@ pub enum ExportSpecifier {
 
 #[ast]
 pub struct ExportNamespaceSpecifier {
-    name: TypedNodeId<ModuleExportName>,
+    name: TypedNode<ModuleExportName>,
 }
 
 #[ast]
@@ -84,19 +81,19 @@ pub enum ModuleExportName {
 
 #[ast]
 pub struct ExportDefaultSpecifier {
-    exported: TypedNodeId<Ident>,
+    exported: TypedNode<Ident>,
 }
 
 #[ast]
 pub struct ExportNamedSpecifier {
-    orig: TypedNodeId<ModuleExportName>,
-    exported: TypedOptionalNodeId<ModuleExportName>,
+    orig: TypedNode<ModuleExportName>,
+    exported: TypedOptionalNode<ModuleExportName>,
     is_type_only: bool,
 }
 
 #[ast]
 pub struct ExportDefaultDecl {
-    decl: TypedNodeId<DefaultDecl>,
+    decl: TypedNode<DefaultDecl>,
 }
 
 #[ast]
@@ -108,12 +105,12 @@ pub enum DefaultDecl {
 
 #[ast]
 pub struct ExportDefaultExpr {
-    expr: TypedNodeId<Expr>,
+    expr: TypedNode<Expr>,
 }
 
 #[ast]
 pub struct ExportAll {
-    src: TypedNodeId<Str>,
+    src: TypedNode<Str>,
     type_only: bool,
-    with: TypedOptionalNodeId<ObjectLit>,
+    with: TypedOptionalNode<ObjectLit>,
 }

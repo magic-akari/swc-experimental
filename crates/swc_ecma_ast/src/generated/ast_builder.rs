@@ -1,4 +1,4 @@
-use crate::{Ast, AstNode, ExtraData, NodeData, NodeKind, ast::*, node_id::*};
+use crate::{ast::*, node_id::*, Ast, AstNode, ExtraData, NodeData, NodeKind};
 use swc_common::Span;
 impl Ast {
     #[inline]
@@ -25,23 +25,20 @@ impl Ast {
         span: Span,
         body: TypedSubRange<ModuleItem>,
         shebang: OptionalAtomRef,
-    ) -> TypedNodeId<Module> {
+    ) -> Module {
         let _f0 = self.add_extra(ExtraData {
             sub_range: body.into(),
         });
         let _f1 = self.add_extra(ExtraData {
             optional_atom: shebang.into(),
         });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::Module,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        Module(self.add_node(AstNode {
+            span,
+            kind: NodeKind::Module,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
     pub fn script(
@@ -49,32 +46,29 @@ impl Ast {
         span: Span,
         body: TypedSubRange<Stmt>,
         shebang: OptionalAtomRef,
-    ) -> TypedNodeId<Script> {
+    ) -> Script {
         let _f0 = self.add_extra(ExtraData {
             sub_range: body.into(),
         });
         let _f1 = self.add_extra(ExtraData {
             optional_atom: shebang.into(),
         });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::Script,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        Script(self.add_node(AstNode {
+            span,
+            kind: NodeKind::Script,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
     pub fn module_item_module_decl_import_decl(
         &mut self,
         span: Span,
         specifiers: TypedSubRange<ImportSpecifier>,
-        src: TypedNodeId<Str>,
+        src: Str,
         type_only: bool,
-        with: TypedOptionalNodeId<ObjectLit>,
+        with: Option<ObjectLit>,
     ) -> ModuleItem {
         ModuleItem::ModuleDecl(ModuleDecl::Import(
             self.import_decl(span, specifiers, src, type_only, with)
@@ -82,11 +76,7 @@ impl Ast {
         ))
     }
     #[inline]
-    pub fn module_item_module_decl_export_decl(
-        &mut self,
-        span: Span,
-        decl: TypedNodeId<Decl>,
-    ) -> ModuleItem {
+    pub fn module_item_module_decl_export_decl(&mut self, span: Span, decl: Decl) -> ModuleItem {
         ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(self.export_decl(span, decl).into()))
     }
     #[inline]
@@ -94,9 +84,9 @@ impl Ast {
         &mut self,
         span: Span,
         specifiers: TypedSubRange<ExportSpecifier>,
-        src: TypedOptionalNodeId<Str>,
+        src: Option<Str>,
         type_only: bool,
-        with: TypedOptionalNodeId<ObjectLit>,
+        with: Option<ObjectLit>,
     ) -> ModuleItem {
         ModuleItem::ModuleDecl(ModuleDecl::ExportNamed(
             self.named_export(span, specifiers, src, type_only, with)
@@ -107,7 +97,7 @@ impl Ast {
     pub fn module_item_module_decl_export_default_decl(
         &mut self,
         span: Span,
-        decl: TypedNodeId<DefaultDecl>,
+        decl: DefaultDecl,
     ) -> ModuleItem {
         ModuleItem::ModuleDecl(ModuleDecl::ExportDefaultDecl(
             self.export_default_decl(span, decl).into(),
@@ -117,7 +107,7 @@ impl Ast {
     pub fn module_item_module_decl_export_default_expr(
         &mut self,
         span: Span,
-        expr: TypedNodeId<Expr>,
+        expr: Expr,
     ) -> ModuleItem {
         ModuleItem::ModuleDecl(ModuleDecl::ExportDefaultExpr(
             self.export_default_expr(span, expr).into(),
@@ -127,9 +117,9 @@ impl Ast {
     pub fn module_item_module_decl_export_all(
         &mut self,
         span: Span,
-        src: TypedNodeId<Str>,
+        src: Str,
         type_only: bool,
-        with: TypedOptionalNodeId<ObjectLit>,
+        with: Option<ObjectLit>,
     ) -> ModuleItem {
         ModuleItem::ModuleDecl(ModuleDecl::ExportAll(
             self.export_all(span, src, type_only, with).into(),
@@ -140,9 +130,9 @@ impl Ast {
         &mut self,
         span: Span,
         specifiers: TypedSubRange<ImportSpecifier>,
-        src: TypedNodeId<Str>,
+        src: Str,
         type_only: bool,
-        with: TypedOptionalNodeId<ObjectLit>,
+        with: Option<ObjectLit>,
     ) -> ModuleDecl {
         ModuleDecl::Import(
             self.import_decl(span, specifiers, src, type_only, with)
@@ -150,7 +140,7 @@ impl Ast {
         )
     }
     #[inline]
-    pub fn module_decl_export_decl(&mut self, span: Span, decl: TypedNodeId<Decl>) -> ModuleDecl {
+    pub fn module_decl_export_decl(&mut self, span: Span, decl: Decl) -> ModuleDecl {
         ModuleDecl::ExportDecl(self.export_decl(span, decl).into())
     }
     #[inline]
@@ -158,9 +148,9 @@ impl Ast {
         &mut self,
         span: Span,
         specifiers: TypedSubRange<ExportSpecifier>,
-        src: TypedOptionalNodeId<Str>,
+        src: Option<Str>,
         type_only: bool,
-        with: TypedOptionalNodeId<ObjectLit>,
+        with: Option<ObjectLit>,
     ) -> ModuleDecl {
         ModuleDecl::ExportNamed(
             self.named_export(span, specifiers, src, type_only, with)
@@ -168,28 +158,20 @@ impl Ast {
         )
     }
     #[inline]
-    pub fn module_decl_export_default_decl(
-        &mut self,
-        span: Span,
-        decl: TypedNodeId<DefaultDecl>,
-    ) -> ModuleDecl {
+    pub fn module_decl_export_default_decl(&mut self, span: Span, decl: DefaultDecl) -> ModuleDecl {
         ModuleDecl::ExportDefaultDecl(self.export_default_decl(span, decl).into())
     }
     #[inline]
-    pub fn module_decl_export_default_expr(
-        &mut self,
-        span: Span,
-        expr: TypedNodeId<Expr>,
-    ) -> ModuleDecl {
+    pub fn module_decl_export_default_expr(&mut self, span: Span, expr: Expr) -> ModuleDecl {
         ModuleDecl::ExportDefaultExpr(self.export_default_expr(span, expr).into())
     }
     #[inline]
     pub fn module_decl_export_all(
         &mut self,
         span: Span,
-        src: TypedNodeId<Str>,
+        src: Str,
         type_only: bool,
-        with: TypedOptionalNodeId<ObjectLit>,
+        with: Option<ObjectLit>,
     ) -> ModuleDecl {
         ModuleDecl::ExportAll(self.export_all(span, src, type_only, with).into())
     }
@@ -198,37 +180,36 @@ impl Ast {
         &mut self,
         span: Span,
         specifiers: TypedSubRange<ImportSpecifier>,
-        src: TypedNodeId<Str>,
+        src: Str,
         type_only: bool,
-        with: TypedOptionalNodeId<ObjectLit>,
-    ) -> TypedNodeId<ImportDecl> {
+        with: Option<ObjectLit>,
+    ) -> ImportDecl {
         let _f0 = self.add_extra(ExtraData {
             sub_range: specifiers.into(),
         });
-        let _f1 = self.add_extra(ExtraData { node: src.into() });
+        let _f1 = self.add_extra(ExtraData {
+            node: src.node_id().into(),
+        });
         let _f2 = self.add_extra(ExtraData {
             bool: type_only.into(),
         });
         let _f3 = self.add_extra(ExtraData {
-            optional_node: with.into(),
+            optional_node: with.node_id().into(),
         });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::ImportDecl,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        ImportDecl(self.add_node(AstNode {
+            span,
+            kind: NodeKind::ImportDecl,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
     pub fn import_specifier_import_named_specifier(
         &mut self,
         span: Span,
-        local: TypedNodeId<Ident>,
-        imported: TypedOptionalNodeId<ModuleExportName>,
+        local: Ident,
+        imported: Option<ModuleExportName>,
         is_type_only: bool,
     ) -> ImportSpecifier {
         ImportSpecifier::Named(
@@ -240,7 +221,7 @@ impl Ast {
     pub fn import_specifier_import_default_specifier(
         &mut self,
         span: Span,
-        local: TypedNodeId<Ident>,
+        local: Ident,
     ) -> ImportSpecifier {
         ImportSpecifier::Default(self.import_default_specifier(span, local).into())
     }
@@ -248,7 +229,7 @@ impl Ast {
     pub fn import_specifier_import_star_as_specifier(
         &mut self,
         span: Span,
-        local: TypedNodeId<Ident>,
+        local: Ident,
     ) -> ImportSpecifier {
         ImportSpecifier::Namespace(self.import_star_as_specifier(span, local).into())
     }
@@ -256,115 +237,100 @@ impl Ast {
     pub fn import_named_specifier(
         &mut self,
         span: Span,
-        local: TypedNodeId<Ident>,
-        imported: TypedOptionalNodeId<ModuleExportName>,
+        local: Ident,
+        imported: Option<ModuleExportName>,
         is_type_only: bool,
-    ) -> TypedNodeId<ImportNamedSpecifier> {
-        let _f0 = self.add_extra(ExtraData { node: local.into() });
+    ) -> ImportNamedSpecifier {
+        let _f0 = self.add_extra(ExtraData {
+            node: local.node_id().into(),
+        });
         let _f1 = self.add_extra(ExtraData {
-            optional_node: imported.into(),
+            optional_node: imported.node_id().into(),
         });
         let _f2 = self.add_extra(ExtraData {
             bool: is_type_only.into(),
         });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::ImportNamedSpecifier,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        ImportNamedSpecifier(self.add_node(AstNode {
+            span,
+            kind: NodeKind::ImportNamedSpecifier,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
-    pub fn import_default_specifier(
-        &mut self,
-        span: Span,
-        local: TypedNodeId<Ident>,
-    ) -> TypedNodeId<ImportDefaultSpecifier> {
-        let _f0 = self.add_extra(ExtraData { node: local.into() });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::ImportDefaultSpecifier,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+    pub fn import_default_specifier(&mut self, span: Span, local: Ident) -> ImportDefaultSpecifier {
+        let _f0 = self.add_extra(ExtraData {
+            node: local.node_id().into(),
+        });
+        ImportDefaultSpecifier(self.add_node(AstNode {
+            span,
+            kind: NodeKind::ImportDefaultSpecifier,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
-    pub fn import_star_as_specifier(
-        &mut self,
-        span: Span,
-        local: TypedNodeId<Ident>,
-    ) -> TypedNodeId<ImportStarAsSpecifier> {
-        let _f0 = self.add_extra(ExtraData { node: local.into() });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::ImportStarAsSpecifier,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+    pub fn import_star_as_specifier(&mut self, span: Span, local: Ident) -> ImportStarAsSpecifier {
+        let _f0 = self.add_extra(ExtraData {
+            node: local.node_id().into(),
+        });
+        ImportStarAsSpecifier(self.add_node(AstNode {
+            span,
+            kind: NodeKind::ImportStarAsSpecifier,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
-    pub fn export_decl(&mut self, span: Span, decl: TypedNodeId<Decl>) -> TypedNodeId<ExportDecl> {
-        let _f0 = self.add_extra(ExtraData { node: decl.into() });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::ExportDecl,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+    pub fn export_decl(&mut self, span: Span, decl: Decl) -> ExportDecl {
+        let _f0 = self.add_extra(ExtraData {
+            node: decl.node_id().into(),
+        });
+        ExportDecl(self.add_node(AstNode {
+            span,
+            kind: NodeKind::ExportDecl,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
     pub fn named_export(
         &mut self,
         span: Span,
         specifiers: TypedSubRange<ExportSpecifier>,
-        src: TypedOptionalNodeId<Str>,
+        src: Option<Str>,
         type_only: bool,
-        with: TypedOptionalNodeId<ObjectLit>,
-    ) -> TypedNodeId<NamedExport> {
+        with: Option<ObjectLit>,
+    ) -> NamedExport {
         let _f0 = self.add_extra(ExtraData {
             sub_range: specifiers.into(),
         });
         let _f1 = self.add_extra(ExtraData {
-            optional_node: src.into(),
+            optional_node: src.node_id().into(),
         });
         let _f2 = self.add_extra(ExtraData {
             bool: type_only.into(),
         });
         let _f3 = self.add_extra(ExtraData {
-            optional_node: with.into(),
+            optional_node: with.node_id().into(),
         });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::NamedExport,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        NamedExport(self.add_node(AstNode {
+            span,
+            kind: NodeKind::NamedExport,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
     pub fn export_specifier_export_namespace_specifier(
         &mut self,
         span: Span,
-        name: TypedNodeId<ModuleExportName>,
+        name: ModuleExportName,
     ) -> ExportSpecifier {
         ExportSpecifier::Namespace(self.export_namespace_specifier(span, name).into())
     }
@@ -372,7 +338,7 @@ impl Ast {
     pub fn export_specifier_export_default_specifier(
         &mut self,
         span: Span,
-        exported: TypedNodeId<Ident>,
+        exported: Ident,
     ) -> ExportSpecifier {
         ExportSpecifier::Default(self.export_default_specifier(span, exported).into())
     }
@@ -380,8 +346,8 @@ impl Ast {
     pub fn export_specifier_export_named_specifier(
         &mut self,
         span: Span,
-        orig: TypedNodeId<ModuleExportName>,
-        exported: TypedOptionalNodeId<ModuleExportName>,
+        orig: ModuleExportName,
+        exported: Option<ModuleExportName>,
         is_type_only: bool,
     ) -> ExportSpecifier {
         ExportSpecifier::Named(
@@ -393,19 +359,18 @@ impl Ast {
     pub fn export_namespace_specifier(
         &mut self,
         span: Span,
-        name: TypedNodeId<ModuleExportName>,
-    ) -> TypedNodeId<ExportNamespaceSpecifier> {
-        let _f0 = self.add_extra(ExtraData { node: name.into() });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::ExportNamespaceSpecifier,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        name: ModuleExportName,
+    ) -> ExportNamespaceSpecifier {
+        let _f0 = self.add_extra(ExtraData {
+            node: name.node_id().into(),
+        });
+        ExportNamespaceSpecifier(self.add_node(AstNode {
+            span,
+            kind: NodeKind::ExportNamespaceSpecifier,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
     pub fn module_export_name_ident(
@@ -429,65 +394,56 @@ impl Ast {
     pub fn export_default_specifier(
         &mut self,
         span: Span,
-        exported: TypedNodeId<Ident>,
-    ) -> TypedNodeId<ExportDefaultSpecifier> {
+        exported: Ident,
+    ) -> ExportDefaultSpecifier {
         let _f0 = self.add_extra(ExtraData {
-            node: exported.into(),
+            node: exported.node_id().into(),
         });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::ExportDefaultSpecifier,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        ExportDefaultSpecifier(self.add_node(AstNode {
+            span,
+            kind: NodeKind::ExportDefaultSpecifier,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
     pub fn export_named_specifier(
         &mut self,
         span: Span,
-        orig: TypedNodeId<ModuleExportName>,
-        exported: TypedOptionalNodeId<ModuleExportName>,
+        orig: ModuleExportName,
+        exported: Option<ModuleExportName>,
         is_type_only: bool,
-    ) -> TypedNodeId<ExportNamedSpecifier> {
-        let _f0 = self.add_extra(ExtraData { node: orig.into() });
+    ) -> ExportNamedSpecifier {
+        let _f0 = self.add_extra(ExtraData {
+            node: orig.node_id().into(),
+        });
         let _f1 = self.add_extra(ExtraData {
-            optional_node: exported.into(),
+            optional_node: exported.node_id().into(),
         });
         let _f2 = self.add_extra(ExtraData {
             bool: is_type_only.into(),
         });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::ExportNamedSpecifier,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        ExportNamedSpecifier(self.add_node(AstNode {
+            span,
+            kind: NodeKind::ExportNamedSpecifier,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
-    pub fn export_default_decl(
-        &mut self,
-        span: Span,
-        decl: TypedNodeId<DefaultDecl>,
-    ) -> TypedNodeId<ExportDefaultDecl> {
-        let _f0 = self.add_extra(ExtraData { node: decl.into() });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::ExportDefaultDecl,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+    pub fn export_default_decl(&mut self, span: Span, decl: DefaultDecl) -> ExportDefaultDecl {
+        let _f0 = self.add_extra(ExtraData {
+            node: decl.node_id().into(),
+        });
+        ExportDefaultDecl(self.add_node(AstNode {
+            span,
+            kind: NodeKind::ExportDefaultDecl,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
     pub fn default_decl_class_expr(&mut self, span: Span) -> DefaultDecl {
@@ -498,48 +454,42 @@ impl Ast {
         DefaultDecl::Fn(self.fn_expr(span).into())
     }
     #[inline]
-    pub fn export_default_expr(
-        &mut self,
-        span: Span,
-        expr: TypedNodeId<Expr>,
-    ) -> TypedNodeId<ExportDefaultExpr> {
-        let _f0 = self.add_extra(ExtraData { node: expr.into() });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::ExportDefaultExpr,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+    pub fn export_default_expr(&mut self, span: Span, expr: Expr) -> ExportDefaultExpr {
+        let _f0 = self.add_extra(ExtraData {
+            node: expr.node_id().into(),
+        });
+        ExportDefaultExpr(self.add_node(AstNode {
+            span,
+            kind: NodeKind::ExportDefaultExpr,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
     pub fn export_all(
         &mut self,
         span: Span,
-        src: TypedNodeId<Str>,
+        src: Str,
         type_only: bool,
-        with: TypedOptionalNodeId<ObjectLit>,
-    ) -> TypedNodeId<ExportAll> {
-        let _f0 = self.add_extra(ExtraData { node: src.into() });
+        with: Option<ObjectLit>,
+    ) -> ExportAll {
+        let _f0 = self.add_extra(ExtraData {
+            node: src.node_id().into(),
+        });
         let _f1 = self.add_extra(ExtraData {
             bool: type_only.into(),
         });
         let _f2 = self.add_extra(ExtraData {
-            optional_node: with.into(),
+            optional_node: with.node_id().into(),
         });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::ExportAll,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        ExportAll(self.add_node(AstNode {
+            span,
+            kind: NodeKind::ExportAll,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
     pub fn expr_lit_str(&mut self, span: Span, value: AtomRef, raw: OptionalAtomRef) -> Expr {
@@ -570,100 +520,77 @@ impl Ast {
         Expr::Lit(Lit::JSXText(self.jsx_text(span, value, raw).into()))
     }
     #[inline]
-    pub fn object_lit(&mut self, span: Span) -> TypedNodeId<ObjectLit> {
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::ObjectLit,
-                data: NodeData { empty: () },
-            })
-            .cast_to_typed()
-        }
+    pub fn object_lit(&mut self, span: Span) -> ObjectLit {
+        ObjectLit(self.add_node(AstNode {
+            span,
+            kind: NodeKind::ObjectLit,
+            data: NodeData { empty: () },
+        }))
     }
     #[inline]
-    pub fn class_expr(&mut self, span: Span) -> TypedNodeId<ClassExpr> {
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::ClassExpr,
-                data: NodeData { empty: () },
-            })
-            .cast_to_typed()
-        }
+    pub fn class_expr(&mut self, span: Span) -> ClassExpr {
+        ClassExpr(self.add_node(AstNode {
+            span,
+            kind: NodeKind::ClassExpr,
+            data: NodeData { empty: () },
+        }))
     }
     #[inline]
-    pub fn fn_expr(&mut self, span: Span) -> TypedNodeId<FnExpr> {
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::FnExpr,
-                data: NodeData { empty: () },
-            })
-            .cast_to_typed()
-        }
+    pub fn fn_expr(&mut self, span: Span) -> FnExpr {
+        FnExpr(self.add_node(AstNode {
+            span,
+            kind: NodeKind::FnExpr,
+            data: NodeData { empty: () },
+        }))
     }
     #[inline]
-    pub fn ident(&mut self, span: Span, sym: AtomRef, optional: bool) -> TypedNodeId<Ident> {
+    pub fn ident(&mut self, span: Span, sym: AtomRef, optional: bool) -> Ident {
         let _f0 = self.add_extra(ExtraData { atom: sym.into() });
         let _f1 = self.add_extra(ExtraData {
             bool: optional.into(),
         });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::Ident,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        Ident(self.add_node(AstNode {
+            span,
+            kind: NodeKind::Ident,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
-    pub fn ident_name(&mut self, span: Span, sym: AtomRef) -> TypedNodeId<IdentName> {
+    pub fn ident_name(&mut self, span: Span, sym: AtomRef) -> IdentName {
         let _f0 = self.add_extra(ExtraData { atom: sym.into() });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::IdentName,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        IdentName(self.add_node(AstNode {
+            span,
+            kind: NodeKind::IdentName,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
-    pub fn private_name(&mut self, span: Span, name: AtomRef) -> TypedNodeId<PrivateName> {
+    pub fn private_name(&mut self, span: Span, name: AtomRef) -> PrivateName {
         let _f0 = self.add_extra(ExtraData { atom: name.into() });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::PrivateName,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        PrivateName(self.add_node(AstNode {
+            span,
+            kind: NodeKind::PrivateName,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
-    pub fn binding_ident(
-        &mut self,
-        span: Span,
-        id: TypedNodeId<Ident>,
-    ) -> TypedNodeId<BindingIdent> {
-        let _f0 = self.add_extra(ExtraData { node: id.into() });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::BindingIdent,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+    pub fn binding_ident(&mut self, span: Span, id: Ident) -> BindingIdent {
+        let _f0 = self.add_extra(ExtraData {
+            node: id.node_id().into(),
+        });
+        BindingIdent(self.add_node(AstNode {
+            span,
+            kind: NodeKind::BindingIdent,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
     pub fn lit_str(&mut self, span: Span, value: AtomRef, raw: OptionalAtomRef) -> Lit {
@@ -694,118 +621,92 @@ impl Ast {
         Lit::JSXText(self.jsx_text(span, value, raw).into())
     }
     #[inline]
-    pub fn str(&mut self, span: Span, value: AtomRef, raw: OptionalAtomRef) -> TypedNodeId<Str> {
+    pub fn str(&mut self, span: Span, value: AtomRef, raw: OptionalAtomRef) -> Str {
         let _f0 = self.add_extra(ExtraData { atom: value.into() });
         let _f1 = self.add_extra(ExtraData {
             optional_atom: raw.into(),
         });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::Str,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        Str(self.add_node(AstNode {
+            span,
+            kind: NodeKind::Str,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
-    pub fn bool(&mut self, span: Span, value: bool) -> TypedNodeId<Bool> {
+    pub fn bool(&mut self, span: Span, value: bool) -> Bool {
         let _f0 = self.add_extra(ExtraData { bool: value.into() });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::Bool,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        Bool(self.add_node(AstNode {
+            span,
+            kind: NodeKind::Bool,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
-    pub fn null(&mut self, span: Span) -> TypedNodeId<Null> {
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::Null,
-                data: NodeData { empty: () },
-            })
-            .cast_to_typed()
-        }
+    pub fn null(&mut self, span: Span) -> Null {
+        Null(self.add_node(AstNode {
+            span,
+            kind: NodeKind::Null,
+            data: NodeData { empty: () },
+        }))
     }
     #[inline]
-    pub fn number(&mut self, span: Span, value: f64, raw: OptionalAtomRef) -> TypedNodeId<Number> {
+    pub fn number(&mut self, span: Span, value: f64, raw: OptionalAtomRef) -> Number {
         let _f0 = self.add_extra(ExtraData {
             number: value.into(),
         });
         let _f1 = self.add_extra(ExtraData {
             optional_atom: raw.into(),
         });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::Number,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        Number(self.add_node(AstNode {
+            span,
+            kind: NodeKind::Number,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
-    pub fn big_int(
-        &mut self,
-        span: Span,
-        value: BigIntId,
-        raw: OptionalAtomRef,
-    ) -> TypedNodeId<BigInt> {
+    pub fn big_int(&mut self, span: Span, value: BigIntId, raw: OptionalAtomRef) -> BigInt {
         let _f0 = self.add_extra(ExtraData {
             bigint: value.into(),
         });
         let _f1 = self.add_extra(ExtraData {
             optional_atom: raw.into(),
         });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::BigInt,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        BigInt(self.add_node(AstNode {
+            span,
+            kind: NodeKind::BigInt,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
-    pub fn regex(&mut self, span: Span, exp: AtomRef, flags: AtomRef) -> TypedNodeId<Regex> {
+    pub fn regex(&mut self, span: Span, exp: AtomRef, flags: AtomRef) -> Regex {
         let _f0 = self.add_extra(ExtraData { atom: exp.into() });
         let _f1 = self.add_extra(ExtraData { atom: flags.into() });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::Regex,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        Regex(self.add_node(AstNode {
+            span,
+            kind: NodeKind::Regex,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
     #[inline]
-    pub fn jsx_text(&mut self, span: Span, value: AtomRef, raw: AtomRef) -> TypedNodeId<JSXText> {
+    pub fn jsx_text(&mut self, span: Span, value: AtomRef, raw: AtomRef) -> JSXText {
         let _f0 = self.add_extra(ExtraData { atom: value.into() });
         let _f1 = self.add_extra(ExtraData { atom: raw.into() });
-        unsafe {
-            self.add_node(AstNode {
-                span,
-                kind: NodeKind::JSXText,
-                data: NodeData {
-                    extra_data_start: _f0,
-                },
-            })
-            .cast_to_typed()
-        }
+        JSXText(self.add_node(AstNode {
+            span,
+            kind: NodeKind::JSXText,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
     }
 }

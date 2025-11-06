@@ -1,9 +1,13 @@
-use crate::{generator::ast_builder::ast_builder, parse::parse_files};
+use crate::{
+    generator::{ast_builder::ast_builder, ast_property::ast_property},
+    parse::parse_files,
+};
 
 pub(crate) mod generator;
 pub(crate) mod output;
 pub(crate) mod parse;
 pub(crate) mod schema;
+pub(crate) mod util;
 
 const SOURCE_PATHS: &[&str] = &[
     "crates/swc_ecma_ast/src/ast/module.rs",
@@ -29,4 +33,7 @@ fn main() {
 
     let ast_builder_ret = ast_builder(&schema);
     ast_builder_ret.write_to_file().unwrap();
+
+    let ast_property_ret = ast_property(&schema);
+    ast_property_ret.write_to_file().unwrap();
 }
