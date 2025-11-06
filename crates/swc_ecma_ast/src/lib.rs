@@ -186,7 +186,7 @@ pub enum NodeKind {
     Bool,
     Null,
     Regex,
-    Number,
+    Num,
 
     // pat.rs
     ArrayPat,

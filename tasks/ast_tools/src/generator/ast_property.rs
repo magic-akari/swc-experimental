@@ -64,13 +64,16 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
             ),
             AstType::TypedId(ast) if !ast.is_optional => {
                 let field_inner_ty = field_ty.repr_ident(schema);
-                (field_inner_ty.clone(), quote!( #field_inner_ty(ret) ))
+                (
+                    field_inner_ty.clone(),
+                    quote!( #field_inner_ty::from_node_id(ret, ast) ),
+                )
             }
             AstType::TypedId(ast) if ast.is_optional => {
                 let field_inner_ty = field_ty.repr_ident(schema);
                 (
                     quote!( Option<#field_inner_ty> ),
-                    quote!( ret.map(|id| #field_inner_ty(id)) ),
+                    quote!( ret.map(|id| #field_inner_ty::from_node_id(id, ast)) ),
                 )
             }
             _ => (field_ty.repr_ident(schema), quote!(ret.into())),

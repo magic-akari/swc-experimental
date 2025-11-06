@@ -540,8 +540,8 @@ impl Ast {
         Expr::Lit(Lit::Null(self.null(span).into()))
     }
     #[inline]
-    pub fn expr_lit_number(&mut self, span: Span, value: f64, raw: OptionalAtomRef) -> Expr {
-        Expr::Lit(Lit::Num(self.number(span, value, raw).into()))
+    pub fn expr_lit_num(&mut self, span: Span, value: f64, raw: OptionalAtomRef) -> Expr {
+        Expr::Lit(Lit::Num(self.num(span, value, raw).into()))
     }
     #[inline]
     pub fn expr_lit_big_int(&mut self, span: Span, value: BigIntId, raw: OptionalAtomRef) -> Expr {
@@ -641,8 +641,8 @@ impl Ast {
         Lit::Null(self.null(span).into())
     }
     #[inline]
-    pub fn lit_number(&mut self, span: Span, value: f64, raw: OptionalAtomRef) -> Lit {
-        Lit::Num(self.number(span, value, raw).into())
+    pub fn lit_num(&mut self, span: Span, value: f64, raw: OptionalAtomRef) -> Lit {
+        Lit::Num(self.num(span, value, raw).into())
     }
     #[inline]
     pub fn lit_big_int(&mut self, span: Span, value: BigIntId, raw: OptionalAtomRef) -> Lit {
@@ -690,16 +690,16 @@ impl Ast {
         }))
     }
     #[inline]
-    pub fn number(&mut self, span: Span, value: f64, raw: OptionalAtomRef) -> Number {
+    pub fn num(&mut self, span: Span, value: f64, raw: OptionalAtomRef) -> Num {
         let _f0 = self.add_extra(ExtraData {
             number: value.into(),
         });
         let _f1 = self.add_extra(ExtraData {
             optional_atom: raw.into(),
         });
-        Number(self.add_node(AstNode {
+        Num(self.add_node(AstNode {
             span,
-            kind: NodeKind::Number,
+            kind: NodeKind::Num,
             data: NodeData {
                 extra_data_start: _f0,
             },

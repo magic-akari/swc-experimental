@@ -7,7 +7,7 @@ pub enum Lit {
     Str(Str),
     Bool(Bool),
     Null(Null),
-    Num(Number),
+    Num(Num),
     BigInt(BigInt),
     Regex(Regex),
     JSXText(JSXText),
@@ -28,7 +28,7 @@ pub struct Bool {
 pub struct Null {}
 
 #[ast]
-pub struct Number {
+pub struct Num {
     value: f64,
     raw: OptionalAtomRef,
 }

@@ -78,7 +78,7 @@ impl ImportDecl {
     pub fn src(&self, ast: &crate::Ast) -> Str {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         let ret = unsafe { ast.extra_data[offset].node };
-        Str(ret)
+        Str::from_node_id(ret, ast)
     }
     #[inline]
     pub fn type_only(&self, ast: &crate::Ast) -> bool {
@@ -90,7 +90,7 @@ impl ImportDecl {
     pub fn with(&self, ast: &crate::Ast) -> Option<ObjectLit> {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         let ret = unsafe { ast.extra_data[offset].optional_node };
-        ret.map(|id| ObjectLit(id))
+        ret.map(|id| ObjectLit::from_node_id(id, ast))
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -126,13 +126,13 @@ impl ImportNamedSpecifier {
     pub fn local(&self, ast: &crate::Ast) -> Ident {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].node };
-        Ident(ret)
+        Ident::from_node_id(ret, ast)
     }
     #[inline]
     pub fn imported(&self, ast: &crate::Ast) -> Option<ModuleExportName> {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         let ret = unsafe { ast.extra_data[offset].optional_node };
-        ret.map(|id| ModuleExportName(id))
+        ret.map(|id| ModuleExportName::from_node_id(id, ast))
     }
     #[inline]
     pub fn is_type_only(&self, ast: &crate::Ast) -> bool {
@@ -169,7 +169,7 @@ impl ImportDefaultSpecifier {
     pub fn local(&self, ast: &crate::Ast) -> Ident {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].node };
-        Ident(ret)
+        Ident::from_node_id(ret, ast)
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -190,7 +190,7 @@ impl ImportStarAsSpecifier {
     pub fn local(&self, ast: &crate::Ast) -> Ident {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].node };
-        Ident(ret)
+        Ident::from_node_id(ret, ast)
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -211,7 +211,7 @@ impl ExportDecl {
     pub fn decl(&self, ast: &crate::Ast) -> Decl {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].node };
-        Decl(ret)
+        Decl::from_node_id(ret, ast)
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -238,7 +238,7 @@ impl NamedExport {
     pub fn src(&self, ast: &crate::Ast) -> Option<Str> {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         let ret = unsafe { ast.extra_data[offset].optional_node };
-        ret.map(|id| Str(id))
+        ret.map(|id| Str::from_node_id(id, ast))
     }
     #[inline]
     pub fn type_only(&self, ast: &crate::Ast) -> bool {
@@ -250,7 +250,7 @@ impl NamedExport {
     pub fn with(&self, ast: &crate::Ast) -> Option<ObjectLit> {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         let ret = unsafe { ast.extra_data[offset].optional_node };
-        ret.map(|id| ObjectLit(id))
+        ret.map(|id| ObjectLit::from_node_id(id, ast))
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -286,7 +286,7 @@ impl ExportNamespaceSpecifier {
     pub fn name(&self, ast: &crate::Ast) -> ModuleExportName {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].node };
-        ModuleExportName(ret)
+        ModuleExportName::from_node_id(ret, ast)
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -307,7 +307,7 @@ impl ExportDefaultSpecifier {
     pub fn exported(&self, ast: &crate::Ast) -> Ident {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].node };
-        Ident(ret)
+        Ident::from_node_id(ret, ast)
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -328,13 +328,13 @@ impl ExportNamedSpecifier {
     pub fn orig(&self, ast: &crate::Ast) -> ModuleExportName {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].node };
-        ModuleExportName(ret)
+        ModuleExportName::from_node_id(ret, ast)
     }
     #[inline]
     pub fn exported(&self, ast: &crate::Ast) -> Option<ModuleExportName> {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         let ret = unsafe { ast.extra_data[offset].optional_node };
-        ret.map(|id| ModuleExportName(id))
+        ret.map(|id| ModuleExportName::from_node_id(id, ast))
     }
     #[inline]
     pub fn is_type_only(&self, ast: &crate::Ast) -> bool {
@@ -371,7 +371,7 @@ impl ExportDefaultDecl {
     pub fn decl(&self, ast: &crate::Ast) -> DefaultDecl {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].node };
-        DefaultDecl(ret)
+        DefaultDecl::from_node_id(ret, ast)
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -392,7 +392,7 @@ impl ExportDefaultExpr {
     pub fn expr(&self, ast: &crate::Ast) -> Expr {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].node };
-        Expr(ret)
+        Expr::from_node_id(ret, ast)
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -413,7 +413,7 @@ impl ExportAll {
     pub fn src(&self, ast: &crate::Ast) -> Str {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].node };
-        Str(ret)
+        Str::from_node_id(ret, ast)
     }
     #[inline]
     pub fn type_only(&self, ast: &crate::Ast) -> bool {
@@ -425,7 +425,7 @@ impl ExportAll {
     pub fn with(&self, ast: &crate::Ast) -> Option<ObjectLit> {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         let ret = unsafe { ast.extra_data[offset].optional_node };
-        ret.map(|id| ObjectLit(id))
+        ret.map(|id| ObjectLit::from_node_id(id, ast))
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -466,7 +466,7 @@ impl ClassDecl {
     pub fn ident(&self, ast: &crate::Ast) -> Ident {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].node };
-        Ident(ret)
+        Ident::from_node_id(ret, ast)
     }
     #[inline]
     pub fn declare(&self, ast: &crate::Ast) -> bool {
@@ -602,7 +602,7 @@ impl BindingIdent {
     pub fn id(&self, ast: &crate::Ast) -> Ident {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].node };
-        Ident(ret)
+        Ident::from_node_id(ret, ast)
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -677,7 +677,7 @@ impl Null {
         ast.nodes[self.0].span = span;
     }
 }
-impl Number {
+impl Num {
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
