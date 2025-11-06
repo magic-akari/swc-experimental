@@ -1,16 +1,5 @@
 use crate::{ast::*, node_id::*};
-impl Program {
-    pub fn node_id(&self) -> crate::NodeId {
-        match self {
-            Self::Module(it) => it.node_id(),
-            Self::Script(it) => it.node_id(),
-        }
-    }
-}
 impl Module {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -43,9 +32,6 @@ impl Module {
     }
 }
 impl Script {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -77,30 +63,7 @@ impl Script {
         ast.extra_data[offset].optional_atom = shebang.into();
     }
 }
-impl ModuleItem {
-    pub fn node_id(&self) -> crate::NodeId {
-        match self {
-            Self::ModuleDecl(it) => it.node_id(),
-            Self::Stmt(it) => it.node_id(),
-        }
-    }
-}
-impl ModuleDecl {
-    pub fn node_id(&self) -> crate::NodeId {
-        match self {
-            Self::Import(it) => it.node_id(),
-            Self::ExportDecl(it) => it.node_id(),
-            Self::ExportNamed(it) => it.node_id(),
-            Self::ExportDefaultDecl(it) => it.node_id(),
-            Self::ExportDefaultExpr(it) => it.node_id(),
-            Self::ExportAll(it) => it.node_id(),
-        }
-    }
-}
 impl ImportDecl {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -151,22 +114,10 @@ impl ImportDecl {
     #[inline]
     pub fn set_with(&self, ast: &mut crate::Ast, with: Option<ObjectLit>) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
-        ast.extra_data[offset].optional_node = with.node_id().into();
-    }
-}
-impl ImportSpecifier {
-    pub fn node_id(&self) -> crate::NodeId {
-        match self {
-            Self::Named(it) => it.node_id(),
-            Self::Default(it) => it.node_id(),
-            Self::Namespace(it) => it.node_id(),
-        }
+        ast.extra_data[offset].optional_node = with.optional_node_id().into();
     }
 }
 impl ImportNamedSpecifier {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -201,7 +152,7 @@ impl ImportNamedSpecifier {
     #[inline]
     pub fn set_imported(&self, ast: &mut crate::Ast, imported: Option<ModuleExportName>) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
-        ast.extra_data[offset].optional_node = imported.node_id().into();
+        ast.extra_data[offset].optional_node = imported.optional_node_id().into();
     }
     #[inline]
     pub fn set_is_type_only(&self, ast: &mut crate::Ast, is_type_only: bool) {
@@ -210,9 +161,6 @@ impl ImportNamedSpecifier {
     }
 }
 impl ImportDefaultSpecifier {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -234,9 +182,6 @@ impl ImportDefaultSpecifier {
     }
 }
 impl ImportStarAsSpecifier {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -258,9 +203,6 @@ impl ImportStarAsSpecifier {
     }
 }
 impl ExportDecl {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -282,9 +224,6 @@ impl ExportDecl {
     }
 }
 impl NamedExport {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -325,7 +264,7 @@ impl NamedExport {
     #[inline]
     pub fn set_src(&self, ast: &mut crate::Ast, src: Option<Str>) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
-        ast.extra_data[offset].optional_node = src.node_id().into();
+        ast.extra_data[offset].optional_node = src.optional_node_id().into();
     }
     #[inline]
     pub fn set_type_only(&self, ast: &mut crate::Ast, type_only: bool) {
@@ -335,22 +274,10 @@ impl NamedExport {
     #[inline]
     pub fn set_with(&self, ast: &mut crate::Ast, with: Option<ObjectLit>) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
-        ast.extra_data[offset].optional_node = with.node_id().into();
-    }
-}
-impl ExportSpecifier {
-    pub fn node_id(&self) -> crate::NodeId {
-        match self {
-            Self::Namespace(it) => it.node_id(),
-            Self::Default(it) => it.node_id(),
-            Self::Named(it) => it.node_id(),
-        }
+        ast.extra_data[offset].optional_node = with.optional_node_id().into();
     }
 }
 impl ExportNamespaceSpecifier {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -371,18 +298,7 @@ impl ExportNamespaceSpecifier {
         ast.extra_data[offset].node = name.node_id().into();
     }
 }
-impl ModuleExportName {
-    pub fn node_id(&self) -> crate::NodeId {
-        match self {
-            Self::Ident(it) => it.node_id(),
-            Self::Str(it) => it.node_id(),
-        }
-    }
-}
 impl ExportDefaultSpecifier {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -404,9 +320,6 @@ impl ExportDefaultSpecifier {
     }
 }
 impl ExportNamedSpecifier {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -441,7 +354,7 @@ impl ExportNamedSpecifier {
     #[inline]
     pub fn set_exported(&self, ast: &mut crate::Ast, exported: Option<ModuleExportName>) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
-        ast.extra_data[offset].optional_node = exported.node_id().into();
+        ast.extra_data[offset].optional_node = exported.optional_node_id().into();
     }
     #[inline]
     pub fn set_is_type_only(&self, ast: &mut crate::Ast, is_type_only: bool) {
@@ -450,9 +363,6 @@ impl ExportNamedSpecifier {
     }
 }
 impl ExportDefaultDecl {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -473,18 +383,7 @@ impl ExportDefaultDecl {
         ast.extra_data[offset].node = decl.node_id().into();
     }
 }
-impl DefaultDecl {
-    pub fn node_id(&self) -> crate::NodeId {
-        match self {
-            Self::Class(it) => it.node_id(),
-            Self::Fn(it) => it.node_id(),
-        }
-    }
-}
 impl ExportDefaultExpr {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -506,9 +405,6 @@ impl ExportDefaultExpr {
     }
 }
 impl ExportAll {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -548,30 +444,52 @@ impl ExportAll {
     #[inline]
     pub fn set_with(&self, ast: &mut crate::Ast, with: Option<ObjectLit>) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
-        ast.extra_data[offset].optional_node = with.node_id().into();
+        ast.extra_data[offset].optional_node = with.optional_node_id().into();
     }
 }
-impl Stmt {
-    pub fn node_id(&self) -> crate::NodeId {
-        match self {}
+impl EmptyStmt {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        ast.nodes[self.0].span
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        ast.nodes[self.0].span = span;
     }
 }
-impl Decl {
-    pub fn node_id(&self) -> crate::NodeId {
-        match self {}
+impl ClassDecl {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        ast.nodes[self.0].span
     }
-}
-impl Expr {
-    pub fn node_id(&self) -> crate::NodeId {
-        match self {
-            Self::Lit(it) => it.node_id(),
-        }
+    #[inline]
+    pub fn ident(&self, ast: &crate::Ast) -> Ident {
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
+        let ret = unsafe { ast.extra_data[offset].node };
+        Ident(ret)
+    }
+    #[inline]
+    pub fn declare(&self, ast: &crate::Ast) -> bool {
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
+        let ret = unsafe { ast.extra_data[offset].bool };
+        ret.into()
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        ast.nodes[self.0].span = span;
+    }
+    #[inline]
+    pub fn set_ident(&self, ast: &mut crate::Ast, ident: Ident) {
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
+        ast.extra_data[offset].node = ident.node_id().into();
+    }
+    #[inline]
+    pub fn set_declare(&self, ast: &mut crate::Ast, declare: bool) {
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
+        ast.extra_data[offset].bool = declare.into();
     }
 }
 impl ObjectLit {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -582,9 +500,6 @@ impl ObjectLit {
     }
 }
 impl ClassExpr {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -595,9 +510,6 @@ impl ClassExpr {
     }
 }
 impl FnExpr {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -608,9 +520,6 @@ impl FnExpr {
     }
 }
 impl Ident {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -643,9 +552,6 @@ impl Ident {
     }
 }
 impl IdentName {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -667,9 +573,6 @@ impl IdentName {
     }
 }
 impl PrivateName {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -691,9 +594,6 @@ impl PrivateName {
     }
 }
 impl BindingIdent {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -714,23 +614,7 @@ impl BindingIdent {
         ast.extra_data[offset].node = id.node_id().into();
     }
 }
-impl Lit {
-    pub fn node_id(&self) -> crate::NodeId {
-        match self {
-            Self::Str(it) => it.node_id(),
-            Self::Bool(it) => it.node_id(),
-            Self::Null(it) => it.node_id(),
-            Self::Num(it) => it.node_id(),
-            Self::BigInt(it) => it.node_id(),
-            Self::Regex(it) => it.node_id(),
-            Self::JSXText(it) => it.node_id(),
-        }
-    }
-}
 impl Str {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -763,9 +647,6 @@ impl Str {
     }
 }
 impl Bool {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -787,9 +668,6 @@ impl Bool {
     }
 }
 impl Null {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -800,9 +678,6 @@ impl Null {
     }
 }
 impl Number {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -835,9 +710,6 @@ impl Number {
     }
 }
 impl BigInt {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -870,9 +742,6 @@ impl BigInt {
     }
 }
 impl Regex {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span
@@ -905,9 +774,6 @@ impl Regex {
     }
 }
 impl JSXText {
-    pub fn node_id(&self) -> crate::NodeId {
-        self.0
-    }
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
         ast.nodes[self.0].span

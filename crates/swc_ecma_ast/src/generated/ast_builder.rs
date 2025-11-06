@@ -126,6 +126,10 @@ impl Ast {
         ))
     }
     #[inline]
+    pub fn module_item_stmt_empty_stmt(&mut self, span: Span) -> ModuleItem {
+        ModuleItem::Stmt(Stmt::Empty(self.empty_stmt(span).into()))
+    }
+    #[inline]
     pub fn module_decl_import_decl(
         &mut self,
         span: Span,
@@ -194,7 +198,7 @@ impl Ast {
             bool: type_only.into(),
         });
         let _f3 = self.add_extra(ExtraData {
-            optional_node: with.node_id().into(),
+            optional_node: with.optional_node_id().into(),
         });
         ImportDecl(self.add_node(AstNode {
             span,
@@ -245,7 +249,7 @@ impl Ast {
             node: local.node_id().into(),
         });
         let _f1 = self.add_extra(ExtraData {
-            optional_node: imported.node_id().into(),
+            optional_node: imported.optional_node_id().into(),
         });
         let _f2 = self.add_extra(ExtraData {
             bool: is_type_only.into(),
@@ -310,13 +314,13 @@ impl Ast {
             sub_range: specifiers.into(),
         });
         let _f1 = self.add_extra(ExtraData {
-            optional_node: src.node_id().into(),
+            optional_node: src.optional_node_id().into(),
         });
         let _f2 = self.add_extra(ExtraData {
             bool: type_only.into(),
         });
         let _f3 = self.add_extra(ExtraData {
-            optional_node: with.node_id().into(),
+            optional_node: with.optional_node_id().into(),
         });
         NamedExport(self.add_node(AstNode {
             span,
@@ -419,7 +423,7 @@ impl Ast {
             node: orig.node_id().into(),
         });
         let _f1 = self.add_extra(ExtraData {
-            optional_node: exported.node_id().into(),
+            optional_node: exported.optional_node_id().into(),
         });
         let _f2 = self.add_extra(ExtraData {
             bool: is_type_only.into(),
@@ -481,11 +485,43 @@ impl Ast {
             bool: type_only.into(),
         });
         let _f2 = self.add_extra(ExtraData {
-            optional_node: with.node_id().into(),
+            optional_node: with.optional_node_id().into(),
         });
         ExportAll(self.add_node(AstNode {
             span,
             kind: NodeKind::ExportAll,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
+    }
+    #[inline]
+    pub fn stmt_empty_stmt(&mut self, span: Span) -> Stmt {
+        Stmt::Empty(self.empty_stmt(span).into())
+    }
+    #[inline]
+    pub fn empty_stmt(&mut self, span: Span) -> EmptyStmt {
+        EmptyStmt(self.add_node(AstNode {
+            span,
+            kind: NodeKind::EmptyStmt,
+            data: NodeData { empty: () },
+        }))
+    }
+    #[inline]
+    pub fn decl_class_decl(&mut self, span: Span, ident: Ident, declare: bool) -> Decl {
+        Decl::Class(self.class_decl(span, ident, declare).into())
+    }
+    #[inline]
+    pub fn class_decl(&mut self, span: Span, ident: Ident, declare: bool) -> ClassDecl {
+        let _f0 = self.add_extra(ExtraData {
+            node: ident.node_id().into(),
+        });
+        let _f1 = self.add_extra(ExtraData {
+            bool: declare.into(),
+        });
+        ClassDecl(self.add_node(AstNode {
+            span,
+            kind: NodeKind::ClassDecl,
             data: NodeData {
                 extra_data_start: _f0,
             },

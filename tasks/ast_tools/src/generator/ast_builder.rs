@@ -66,7 +66,12 @@ fn generate_build_function_for_struct(ast: &AstStruct, schema: &Schema) -> Token
 
         let field_ty = schema.types[field.type_id].wrapper_name();
         let field_value = match &schema.types[field.type_id] {
-            AstType::TypedId(_) => quote!( #field_name.node_id().into() ),
+            AstType::TypedId(ast) if ast.is_optional => {
+                quote!( #field_name.optional_node_id().into() )
+            }
+            AstType::TypedId(ast) if !ast.is_optional => {
+                quote!( #field_name.node_id().into() )
+            }
             _ => quote!( #field_name.into() ),
         };
         let extra_data_field = format_ident!("{}", map_field_type_to_extra_field(field_ty));

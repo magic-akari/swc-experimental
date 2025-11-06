@@ -35,21 +35,6 @@ pub fn ast_property(schema: &Schema) -> RawOutput {
 
 fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream {
     let name = format_ident!("{}", ast.name);
-    let node_id_getter = quote! {
-        pub fn node_id(&self) -> crate::NodeId {
-            self.0
-        }
-    };
-    let optional_id_getter = quote! {
-        impl Option<#name> {
-            pub fn node_id(&self) -> crate::OptionalNodeId {
-                match self {
-                    Some(id) => id.node_id().into(),
-                    None => crate::OptionalNodeId::none(),
-                }
-            }
-        }
-    };
 
     let mut field_getters = TokenStream::new();
     let mut field_setters = TokenStream::new();
@@ -104,7 +89,10 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
         });
 
         let extra_data_value = match &field_ty {
-            AstType::TypedId(_) => quote!(#field_name.node_id().into()),
+            AstType::TypedId(ast) if ast.is_optional => {
+                quote!(#field_name.optional_node_id().into())
+            }
+            AstType::TypedId(ast) if !ast.is_optional => quote!(#field_name.node_id().into()),
             _ => quote!(#field_name.into()),
         };
         let setter_name = format_ident!("set_{}", field_name);
@@ -119,34 +107,12 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
 
     quote! {
         impl #name {
-            #node_id_getter
             #field_getters
             #field_setters
         }
     }
 }
 
-fn generate_property_for_enum(ast: &AstEnum, _schema: &Schema) -> TokenStream {
-    let name = format_ident!("{}", ast.name);
-
-    let mut node_id_getter_arms = TokenStream::new();
-    for variant in ast.variants.iter() {
-        let variant_ident = format_ident!("{}", variant.name);
-        node_id_getter_arms.extend(quote! {
-            Self::#variant_ident(it) => it.node_id(),
-        });
-    }
-    let node_id_getter = quote! {
-        pub fn node_id(&self) -> crate::NodeId {
-            match self {
-                #node_id_getter_arms
-            }
-        }
-    };
-
-    quote! {
-        impl #name {
-            #node_id_getter
-        }
-    }
+fn generate_property_for_enum(_ast: &AstEnum, _schema: &Schema) -> TokenStream {
+    TokenStream::new()
 }

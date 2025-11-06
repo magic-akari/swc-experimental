@@ -1,8 +1,10 @@
 use crate::{
+    derive::ast_node_id::ast_node_id,
     generator::{ast_builder::ast_builder, ast_property::ast_property},
     parse::parse_files,
 };
 
+pub(crate) mod derive;
 pub(crate) mod generator;
 pub(crate) mod output;
 pub(crate) mod parse;
@@ -36,4 +38,7 @@ fn main() {
 
     let ast_property_ret = ast_property(&schema);
     ast_property_ret.write_to_file().unwrap();
+
+    let ast_node_id = ast_node_id(&schema);
+    ast_node_id.write_to_file().unwrap();
 }

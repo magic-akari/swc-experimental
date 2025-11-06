@@ -3,6 +3,7 @@ mod ast;
 mod node_id;
 mod generated {
     mod ast_builder;
+    mod ast_node_id;
     mod ast_property;
     // mod ast_visitor;
 }
@@ -130,7 +131,7 @@ pub enum NodeKind {
 
     // stmt.rs
     Block,
-    Empty,
+    EmptyStmt,
     Debugger,
     With,
     Return,
