@@ -5,6 +5,7 @@ use crate::{
     AST_CRATE_PATH,
     output::{RawOutput, RustOutput, output_path},
     schema::{AstEnum, AstStruct, AstType, Schema},
+    util::flat_enum_type,
 };
 
 pub fn ast_node_id(schema: &Schema) -> RawOutput {
@@ -108,16 +109,14 @@ fn generate_node_id_for_enum(ast: &AstEnum, schema: &Schema) -> TokenStream {
     };
 
     let mut from_node_id_arms = TokenStream::new();
-    for variant in ast.variants.iter() {
-        let Some(variant_type_id) = variant.type_id else {
-            continue;
-        };
-
-        let variant_ident = format_ident!("{}", variant.name);
-        let variant_type = &schema.types[variant_type_id];
-        let variant_type_name = format_ident!("{}", variant_type.name());
+    for (_, element) in flat_enum_type(ast, schema) {
+        let kind = element.kind;
+        let body = element.path.iter().rev().fold(
+            quote!(#kind::from_node_id(id, ast)),
+            |acc, construcotr| quote!(#construcotr(#acc)),
+        );
         from_node_id_arms.extend(quote! {
-            NodeKind::#variant_ident => Self::#variant_ident(#variant_type_name::from_node_id(id, ast)),
+            NodeKind::#kind => #body,
         });
     }
     let from_node_id = quote! {

@@ -1,9 +1,6 @@
 use rspack_experimental_swc_ast_macros::ast;
 
-use crate::{
-    ast::{ModuleDecl, Stmt},
-    node_id::{OptionalAtomRef, TypedSubRange},
-};
+use crate::ast::{ModuleDecl, Stmt};
 
 #[ast]
 pub enum Program {

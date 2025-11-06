@@ -1,5 +1,5 @@
-use crate::{ast::*, node_id::*};
 use crate::{Ast, NodeKind};
+use crate::{ast::*, node_id::*};
 impl GetNodeId for Program {
     #[inline]
     fn node_id(&self) -> NodeId {
@@ -22,8 +22,8 @@ impl Program {
     #[inline]
     pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
-            NodeKind::Module => Self::Module(Module::from_node_id(id, ast)),
-            NodeKind::Script => Self::Script(Script::from_node_id(id, ast)),
+            NodeKind::Module => Program::Module(Module::from_node_id(id, ast)),
+            NodeKind::Script => Program::Script(Script::from_node_id(id, ast)),
             _ => unreachable!(),
         }
     }
@@ -92,8 +92,25 @@ impl ModuleItem {
     #[inline]
     pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
-            NodeKind::ModuleDecl => Self::ModuleDecl(ModuleDecl::from_node_id(id, ast)),
-            NodeKind::Stmt => Self::Stmt(Stmt::from_node_id(id, ast)),
+            NodeKind::EmptyStmt => ModuleItem::Stmt(Stmt::Empty(EmptyStmt::from_node_id(id, ast))),
+            NodeKind::ExportAll => {
+                ModuleItem::ModuleDecl(ModuleDecl::ExportAll(ExportAll::from_node_id(id, ast)))
+            }
+            NodeKind::ExportDecl => {
+                ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(ExportDecl::from_node_id(id, ast)))
+            }
+            NodeKind::ExportDefaultDecl => ModuleItem::ModuleDecl(ModuleDecl::ExportDefaultDecl(
+                ExportDefaultDecl::from_node_id(id, ast),
+            )),
+            NodeKind::ExportDefaultExpr => ModuleItem::ModuleDecl(ModuleDecl::ExportDefaultExpr(
+                ExportDefaultExpr::from_node_id(id, ast),
+            )),
+            NodeKind::ImportDecl => {
+                ModuleItem::ModuleDecl(ModuleDecl::Import(ImportDecl::from_node_id(id, ast)))
+            }
+            NodeKind::NamedExport => {
+                ModuleItem::ModuleDecl(ModuleDecl::ExportNamed(NamedExport::from_node_id(id, ast)))
+            }
             _ => unreachable!(),
         }
     }
@@ -124,16 +141,16 @@ impl ModuleDecl {
     #[inline]
     pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
-            NodeKind::Import => Self::Import(ImportDecl::from_node_id(id, ast)),
-            NodeKind::ExportDecl => Self::ExportDecl(ExportDecl::from_node_id(id, ast)),
-            NodeKind::ExportNamed => Self::ExportNamed(NamedExport::from_node_id(id, ast)),
+            NodeKind::ExportAll => ModuleDecl::ExportAll(ExportAll::from_node_id(id, ast)),
+            NodeKind::ExportDecl => ModuleDecl::ExportDecl(ExportDecl::from_node_id(id, ast)),
             NodeKind::ExportDefaultDecl => {
-                Self::ExportDefaultDecl(ExportDefaultDecl::from_node_id(id, ast))
+                ModuleDecl::ExportDefaultDecl(ExportDefaultDecl::from_node_id(id, ast))
             }
             NodeKind::ExportDefaultExpr => {
-                Self::ExportDefaultExpr(ExportDefaultExpr::from_node_id(id, ast))
+                ModuleDecl::ExportDefaultExpr(ExportDefaultExpr::from_node_id(id, ast))
             }
-            NodeKind::ExportAll => Self::ExportAll(ExportAll::from_node_id(id, ast)),
+            NodeKind::ImportDecl => ModuleDecl::Import(ImportDecl::from_node_id(id, ast)),
+            NodeKind::NamedExport => ModuleDecl::ExportNamed(NamedExport::from_node_id(id, ast)),
             _ => unreachable!(),
         }
     }
@@ -182,9 +199,15 @@ impl ImportSpecifier {
     #[inline]
     pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
-            NodeKind::Named => Self::Named(ImportNamedSpecifier::from_node_id(id, ast)),
-            NodeKind::Default => Self::Default(ImportDefaultSpecifier::from_node_id(id, ast)),
-            NodeKind::Namespace => Self::Namespace(ImportStarAsSpecifier::from_node_id(id, ast)),
+            NodeKind::ImportDefaultSpecifier => {
+                ImportSpecifier::Default(ImportDefaultSpecifier::from_node_id(id, ast))
+            }
+            NodeKind::ImportNamedSpecifier => {
+                ImportSpecifier::Named(ImportNamedSpecifier::from_node_id(id, ast))
+            }
+            NodeKind::ImportStarAsSpecifier => {
+                ImportSpecifier::Namespace(ImportStarAsSpecifier::from_node_id(id, ast))
+            }
             _ => unreachable!(),
         }
     }
@@ -317,9 +340,15 @@ impl ExportSpecifier {
     #[inline]
     pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
-            NodeKind::Namespace => Self::Namespace(ExportNamespaceSpecifier::from_node_id(id, ast)),
-            NodeKind::Default => Self::Default(ExportDefaultSpecifier::from_node_id(id, ast)),
-            NodeKind::Named => Self::Named(ExportNamedSpecifier::from_node_id(id, ast)),
+            NodeKind::ExportDefaultSpecifier => {
+                ExportSpecifier::Default(ExportDefaultSpecifier::from_node_id(id, ast))
+            }
+            NodeKind::ExportNamedSpecifier => {
+                ExportSpecifier::Named(ExportNamedSpecifier::from_node_id(id, ast))
+            }
+            NodeKind::ExportNamespaceSpecifier => {
+                ExportSpecifier::Namespace(ExportNamespaceSpecifier::from_node_id(id, ast))
+            }
             _ => unreachable!(),
         }
     }
@@ -367,8 +396,8 @@ impl ModuleExportName {
     #[inline]
     pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
-            NodeKind::Ident => Self::Ident(Ident::from_node_id(id, ast)),
-            NodeKind::Str => Self::Str(Str::from_node_id(id, ast)),
+            NodeKind::Ident => ModuleExportName::Ident(Ident::from_node_id(id, ast)),
+            NodeKind::Str => ModuleExportName::Str(Str::from_node_id(id, ast)),
             _ => unreachable!(),
         }
     }
@@ -458,8 +487,8 @@ impl DefaultDecl {
     #[inline]
     pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
-            NodeKind::Class => Self::Class(ClassExpr::from_node_id(id, ast)),
-            NodeKind::Fn => Self::Fn(FnExpr::from_node_id(id, ast)),
+            NodeKind::ClassExpr => DefaultDecl::Class(ClassExpr::from_node_id(id, ast)),
+            NodeKind::FnExpr => DefaultDecl::Fn(FnExpr::from_node_id(id, ast)),
             _ => unreachable!(),
         }
     }
@@ -527,7 +556,7 @@ impl Stmt {
     #[inline]
     pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
-            NodeKind::Empty => Self::Empty(EmptyStmt::from_node_id(id, ast)),
+            NodeKind::EmptyStmt => Stmt::Empty(EmptyStmt::from_node_id(id, ast)),
             _ => unreachable!(),
         }
     }
@@ -574,7 +603,7 @@ impl Decl {
     #[inline]
     pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
-            NodeKind::Class => Self::Class(ClassDecl::from_node_id(id, ast)),
+            NodeKind::ClassDecl => Decl::Class(ClassDecl::from_node_id(id, ast)),
             _ => unreachable!(),
         }
     }
@@ -621,7 +650,13 @@ impl Expr {
     #[inline]
     pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
-            NodeKind::Lit => Self::Lit(Lit::from_node_id(id, ast)),
+            NodeKind::BigInt => Expr::Lit(Lit::BigInt(BigInt::from_node_id(id, ast))),
+            NodeKind::Bool => Expr::Lit(Lit::Bool(Bool::from_node_id(id, ast))),
+            NodeKind::JSXText => Expr::Lit(Lit::JSXText(JSXText::from_node_id(id, ast))),
+            NodeKind::Null => Expr::Lit(Lit::Null(Null::from_node_id(id, ast))),
+            NodeKind::Num => Expr::Lit(Lit::Num(Num::from_node_id(id, ast))),
+            NodeKind::Regex => Expr::Lit(Lit::Regex(Regex::from_node_id(id, ast))),
+            NodeKind::Str => Expr::Lit(Lit::Str(Str::from_node_id(id, ast))),
             _ => unreachable!(),
         }
     }
@@ -800,13 +835,13 @@ impl Lit {
     #[inline]
     pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
-            NodeKind::Str => Self::Str(Str::from_node_id(id, ast)),
-            NodeKind::Bool => Self::Bool(Bool::from_node_id(id, ast)),
-            NodeKind::Null => Self::Null(Null::from_node_id(id, ast)),
-            NodeKind::Num => Self::Num(Num::from_node_id(id, ast)),
-            NodeKind::BigInt => Self::BigInt(BigInt::from_node_id(id, ast)),
-            NodeKind::Regex => Self::Regex(Regex::from_node_id(id, ast)),
-            NodeKind::JSXText => Self::JSXText(JSXText::from_node_id(id, ast)),
+            NodeKind::BigInt => Lit::BigInt(BigInt::from_node_id(id, ast)),
+            NodeKind::Bool => Lit::Bool(Bool::from_node_id(id, ast)),
+            NodeKind::JSXText => Lit::JSXText(JSXText::from_node_id(id, ast)),
+            NodeKind::Null => Lit::Null(Null::from_node_id(id, ast)),
+            NodeKind::Num => Lit::Num(Num::from_node_id(id, ast)),
+            NodeKind::Regex => Lit::Regex(Regex::from_node_id(id, ast)),
+            NodeKind::Str => Lit::Str(Str::from_node_id(id, ast)),
             _ => unreachable!(),
         }
     }

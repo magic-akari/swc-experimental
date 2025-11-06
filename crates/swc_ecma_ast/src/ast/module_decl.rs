@@ -1,6 +1,6 @@
 use rspack_experimental_swc_ast_macros::ast;
 
-use crate::ast::{ClassExpr, Decl, Expr, FnExpr, Ident, ObjectLit, Str};
+use crate::ast::{ClassExpr, FnExpr, Ident, Str};
 
 #[ast]
 pub enum ModuleDecl {

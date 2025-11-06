@@ -105,6 +105,7 @@ fn generate_build_function_for_struct(ast: &AstStruct, schema: &Schema) -> Token
     tokens
 }
 
+// TODO: Use [crate::util::flat_enum_type]
 #[derive(Default)]
 struct RecursiveEnumContext {
     ret_ty: TokenStream,
