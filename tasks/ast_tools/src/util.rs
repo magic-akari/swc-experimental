@@ -44,6 +44,8 @@ pub fn map_field_type_to_extra_field(ast: &AstType) -> &str {
             "Span" => "span",
             "AtomRef" => "atom",
             "OptionalAtomRef" => "optional_atom",
+            "Wtf8AtomId" => "wtf8_atom",
+            "OptionalWtf8AtomId" => "optional_wtf8_atom",
             "BigIntId" => "bigint",
             "bool" => "bool",
             "f64" => "number",

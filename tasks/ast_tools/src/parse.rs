@@ -163,6 +163,8 @@ impl Parser {
             "Span" => primitive("Span"),
             "AtomRef" => primitive("AtomRef"),
             "OptionalAtomRef" => primitive("OptionalAtomRef"),
+            "Wtf8AtomId" => primitive("Wtf8AtomId"),
+            "OptionalWtf8AtomId" => primitive("OptionalWtf8AtomId"),
             "BigIntId" => primitive("BigIntId"),
             "ImportPhase" => primitive("ImportPhase"),
             "VarDeclKind" => primitive("VarDeclKind"),

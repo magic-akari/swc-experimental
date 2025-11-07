@@ -566,7 +566,7 @@ impl Ast {
     pub fn module_export_name_str(
         &mut self,
         span: Span,
-        value: AtomRef,
+        value: Wtf8AtomId,
         raw: OptionalAtomRef,
     ) -> ModuleExportName {
         ModuleExportName::Str(self.str(span, value, raw).into())
@@ -1359,7 +1359,7 @@ impl Ast {
     pub fn for_head_pat_expr_lit_str(
         &mut self,
         span: Span,
-        value: AtomRef,
+        value: Wtf8AtomId,
         raw: OptionalAtomRef,
     ) -> ForHead {
         ForHead::Pat(Pat::Expr(Expr::Lit(Lit::Str(
@@ -1642,7 +1642,7 @@ impl Ast {
     pub fn var_decl_or_expr_expr_lit_str(
         &mut self,
         span: Span,
-        value: AtomRef,
+        value: Wtf8AtomId,
         raw: OptionalAtomRef,
     ) -> VarDeclOrExpr {
         VarDeclOrExpr::Expr(Expr::Lit(Lit::Str(self.str(span, value, raw).into())))
@@ -2001,7 +2001,7 @@ impl Ast {
         Expr::Ident(self.ident(span, sym, optional).into())
     }
     #[inline]
-    pub fn expr_lit_str(&mut self, span: Span, value: AtomRef, raw: OptionalAtomRef) -> Expr {
+    pub fn expr_lit_str(&mut self, span: Span, value: Wtf8AtomId, raw: OptionalAtomRef) -> Expr {
         Expr::Lit(Lit::Str(self.str(span, value, raw).into()))
     }
     #[inline]
@@ -2550,12 +2550,12 @@ impl Ast {
         &mut self,
         span: Span,
         tail: bool,
-        cooked: OptionalAtomRef,
+        cooked: OptionalWtf8AtomId,
         raw: AtomRef,
     ) -> TplElement {
         let _f0 = self.add_extra(ExtraData { bool: tail.into() });
         let _f1 = self.add_extra(ExtraData {
-            optional_atom: cooked.into(),
+            optional_wtf8_atom: cooked.into(),
         });
         let _f2 = self.add_extra(ExtraData { atom: raw.into() });
         TplElement(self.add_node(AstNode {
@@ -2705,7 +2705,7 @@ impl Ast {
     pub fn callee_expr_lit_str(
         &mut self,
         span: Span,
-        value: AtomRef,
+        value: Wtf8AtomId,
         raw: OptionalAtomRef,
     ) -> Callee {
         Callee::Expr(Expr::Lit(Lit::Str(self.str(span, value, raw).into())))
@@ -2980,7 +2980,7 @@ impl Ast {
     pub fn expr_or_spread_expr_lit_str(
         &mut self,
         span: Span,
-        value: AtomRef,
+        value: Wtf8AtomId,
         raw: OptionalAtomRef,
     ) -> ExprOrSpread {
         ExprOrSpread::Expr(Expr::Lit(Lit::Str(self.str(span, value, raw).into())))
@@ -3252,7 +3252,7 @@ impl Ast {
     pub fn block_stmt_or_expr_expr_lit_str(
         &mut self,
         span: Span,
-        value: AtomRef,
+        value: Wtf8AtomId,
         raw: OptionalAtomRef,
     ) -> BlockStmtOrExpr {
         BlockStmtOrExpr::Expr(Expr::Lit(Lit::Str(self.str(span, value, raw).into())))
@@ -3909,7 +3909,12 @@ impl Ast {
         Key::Public(PropName::Ident(self.ident_name(span, sym).into()))
     }
     #[inline]
-    pub fn key_prop_name_str(&mut self, span: Span, value: AtomRef, raw: OptionalAtomRef) -> Key {
+    pub fn key_prop_name_str(
+        &mut self,
+        span: Span,
+        value: Wtf8AtomId,
+        raw: OptionalAtomRef,
+    ) -> Key {
         Key::Public(PropName::Str(self.str(span, value, raw).into()))
     }
     #[inline]
@@ -4090,7 +4095,12 @@ impl Ast {
         PropName::Ident(self.ident_name(span, sym).into())
     }
     #[inline]
-    pub fn prop_name_str(&mut self, span: Span, value: AtomRef, raw: OptionalAtomRef) -> PropName {
+    pub fn prop_name_str(
+        &mut self,
+        span: Span,
+        value: Wtf8AtomId,
+        raw: OptionalAtomRef,
+    ) -> PropName {
         PropName::Str(self.str(span, value, raw).into())
     }
     #[inline]
@@ -4247,7 +4257,7 @@ impl Ast {
         Pat::Expr(Expr::Ident(self.ident(span, sym, optional).into()))
     }
     #[inline]
-    pub fn pat_expr_lit_str(&mut self, span: Span, value: AtomRef, raw: OptionalAtomRef) -> Pat {
+    pub fn pat_expr_lit_str(&mut self, span: Span, value: Wtf8AtomId, raw: OptionalAtomRef) -> Pat {
         Pat::Expr(Expr::Lit(Lit::Str(self.str(span, value, raw).into())))
     }
     #[inline]
@@ -4529,7 +4539,7 @@ impl Ast {
         }))
     }
     #[inline]
-    pub fn lit_str(&mut self, span: Span, value: AtomRef, raw: OptionalAtomRef) -> Lit {
+    pub fn lit_str(&mut self, span: Span, value: Wtf8AtomId, raw: OptionalAtomRef) -> Lit {
         Lit::Str(self.str(span, value, raw).into())
     }
     #[inline]
@@ -4553,8 +4563,10 @@ impl Ast {
         Lit::Regex(self.regex(span, exp, flags).into())
     }
     #[inline]
-    pub fn str(&mut self, span: Span, value: AtomRef, raw: OptionalAtomRef) -> Str {
-        let _f0 = self.add_extra(ExtraData { atom: value.into() });
+    pub fn str(&mut self, span: Span, value: Wtf8AtomId, raw: OptionalAtomRef) -> Str {
+        let _f0 = self.add_extra(ExtraData {
+            wtf8_atom: value.into(),
+        });
         let _f1 = self.add_extra(ExtraData {
             optional_atom: raw.into(),
         });

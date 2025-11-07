@@ -1964,9 +1964,9 @@ impl TplElement {
         ret.into()
     }
     #[inline]
-    pub fn cooked(&self, ast: &crate::Ast) -> OptionalAtomRef {
+    pub fn cooked(&self, ast: &crate::Ast) -> OptionalWtf8AtomId {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
-        let ret = unsafe { ast.extra_data[offset].optional_atom };
+        let ret = unsafe { ast.extra_data[offset].optional_wtf8_atom };
         ret.into()
     }
     #[inline]
@@ -1985,9 +1985,9 @@ impl TplElement {
         ast.extra_data[offset].bool = tail.into();
     }
     #[inline]
-    pub fn set_cooked(&self, ast: &mut crate::Ast, cooked: OptionalAtomRef) {
+    pub fn set_cooked(&self, ast: &mut crate::Ast, cooked: OptionalWtf8AtomId) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
-        ast.extra_data[offset].optional_atom = cooked.into();
+        ast.extra_data[offset].optional_wtf8_atom = cooked.into();
     }
     #[inline]
     pub fn set_raw(&self, ast: &mut crate::Ast, raw: AtomRef) {
@@ -3036,9 +3036,9 @@ impl Str {
         ast.nodes[self.0].span
     }
     #[inline]
-    pub fn value(&self, ast: &crate::Ast) -> AtomRef {
+    pub fn value(&self, ast: &crate::Ast) -> Wtf8AtomId {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
-        let ret = unsafe { ast.extra_data[offset].atom };
+        let ret = unsafe { ast.extra_data[offset].wtf8_atom };
         ret.into()
     }
     #[inline]
@@ -3052,9 +3052,9 @@ impl Str {
         ast.nodes[self.0].span = span;
     }
     #[inline]
-    pub fn set_value(&self, ast: &mut crate::Ast, value: AtomRef) {
+    pub fn set_value(&self, ast: &mut crate::Ast, value: Wtf8AtomId) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
-        ast.extra_data[offset].atom = value.into();
+        ast.extra_data[offset].wtf8_atom = value.into();
     }
     #[inline]
     pub fn set_raw(&self, ast: &mut crate::Ast, raw: OptionalAtomRef) {

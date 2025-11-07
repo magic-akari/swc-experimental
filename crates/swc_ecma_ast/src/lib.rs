@@ -10,10 +10,11 @@ mod generated {
 
 use num_bigint::BigInt as BigIntValue;
 use oxc_index::IndexVec;
-use swc_atoms::Atom;
+use swc_atoms::{Atom, Wtf8Atom};
 
 use crate::node_id::{
-    AtomId, AtomRef, BigIntId, ExtraDataId, NodeId, OptionalAtomRef, OptionalNodeId, SubRange,
+    AtomId, AtomRef, BigIntId, ExtraDataId, NodeId, OptionalAtomRef, OptionalNodeId,
+    OptionalWtf8AtomId, SubRange, Wtf8AtomId,
 };
 
 pub mod common;
@@ -22,7 +23,8 @@ pub use ast::*;
 pub struct Ast {
     nodes: IndexVec<NodeId, AstNode>,
     extra_data: IndexVec<ExtraDataId, ExtraData>,
-    allocated_str: IndexVec<AtomId, Atom>,
+    allocated_atom: IndexVec<AtomId, Atom>,
+    allocated_wtf8: IndexVec<Wtf8AtomId, Wtf8Atom>,
     bigint: IndexVec<BigIntId, BigIntValue>,
 }
 
@@ -41,9 +43,11 @@ pub union ExtraData {
     span: Span,
     node: NodeId,
     atom: AtomRef,
+    wtf8_atom: Wtf8AtomId,
     bigint: BigIntId,
     optional_node: OptionalNodeId,
     optional_atom: OptionalAtomRef,
+    optional_wtf8_atom: OptionalWtf8AtomId,
 
     bool: bool,
     number: f64,
@@ -265,8 +269,12 @@ impl Ast {
         self.extra_data.push(extra)
     }
 
+    pub fn add_wtf8_atom_ref(&mut self, atom: Wtf8Atom) -> Wtf8AtomId {
+        self.allocated_wtf8.push(atom)
+    }
+
     pub fn add_atom_ref(&mut self, atom: Atom) -> AtomId {
-        self.allocated_str.push(atom)
+        self.allocated_atom.push(atom)
     }
 
     pub fn add_bigint(&mut self, big_int: BigIntValue) -> BigIntId {

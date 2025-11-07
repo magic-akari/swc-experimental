@@ -1,6 +1,16 @@
 use std::marker::PhantomData;
 
-use crate::node_id::SubRange;
+use crate::node_id::ExtraDataId;
+
+#[derive(Debug, Clone, Copy, Hash)]
+pub struct SubRange {
+    pub start: ExtraDataId,
+    pub end: ExtraDataId,
+}
+
+oxc_index::define_index_type! {
+    pub struct BigIntId = u32;
+}
 
 pub struct TypedSubRange<T> {
     inner: SubRange,

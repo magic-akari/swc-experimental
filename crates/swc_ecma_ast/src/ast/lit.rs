@@ -13,7 +13,7 @@ pub enum Lit {
 
 #[ast]
 pub struct Str {
-    value: AtomRef,
+    value: Wtf8AtomId,
     raw: OptionalAtomRef,
 }
 
