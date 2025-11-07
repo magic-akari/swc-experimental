@@ -8,20 +8,22 @@ mod generated {
     // mod ast_visitor;
 }
 
-use num_bigint::BigInt;
+use num_bigint::BigInt as BigIntValue;
 use oxc_index::IndexVec;
 use swc_atoms::Atom;
-use swc_common::Span;
 
 use crate::node_id::{
     AtomId, AtomRef, BigIntId, ExtraDataId, NodeId, OptionalAtomRef, OptionalNodeId, SubRange,
 };
 
+pub mod common;
+pub use ast::*;
+
 pub struct Ast {
     nodes: IndexVec<NodeId, AstNode>,
     extra_data: IndexVec<ExtraDataId, ExtraData>,
     allocated_str: IndexVec<AtomId, Atom>,
-    bigint: IndexVec<BigIntId, BigInt>,
+    bigint: IndexVec<BigIntId, BigIntValue>,
 }
 
 pub struct AstNode {
@@ -267,7 +269,7 @@ impl Ast {
         self.allocated_str.push(atom)
     }
 
-    pub fn add_bigint(&mut self, big_int: BigInt) -> BigIntId {
+    pub fn add_bigint(&mut self, big_int: BigIntValue) -> BigIntId {
         self.bigint.push(big_int)
     }
 }
