@@ -126,6 +126,46 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
     }
 }
 
-fn generate_property_for_enum(_ast: &AstEnum, _schema: &Schema) -> TokenStream {
-    TokenStream::new()
+fn generate_property_for_enum(ast: &AstEnum, _schema: &Schema) -> TokenStream {
+    let name = format_ident!("{}", ast.name);
+
+    let mut field_getters = TokenStream::new();
+    let mut field_setters = TokenStream::new();
+
+    let mut get_span_arms = TokenStream::new();
+    let mut set_span_arms = TokenStream::new();
+    for variant in ast.variants.iter() {
+        let variant_name = format_ident!("{}", variant.name);
+        get_span_arms.extend(quote! {
+            Self::#variant_name(it) => it.span(ast),
+        });
+        set_span_arms.extend(quote! {
+            Self::#variant_name(it) => it.set_span(ast, span),
+        });
+    }
+
+    field_getters.extend(quote! {
+        #[inline]
+        pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+            match self {
+                #get_span_arms
+            }
+        }
+    });
+
+    field_setters.extend(quote! {
+        #[inline]
+        pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+            match self {
+                #set_span_arms
+            }
+        }
+    });
+
+    quote! {
+        impl #name {
+            #field_getters
+            #field_setters
+        }
+    }
 }

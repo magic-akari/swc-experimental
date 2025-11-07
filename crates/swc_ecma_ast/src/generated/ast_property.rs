@@ -1,5 +1,21 @@
 #![allow(unused)]
 use crate::{ast::*, node_id::*};
+impl Program {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Module(it) => it.span(ast),
+            Self::Script(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Module(it) => it.set_span(ast, span),
+            Self::Script(it) => it.set_span(ast, span),
+        }
+    }
+}
 impl Module {
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
@@ -62,6 +78,46 @@ impl Script {
     pub fn set_shebang(&self, ast: &mut crate::Ast, shebang: OptionalAtomRef) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         ast.extra_data[offset].optional_atom = shebang.into();
+    }
+}
+impl ModuleItem {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::ModuleDecl(it) => it.span(ast),
+            Self::Stmt(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::ModuleDecl(it) => it.set_span(ast, span),
+            Self::Stmt(it) => it.set_span(ast, span),
+        }
+    }
+}
+impl ModuleDecl {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Import(it) => it.span(ast),
+            Self::ExportDecl(it) => it.span(ast),
+            Self::ExportNamed(it) => it.span(ast),
+            Self::ExportDefaultDecl(it) => it.span(ast),
+            Self::ExportDefaultExpr(it) => it.span(ast),
+            Self::ExportAll(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Import(it) => it.set_span(ast, span),
+            Self::ExportDecl(it) => it.set_span(ast, span),
+            Self::ExportNamed(it) => it.set_span(ast, span),
+            Self::ExportDefaultDecl(it) => it.set_span(ast, span),
+            Self::ExportDefaultExpr(it) => it.set_span(ast, span),
+            Self::ExportAll(it) => it.set_span(ast, span),
+        }
     }
 }
 impl ImportDecl {
@@ -127,6 +183,24 @@ impl ImportDecl {
     pub fn set_phase(&self, ast: &mut crate::Ast, phase: ImportPhase) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 4usize;
         ast.extra_data[offset].other = phase.to_extra_data();
+    }
+}
+impl ImportSpecifier {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Named(it) => it.span(ast),
+            Self::Default(it) => it.span(ast),
+            Self::Namespace(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Named(it) => it.set_span(ast, span),
+            Self::Default(it) => it.set_span(ast, span),
+            Self::Namespace(it) => it.set_span(ast, span),
+        }
     }
 }
 impl ImportNamedSpecifier {
@@ -289,6 +363,24 @@ impl NamedExport {
         ast.extra_data[offset].optional_node = with.optional_node_id().into();
     }
 }
+impl ExportSpecifier {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Namespace(it) => it.span(ast),
+            Self::Default(it) => it.span(ast),
+            Self::Named(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Namespace(it) => it.set_span(ast, span),
+            Self::Default(it) => it.set_span(ast, span),
+            Self::Named(it) => it.set_span(ast, span),
+        }
+    }
+}
 impl ExportNamespaceSpecifier {
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
@@ -308,6 +400,22 @@ impl ExportNamespaceSpecifier {
     pub fn set_name(&self, ast: &mut crate::Ast, name: ModuleExportName) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         ast.extra_data[offset].node = name.node_id().into();
+    }
+}
+impl ModuleExportName {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Ident(it) => it.span(ast),
+            Self::Str(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Ident(it) => it.set_span(ast, span),
+            Self::Str(it) => it.set_span(ast, span),
+        }
     }
 }
 impl ExportDefaultSpecifier {
@@ -395,6 +503,22 @@ impl ExportDefaultDecl {
         ast.extra_data[offset].node = decl.node_id().into();
     }
 }
+impl DefaultDecl {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Class(it) => it.span(ast),
+            Self::Fn(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Class(it) => it.set_span(ast, span),
+            Self::Fn(it) => it.set_span(ast, span),
+        }
+    }
+}
 impl ExportDefaultExpr {
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
@@ -478,6 +602,56 @@ impl BlockStmt {
     pub fn set_stmts(&self, ast: &mut crate::Ast, stmts: TypedSubRange<Stmt>) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         ast.extra_data[offset].sub_range = stmts.into();
+    }
+}
+impl Stmt {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Block(it) => it.span(ast),
+            Self::Empty(it) => it.span(ast),
+            Self::Debugger(it) => it.span(ast),
+            Self::With(it) => it.span(ast),
+            Self::Return(it) => it.span(ast),
+            Self::Labeled(it) => it.span(ast),
+            Self::Break(it) => it.span(ast),
+            Self::Continue(it) => it.span(ast),
+            Self::If(it) => it.span(ast),
+            Self::Switch(it) => it.span(ast),
+            Self::Throw(it) => it.span(ast),
+            Self::Try(it) => it.span(ast),
+            Self::While(it) => it.span(ast),
+            Self::DoWhile(it) => it.span(ast),
+            Self::For(it) => it.span(ast),
+            Self::ForIn(it) => it.span(ast),
+            Self::ForOf(it) => it.span(ast),
+            Self::Decl(it) => it.span(ast),
+            Self::Expr(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Block(it) => it.set_span(ast, span),
+            Self::Empty(it) => it.set_span(ast, span),
+            Self::Debugger(it) => it.set_span(ast, span),
+            Self::With(it) => it.set_span(ast, span),
+            Self::Return(it) => it.set_span(ast, span),
+            Self::Labeled(it) => it.set_span(ast, span),
+            Self::Break(it) => it.set_span(ast, span),
+            Self::Continue(it) => it.set_span(ast, span),
+            Self::If(it) => it.set_span(ast, span),
+            Self::Switch(it) => it.set_span(ast, span),
+            Self::Throw(it) => it.set_span(ast, span),
+            Self::Try(it) => it.set_span(ast, span),
+            Self::While(it) => it.set_span(ast, span),
+            Self::DoWhile(it) => it.set_span(ast, span),
+            Self::For(it) => it.set_span(ast, span),
+            Self::ForIn(it) => it.set_span(ast, span),
+            Self::ForOf(it) => it.set_span(ast, span),
+            Self::Decl(it) => it.set_span(ast, span),
+            Self::Expr(it) => it.set_span(ast, span),
+        }
     }
 }
 impl ExprStmt {
@@ -1066,6 +1240,60 @@ impl CatchClause {
         ast.extra_data[offset].node = body.node_id().into();
     }
 }
+impl ForHead {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::VarDecl(it) => it.span(ast),
+            Self::UsingDecl(it) => it.span(ast),
+            Self::Pat(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::VarDecl(it) => it.set_span(ast, span),
+            Self::UsingDecl(it) => it.set_span(ast, span),
+            Self::Pat(it) => it.set_span(ast, span),
+        }
+    }
+}
+impl VarDeclOrExpr {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::VarDecl(it) => it.span(ast),
+            Self::Expr(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::VarDecl(it) => it.set_span(ast, span),
+            Self::Expr(it) => it.set_span(ast, span),
+        }
+    }
+}
+impl Decl {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Class(it) => it.span(ast),
+            Self::Fn(it) => it.span(ast),
+            Self::Var(it) => it.span(ast),
+            Self::Using(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Class(it) => it.set_span(ast, span),
+            Self::Fn(it) => it.set_span(ast, span),
+            Self::Var(it) => it.set_span(ast, span),
+            Self::Using(it) => it.set_span(ast, span),
+        }
+    }
+}
 impl FnDecl {
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
@@ -1259,6 +1487,72 @@ impl UsingDecl {
         ast.extra_data[offset].sub_range = decls.into();
     }
 }
+impl Expr {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::This(it) => it.span(ast),
+            Self::Array(it) => it.span(ast),
+            Self::Object(it) => it.span(ast),
+            Self::Fn(it) => it.span(ast),
+            Self::Unary(it) => it.span(ast),
+            Self::Update(it) => it.span(ast),
+            Self::Bin(it) => it.span(ast),
+            Self::Assign(it) => it.span(ast),
+            Self::Member(it) => it.span(ast),
+            Self::SuperProp(it) => it.span(ast),
+            Self::Cond(it) => it.span(ast),
+            Self::Call(it) => it.span(ast),
+            Self::New(it) => it.span(ast),
+            Self::Seq(it) => it.span(ast),
+            Self::Ident(it) => it.span(ast),
+            Self::Lit(it) => it.span(ast),
+            Self::Tpl(it) => it.span(ast),
+            Self::TaggedTpl(it) => it.span(ast),
+            Self::Arrow(it) => it.span(ast),
+            Self::Class(it) => it.span(ast),
+            Self::Yield(it) => it.span(ast),
+            Self::MetaProp(it) => it.span(ast),
+            Self::Await(it) => it.span(ast),
+            Self::Paren(it) => it.span(ast),
+            Self::PrivateName(it) => it.span(ast),
+            Self::OptChain(it) => it.span(ast),
+            Self::Invalid(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::This(it) => it.set_span(ast, span),
+            Self::Array(it) => it.set_span(ast, span),
+            Self::Object(it) => it.set_span(ast, span),
+            Self::Fn(it) => it.set_span(ast, span),
+            Self::Unary(it) => it.set_span(ast, span),
+            Self::Update(it) => it.set_span(ast, span),
+            Self::Bin(it) => it.set_span(ast, span),
+            Self::Assign(it) => it.set_span(ast, span),
+            Self::Member(it) => it.set_span(ast, span),
+            Self::SuperProp(it) => it.set_span(ast, span),
+            Self::Cond(it) => it.set_span(ast, span),
+            Self::Call(it) => it.set_span(ast, span),
+            Self::New(it) => it.set_span(ast, span),
+            Self::Seq(it) => it.set_span(ast, span),
+            Self::Ident(it) => it.set_span(ast, span),
+            Self::Lit(it) => it.set_span(ast, span),
+            Self::Tpl(it) => it.set_span(ast, span),
+            Self::TaggedTpl(it) => it.set_span(ast, span),
+            Self::Arrow(it) => it.set_span(ast, span),
+            Self::Class(it) => it.set_span(ast, span),
+            Self::Yield(it) => it.set_span(ast, span),
+            Self::MetaProp(it) => it.set_span(ast, span),
+            Self::Await(it) => it.set_span(ast, span),
+            Self::Paren(it) => it.set_span(ast, span),
+            Self::PrivateName(it) => it.set_span(ast, span),
+            Self::OptChain(it) => it.set_span(ast, span),
+            Self::Invalid(it) => it.set_span(ast, span),
+        }
+    }
+}
 impl ThisExpr {
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
@@ -1309,6 +1603,22 @@ impl ObjectLit {
     pub fn set_props(&self, ast: &mut crate::Ast, props: TypedSubRange<PropOrSpread>) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         ast.extra_data[offset].sub_range = props.into();
+    }
+}
+impl PropOrSpread {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::SpreadElement(it) => it.span(ast),
+            Self::Prop(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::SpreadElement(it) => it.set_span(ast, span),
+            Self::Prop(it) => it.set_span(ast, span),
+        }
     }
 }
 impl SpreadElement {
@@ -1600,6 +1910,24 @@ impl MemberExpr {
         ast.extra_data[offset].node = prop.node_id().into();
     }
 }
+impl MemberProp {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Ident(it) => it.span(ast),
+            Self::PrivateName(it) => it.span(ast),
+            Self::Computed(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Ident(it) => it.set_span(ast, span),
+            Self::PrivateName(it) => it.set_span(ast, span),
+            Self::Computed(it) => it.set_span(ast, span),
+        }
+    }
+}
 impl SuperPropExpr {
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
@@ -1630,6 +1958,22 @@ impl SuperPropExpr {
     pub fn set_prop(&self, ast: &mut crate::Ast, prop: SuperProp) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         ast.extra_data[offset].node = prop.node_id().into();
+    }
+}
+impl SuperProp {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Ident(it) => it.span(ast),
+            Self::Computed(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Ident(it) => it.set_span(ast, span),
+            Self::Computed(it) => it.set_span(ast, span),
+        }
     }
 }
 impl CondExpr {
@@ -2016,6 +2360,24 @@ impl ParenExpr {
         ast.extra_data[offset].node = expr.node_id().into();
     }
 }
+impl Callee {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Super(it) => it.span(ast),
+            Self::Import(it) => it.span(ast),
+            Self::Expr(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Super(it) => it.set_span(ast, span),
+            Self::Import(it) => it.set_span(ast, span),
+            Self::Expr(it) => it.set_span(ast, span),
+        }
+    }
+}
 impl Super {
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
@@ -2045,6 +2407,96 @@ impl Import {
     pub fn set_phase(&self, ast: &mut crate::Ast, phase: ImportPhase) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         ast.extra_data[offset].other = phase.to_extra_data();
+    }
+}
+impl ExprOrSpread {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::SpreadElement(it) => it.span(ast),
+            Self::Expr(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::SpreadElement(it) => it.set_span(ast, span),
+            Self::Expr(it) => it.set_span(ast, span),
+        }
+    }
+}
+impl BlockStmtOrExpr {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::BlockStmt(it) => it.span(ast),
+            Self::Expr(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::BlockStmt(it) => it.set_span(ast, span),
+            Self::Expr(it) => it.set_span(ast, span),
+        }
+    }
+}
+impl AssignTarget {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Simple(it) => it.span(ast),
+            Self::Pat(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Simple(it) => it.set_span(ast, span),
+            Self::Pat(it) => it.set_span(ast, span),
+        }
+    }
+}
+impl AssignTargetPat {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Array(it) => it.span(ast),
+            Self::Object(it) => it.span(ast),
+            Self::Invalid(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Array(it) => it.set_span(ast, span),
+            Self::Object(it) => it.set_span(ast, span),
+            Self::Invalid(it) => it.set_span(ast, span),
+        }
+    }
+}
+impl SimpleAssignTarget {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Ident(it) => it.span(ast),
+            Self::Member(it) => it.span(ast),
+            Self::SuperProp(it) => it.span(ast),
+            Self::Paren(it) => it.span(ast),
+            Self::OptChain(it) => it.span(ast),
+            Self::Invalid(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Ident(it) => it.set_span(ast, span),
+            Self::Member(it) => it.set_span(ast, span),
+            Self::SuperProp(it) => it.set_span(ast, span),
+            Self::Paren(it) => it.set_span(ast, span),
+            Self::OptChain(it) => it.set_span(ast, span),
+            Self::Invalid(it) => it.set_span(ast, span),
+        }
     }
 }
 impl OptChainExpr {
@@ -2077,6 +2529,22 @@ impl OptChainExpr {
     pub fn set_base(&self, ast: &mut crate::Ast, base: OptChainBase) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         ast.extra_data[offset].node = base.node_id().into();
+    }
+}
+impl OptChainBase {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Member(it) => it.span(ast),
+            Self::Call(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Member(it) => it.set_span(ast, span),
+            Self::Call(it) => it.set_span(ast, span),
+        }
     }
 }
 impl OptCall {
@@ -2196,6 +2664,20 @@ impl Param {
         ast.extra_data[offset].node = pat.node_id().into();
     }
 }
+impl ParamOrTsParamProp {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Param(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Param(it) => it.set_span(ast, span),
+        }
+    }
+}
 impl Class {
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
@@ -2237,6 +2719,34 @@ impl Class {
     pub fn set_is_abstract(&self, ast: &mut crate::Ast, is_abstract: bool) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         ast.extra_data[offset].bool = is_abstract.into();
+    }
+}
+impl ClassMember {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Constructor(it) => it.span(ast),
+            Self::Method(it) => it.span(ast),
+            Self::PrivateMethod(it) => it.span(ast),
+            Self::ClassProp(it) => it.span(ast),
+            Self::PrivateProp(it) => it.span(ast),
+            Self::Empty(it) => it.span(ast),
+            Self::StaticBlock(it) => it.span(ast),
+            Self::AutoAccessor(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Constructor(it) => it.set_span(ast, span),
+            Self::Method(it) => it.set_span(ast, span),
+            Self::PrivateMethod(it) => it.set_span(ast, span),
+            Self::ClassProp(it) => it.set_span(ast, span),
+            Self::PrivateProp(it) => it.set_span(ast, span),
+            Self::Empty(it) => it.set_span(ast, span),
+            Self::StaticBlock(it) => it.set_span(ast, span),
+            Self::AutoAccessor(it) => it.set_span(ast, span),
+        }
     }
 }
 impl ClassProp {
@@ -2497,6 +3007,22 @@ impl StaticBlock {
         ast.extra_data[offset].node = body.node_id().into();
     }
 }
+impl Key {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Private(it) => it.span(ast),
+            Self::Public(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Private(it) => it.set_span(ast, span),
+            Self::Public(it) => it.set_span(ast, span),
+        }
+    }
+}
 impl AutoAccessor {
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
@@ -2538,6 +3064,30 @@ impl AutoAccessor {
     pub fn set_is_static(&self, ast: &mut crate::Ast, is_static: bool) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         ast.extra_data[offset].bool = is_static.into();
+    }
+}
+impl Prop {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Shorthand(it) => it.span(ast),
+            Self::KeyValue(it) => it.span(ast),
+            Self::Assign(it) => it.span(ast),
+            Self::Getter(it) => it.span(ast),
+            Self::Setter(it) => it.span(ast),
+            Self::Method(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Shorthand(it) => it.set_span(ast, span),
+            Self::KeyValue(it) => it.set_span(ast, span),
+            Self::Assign(it) => it.set_span(ast, span),
+            Self::Getter(it) => it.set_span(ast, span),
+            Self::Setter(it) => it.set_span(ast, span),
+            Self::Method(it) => it.set_span(ast, span),
+        }
     }
 }
 impl KeyValueProp {
@@ -2722,6 +3272,28 @@ impl MethodProp {
         ast.extra_data[offset].node = function.node_id().into();
     }
 }
+impl PropName {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Ident(it) => it.span(ast),
+            Self::Str(it) => it.span(ast),
+            Self::Num(it) => it.span(ast),
+            Self::Computed(it) => it.span(ast),
+            Self::BigInt(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Ident(it) => it.set_span(ast, span),
+            Self::Str(it) => it.set_span(ast, span),
+            Self::Num(it) => it.set_span(ast, span),
+            Self::Computed(it) => it.set_span(ast, span),
+            Self::BigInt(it) => it.set_span(ast, span),
+        }
+    }
+}
 impl ComputedPropName {
     #[inline]
     pub fn span(&self, ast: &crate::Ast) -> crate::Span {
@@ -2741,6 +3313,32 @@ impl ComputedPropName {
     pub fn set_expr(&self, ast: &mut crate::Ast, expr: Expr) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         ast.extra_data[offset].node = expr.node_id().into();
+    }
+}
+impl Pat {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Ident(it) => it.span(ast),
+            Self::Array(it) => it.span(ast),
+            Self::Rest(it) => it.span(ast),
+            Self::Object(it) => it.span(ast),
+            Self::Assign(it) => it.span(ast),
+            Self::Invalid(it) => it.span(ast),
+            Self::Expr(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Ident(it) => it.set_span(ast, span),
+            Self::Array(it) => it.set_span(ast, span),
+            Self::Rest(it) => it.set_span(ast, span),
+            Self::Object(it) => it.set_span(ast, span),
+            Self::Assign(it) => it.set_span(ast, span),
+            Self::Invalid(it) => it.set_span(ast, span),
+            Self::Expr(it) => it.set_span(ast, span),
+        }
     }
 }
 impl ArrayPat {
@@ -2869,6 +3467,24 @@ impl RestPat {
     pub fn set_arg(&self, ast: &mut crate::Ast, arg: Pat) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         ast.extra_data[offset].node = arg.node_id().into();
+    }
+}
+impl ObjectPatProp {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::KeyValue(it) => it.span(ast),
+            Self::Assign(it) => it.span(ast),
+            Self::Rest(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::KeyValue(it) => it.set_span(ast, span),
+            Self::Assign(it) => it.set_span(ast, span),
+            Self::Rest(it) => it.set_span(ast, span),
+        }
     }
 }
 impl KeyValuePatProp {
@@ -3028,6 +3644,30 @@ impl BindingIdent {
     pub fn set_id(&self, ast: &mut crate::Ast, id: Ident) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         ast.extra_data[offset].node = id.node_id().into();
+    }
+}
+impl Lit {
+    #[inline]
+    pub fn span(&self, ast: &crate::Ast) -> crate::Span {
+        match self {
+            Self::Str(it) => it.span(ast),
+            Self::Bool(it) => it.span(ast),
+            Self::Null(it) => it.span(ast),
+            Self::Num(it) => it.span(ast),
+            Self::BigInt(it) => it.span(ast),
+            Self::Regex(it) => it.span(ast),
+        }
+    }
+    #[inline]
+    pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+        match self {
+            Self::Str(it) => it.set_span(ast, span),
+            Self::Bool(it) => it.set_span(ast, span),
+            Self::Null(it) => it.set_span(ast, span),
+            Self::Num(it) => it.set_span(ast, span),
+            Self::BigInt(it) => it.set_span(ast, span),
+            Self::Regex(it) => it.set_span(ast, span),
+        }
     }
 }
 impl Str {
