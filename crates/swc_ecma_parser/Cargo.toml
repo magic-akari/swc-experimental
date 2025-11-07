@@ -1,6 +1,17 @@
 [package]
-name = "rspack_experimental_swc_ecma_parser"
-version = "0.1.0"
 edition = "2024"
+name    = "rspack_experimental_swc_ecma_parser"
+version = "0.1.0"
 
 [dependencies]
+bitflags    = { workspace = true }
+either      = { workspace = true }
+num-bigint  = { workspace = true }
+rustc-hash  = { workspace = true }
+seq-macro   = { workspace = true }
+smartstring = { workspace = true }
+swc_atoms   = { workspace = true }
+swc_common  = { workspace = true }
+tracing     = { workspace = true }
+
+rspack_experimental_swc_ecma_ast = { workspace = true }
