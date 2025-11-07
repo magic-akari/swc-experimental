@@ -1,3 +1,4 @@
+#![allow(unused)]
 use crate::{ast::*, node_id::*};
 impl Module {
     #[inline]

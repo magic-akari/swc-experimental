@@ -22,6 +22,7 @@ pub fn ast_property(schema: &Schema) -> RawOutput {
     }
 
     let output = quote! {
+            #![allow(unused)]
             use crate::{node_id::*, ast::*};
 
             #impls

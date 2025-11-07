@@ -1,3 +1,4 @@
+#![allow(unused)]
 use crate::{ast::*, node_id::*};
 use crate::{Ast, NodeKind};
 impl GetNodeId for Program {
