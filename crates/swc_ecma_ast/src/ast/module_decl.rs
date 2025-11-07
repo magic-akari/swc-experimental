@@ -1,6 +1,11 @@
+use std::mem;
+
 use rspack_experimental_swc_ast_macros::ast;
 
-use crate::ast::{ClassExpr, FnExpr, Ident, Str};
+use crate::{
+    ast::{ClassExpr, FnExpr, Ident, Str},
+    node_id::ExtraDataCompact,
+};
 
 #[ast]
 pub enum ModuleDecl {
@@ -24,10 +29,21 @@ pub struct ImportDecl {
     phase: ImportPhase,
 }
 
+#[repr(u64)]
 pub enum ImportPhase {
     Evaluation,
     Source,
     Defer,
+}
+
+impl ExtraDataCompact for ImportPhase {
+    fn to_extra_data(self) -> u64 {
+        unsafe { mem::transmute(self) }
+    }
+
+    fn from_extra_data(raw: u64) -> Self {
+        unsafe { mem::transmute(raw) }
+    }
 }
 
 #[ast]

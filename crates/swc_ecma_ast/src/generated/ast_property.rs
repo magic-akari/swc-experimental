@@ -96,7 +96,7 @@ impl ImportDecl {
     pub fn phase(&self, ast: &crate::Ast) -> ImportPhase {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 4usize;
         let ret = unsafe { ast.extra_data[offset].other };
-        ret.into()
+        ImportPhase::from_extra_data(ret)
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -125,7 +125,7 @@ impl ImportDecl {
     #[inline]
     pub fn set_phase(&self, ast: &mut crate::Ast, phase: ImportPhase) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 4usize;
-        ast.extra_data[offset].other = phase.into();
+        ast.extra_data[offset].other = phase.to_extra_data();
     }
 }
 impl ImportNamedSpecifier {
@@ -1160,7 +1160,7 @@ impl VarDecl {
     pub fn kind(&self, ast: &crate::Ast) -> VarDeclKind {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].other };
-        ret.into()
+        VarDeclKind::from_extra_data(ret)
     }
     #[inline]
     pub fn declare(&self, ast: &crate::Ast) -> bool {
@@ -1181,7 +1181,7 @@ impl VarDecl {
     #[inline]
     pub fn set_kind(&self, ast: &mut crate::Ast, kind: VarDeclKind) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
-        ast.extra_data[offset].other = kind.into();
+        ast.extra_data[offset].other = kind.to_extra_data();
     }
     #[inline]
     pub fn set_declare(&self, ast: &mut crate::Ast, declare: bool) {
@@ -1351,7 +1351,7 @@ impl UnaryExpr {
     pub fn op(&self, ast: &crate::Ast) -> UnaryOp {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].other };
-        ret.into()
+        UnaryOp::from_extra_data(ret)
     }
     #[inline]
     pub fn arg(&self, ast: &crate::Ast) -> Expr {
@@ -1366,7 +1366,7 @@ impl UnaryExpr {
     #[inline]
     pub fn set_op(&self, ast: &mut crate::Ast, op: UnaryOp) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
-        ast.extra_data[offset].other = op.into();
+        ast.extra_data[offset].other = op.to_extra_data();
     }
     #[inline]
     pub fn set_arg(&self, ast: &mut crate::Ast, arg: Expr) {
@@ -1383,7 +1383,7 @@ impl UpdateExpr {
     pub fn op(&self, ast: &crate::Ast) -> UpdateOp {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].other };
-        ret.into()
+        UpdateOp::from_extra_data(ret)
     }
     #[inline]
     pub fn prefix(&self, ast: &crate::Ast) -> bool {
@@ -1404,7 +1404,7 @@ impl UpdateExpr {
     #[inline]
     pub fn set_op(&self, ast: &mut crate::Ast, op: UpdateOp) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
-        ast.extra_data[offset].other = op.into();
+        ast.extra_data[offset].other = op.to_extra_data();
     }
     #[inline]
     pub fn set_prefix(&self, ast: &mut crate::Ast, prefix: bool) {
@@ -1426,7 +1426,7 @@ impl BinExpr {
     pub fn op(&self, ast: &crate::Ast) -> BinaryOp {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].other };
-        ret.into()
+        BinaryOp::from_extra_data(ret)
     }
     #[inline]
     pub fn left(&self, ast: &crate::Ast) -> Expr {
@@ -1447,7 +1447,7 @@ impl BinExpr {
     #[inline]
     pub fn set_op(&self, ast: &mut crate::Ast, op: BinaryOp) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
-        ast.extra_data[offset].other = op.into();
+        ast.extra_data[offset].other = op.to_extra_data();
     }
     #[inline]
     pub fn set_left(&self, ast: &mut crate::Ast, left: Expr) {
@@ -1533,7 +1533,7 @@ impl AssignExpr {
     pub fn op(&self, ast: &crate::Ast) -> AssignOp {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].other };
-        ret.into()
+        AssignOp::from_extra_data(ret)
     }
     #[inline]
     pub fn left(&self, ast: &crate::Ast) -> AssignTarget {
@@ -1554,7 +1554,7 @@ impl AssignExpr {
     #[inline]
     pub fn set_op(&self, ast: &mut crate::Ast, op: AssignOp) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
-        ast.extra_data[offset].other = op.into();
+        ast.extra_data[offset].other = op.to_extra_data();
     }
     #[inline]
     pub fn set_left(&self, ast: &mut crate::Ast, left: AssignTarget) {
@@ -1854,7 +1854,7 @@ impl MetaPropExpr {
     pub fn kind(&self, ast: &crate::Ast) -> MetaPropKind {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].other };
-        ret.into()
+        MetaPropKind::from_extra_data(ret)
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -1863,7 +1863,7 @@ impl MetaPropExpr {
     #[inline]
     pub fn set_kind(&self, ast: &mut crate::Ast, kind: MetaPropKind) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
-        ast.extra_data[offset].other = kind.into();
+        ast.extra_data[offset].other = kind.to_extra_data();
     }
 }
 impl AwaitExpr {
@@ -2034,7 +2034,7 @@ impl Import {
     pub fn phase(&self, ast: &crate::Ast) -> ImportPhase {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].other };
-        ret.into()
+        ImportPhase::from_extra_data(ret)
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -2043,7 +2043,7 @@ impl Import {
     #[inline]
     pub fn set_phase(&self, ast: &mut crate::Ast, phase: ImportPhase) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
-        ast.extra_data[offset].other = phase.into();
+        ast.extra_data[offset].other = phase.to_extra_data();
     }
 }
 impl OptChainExpr {
@@ -2345,7 +2345,7 @@ impl ClassMethod {
     pub fn kind(&self, ast: &crate::Ast) -> MethodKind {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         let ret = unsafe { ast.extra_data[offset].other };
-        ret.into()
+        MethodKind::from_extra_data(ret)
     }
     #[inline]
     pub fn is_static(&self, ast: &crate::Ast) -> bool {
@@ -2370,7 +2370,7 @@ impl ClassMethod {
     #[inline]
     pub fn set_kind(&self, ast: &mut crate::Ast, kind: MethodKind) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
-        ast.extra_data[offset].other = kind.into();
+        ast.extra_data[offset].other = kind.to_extra_data();
     }
     #[inline]
     pub fn set_is_static(&self, ast: &mut crate::Ast, is_static: bool) {
@@ -2399,7 +2399,7 @@ impl PrivateMethod {
     pub fn kind(&self, ast: &crate::Ast) -> MethodKind {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         let ret = unsafe { ast.extra_data[offset].other };
-        ret.into()
+        MethodKind::from_extra_data(ret)
     }
     #[inline]
     pub fn is_static(&self, ast: &crate::Ast) -> bool {
@@ -2424,7 +2424,7 @@ impl PrivateMethod {
     #[inline]
     pub fn set_kind(&self, ast: &mut crate::Ast, kind: MethodKind) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
-        ast.extra_data[offset].other = kind.into();
+        ast.extra_data[offset].other = kind.to_extra_data();
     }
     #[inline]
     pub fn set_is_static(&self, ast: &mut crate::Ast, is_static: bool) {
@@ -2502,26 +2502,20 @@ impl AutoAccessor {
         ast.nodes[self.0].span
     }
     #[inline]
-    pub fn span(&self, ast: &crate::Ast) -> Span {
-        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
-        let ret = unsafe { ast.extra_data[offset].span };
-        ret.into()
-    }
-    #[inline]
     pub fn key(&self, ast: &crate::Ast) -> Key {
-        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         let ret = unsafe { ast.extra_data[offset].node };
         Key::from_node_id(ret, ast)
     }
     #[inline]
     pub fn value(&self, ast: &crate::Ast) -> Option<Expr> {
-        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         let ret = unsafe { ast.extra_data[offset].optional_node };
         ret.map(|id| Expr::from_node_id(id, ast))
     }
     #[inline]
     pub fn is_static(&self, ast: &crate::Ast) -> bool {
-        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         let ret = unsafe { ast.extra_data[offset].bool };
         ret.into()
     }
@@ -2530,23 +2524,18 @@ impl AutoAccessor {
         ast.nodes[self.0].span = span;
     }
     #[inline]
-    pub fn set_span(&self, ast: &mut crate::Ast, span: Span) {
-        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
-        ast.extra_data[offset].span = span.into();
-    }
-    #[inline]
     pub fn set_key(&self, ast: &mut crate::Ast, key: Key) {
-        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         ast.extra_data[offset].node = key.node_id().into();
     }
     #[inline]
     pub fn set_value(&self, ast: &mut crate::Ast, value: Option<Expr>) {
-        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         ast.extra_data[offset].optional_node = value.optional_node_id().into();
     }
     #[inline]
     pub fn set_is_static(&self, ast: &mut crate::Ast, is_static: bool) {
-        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         ast.extra_data[offset].bool = is_static.into();
     }
 }

@@ -1,6 +1,8 @@
+use std::mem;
+
 use rspack_experimental_swc_ast_macros::ast;
 
-use crate::ast::*;
+use crate::{ast::*, node_id::ExtraDataCompact};
 
 #[ast]
 pub enum Expr {
@@ -181,11 +183,22 @@ pub struct MetaPropExpr {
     kind: MetaPropKind,
 }
 
+#[repr(u64)]
 pub enum MetaPropKind {
     /// `new.target`
     NewTarget,
     /// `import.meta`
     ImportMeta,
+}
+
+impl ExtraDataCompact for MetaPropKind {
+    fn to_extra_data(self) -> u64 {
+        unsafe { mem::transmute(self) }
+    }
+
+    fn from_extra_data(raw: u64) -> Self {
+        unsafe { mem::transmute(raw) }
+    }
 }
 
 #[ast]

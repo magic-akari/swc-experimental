@@ -1,4 +1,8 @@
+use std::mem;
+
 use rspack_experimental_swc_ast_macros::ast;
+
+use crate::node_id::ExtraDataCompact;
 
 #[ast]
 pub enum Decl {
@@ -33,10 +37,21 @@ pub struct VarDecl {
     decls: Vec<VarDeclarator>,
 }
 
+#[repr(u64)]
 pub enum VarDeclKind {
     Var,
     Let,
     Const,
+}
+
+impl ExtraDataCompact for VarDeclKind {
+    fn to_extra_data(self) -> u64 {
+        unsafe { mem::transmute(self) }
+    }
+
+    fn from_extra_data(raw: u64) -> Self {
+        unsafe { mem::transmute(raw) }
+    }
 }
 
 #[ast]

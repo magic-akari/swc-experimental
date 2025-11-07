@@ -1,3 +1,8 @@
+use std::mem;
+
+use crate::node_id::ExtraDataCompact;
+
+#[repr(u64)]
 #[derive(Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash, Default)]
 pub enum BinaryOp {
     /// `==`
@@ -60,6 +65,16 @@ pub enum BinaryOp {
     NullishCoalescing,
 }
 
+impl ExtraDataCompact for BinaryOp {
+    fn to_extra_data(self) -> u64 {
+        unsafe { mem::transmute(self) }
+    }
+
+    fn from_extra_data(raw: u64) -> Self {
+        unsafe { mem::transmute(raw) }
+    }
+}
+
 impl BinaryOp {
     pub fn precedence(self) -> u8 {
         match self {
@@ -99,6 +114,7 @@ impl BinaryOp {
     }
 }
 
+#[repr(u64)]
 #[derive(Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash, Default)]
 pub enum AssignOp {
     /// `=`
@@ -140,6 +156,17 @@ pub enum AssignOp {
     NullishAssign,
 }
 
+impl ExtraDataCompact for AssignOp {
+    fn to_extra_data(self) -> u64 {
+        unsafe { mem::transmute(self) }
+    }
+
+    fn from_extra_data(raw: u64) -> Self {
+        unsafe { mem::transmute(raw) }
+    }
+}
+
+#[repr(u64)]
 #[derive(Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash, Default)]
 pub enum UpdateOp {
     /// `++`
@@ -149,6 +176,17 @@ pub enum UpdateOp {
     MinusMinus,
 }
 
+impl ExtraDataCompact for UpdateOp {
+    fn to_extra_data(self) -> u64 {
+        unsafe { mem::transmute(self) }
+    }
+
+    fn from_extra_data(raw: u64) -> Self {
+        unsafe { mem::transmute(raw) }
+    }
+}
+
+#[repr(u64)]
 #[derive(Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash, Default)]
 pub enum UnaryOp {
     /// `-`
@@ -166,4 +204,14 @@ pub enum UnaryOp {
     Void,
     /// `delete`
     Delete,
+}
+
+impl ExtraDataCompact for UnaryOp {
+    fn to_extra_data(self) -> u64 {
+        unsafe { mem::transmute(self) }
+    }
+
+    fn from_extra_data(raw: u64) -> Self {
+        unsafe { mem::transmute(raw) }
+    }
 }

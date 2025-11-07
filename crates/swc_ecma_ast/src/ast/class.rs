@@ -1,6 +1,8 @@
+use std::mem;
+
 use rspack_experimental_swc_ast_macros::ast;
 
-use crate::ast::*;
+use crate::{ast::*, node_id::ExtraDataCompact};
 
 #[ast]
 pub struct Class {
@@ -94,10 +96,21 @@ pub struct Constructor {
 //     expr: Expr,
 // }
 
+#[repr(u64)]
 pub enum MethodKind {
     Method,
     Getter,
     Setter,
+}
+
+impl ExtraDataCompact for MethodKind {
+    fn to_extra_data(self) -> u64 {
+        unsafe { mem::transmute(self) }
+    }
+
+    fn from_extra_data(raw: u64) -> Self {
+        unsafe { mem::transmute(raw) }
+    }
 }
 
 #[ast]
@@ -113,7 +126,6 @@ pub enum Key {
 
 #[ast]
 pub struct AutoAccessor {
-    span: Span,
     key: Key,
     value: Option<Expr>,
     // type_ann: Option<TsTypeAnn>,

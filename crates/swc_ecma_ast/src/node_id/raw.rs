@@ -1,6 +1,8 @@
 use oxc_index::Idx;
 use swc_common::BytePos;
 
+use crate::node_id::ExtraDataId;
+
 macro_rules! define_optional_index_type {
     ($name:ident, $index_type:ident) => {
         #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -86,10 +88,6 @@ impl AtomRef {
             hi: BytePos(atom.0),
         }
     }
-}
-
-oxc_index::define_index_type! {
-    pub struct ExtraDataId = u32;
 }
 
 #[derive(Debug, Clone, Copy, Hash)]

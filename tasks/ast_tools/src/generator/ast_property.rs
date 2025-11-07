@@ -58,6 +58,7 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
         let field_name = format_ident!("{}", field.name);
         let field_ty = &schema.types[field.type_id];
 
+        let extra_data_name = map_field_type_to_extra_field(field_ty);
         let (ret_ty, cast_expr) = match &field_ty {
             AstType::Vec(_) => (
                 field_ty.repr_ident(schema),
@@ -78,9 +79,13 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
                     quote!( #field_inner_ty::from_node_id(ret, ast) ),
                 )
             }
+            _ if extra_data_name == "other" => {
+                let field_ty = field_ty.repr_ident(schema);
+                (field_ty.clone(), quote!(#field_ty::from_extra_data(ret)))
+            }
             _ => (field_ty.repr_ident(schema), quote!(ret.into())),
         };
-        let extra_data_name = format_ident!("{}", map_field_type_to_extra_field(field_ty));
+        let extra_data_name = format_ident!("{extra_data_name}");
 
         let getter_name = safe_ident(&field.name.to_case(Case::Snake));
         field_getters.extend(quote! {
@@ -97,6 +102,9 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
                 quote!(#field_name.optional_node_id().into())
             }
             AstType::Struct(_) | AstType::Enum(_) => quote!(#field_name.node_id().into()),
+            _ if extra_data_name == "other" => {
+                quote!(#field_name.to_extra_data())
+            }
             _ => quote!(#field_name.into()),
         };
         let setter_name = format_ident!("set_{}", field_name);

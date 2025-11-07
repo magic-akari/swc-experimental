@@ -148,6 +148,7 @@ pub enum NodeKind {
     FnDecl,
     VarDecl,
     UsingDecl,
+    VarDeclarator,
 
     // function.rs
     Function,

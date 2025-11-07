@@ -1,5 +1,5 @@
-use crate::{Ast, NodeKind};
 use crate::{ast::*, node_id::*};
+use crate::{Ast, NodeKind};
 impl GetNodeId for Program {
     #[inline]
     fn node_id(&self) -> NodeId {

@@ -6,7 +6,7 @@ use crate::{
     AST_CRATE_PATH,
     output::{RawOutput, RustOutput, output_path},
     schema::{AstEnum, AstStruct, AstType, Schema},
-    util::{safe_ident, map_field_type_to_extra_field},
+    util::{map_field_type_to_extra_field, safe_ident},
 };
 
 pub fn ast_builder(schema: &Schema) -> RawOutput {
@@ -63,16 +63,19 @@ fn generate_build_function_for_struct(ast: &AstStruct, schema: &Schema) -> Token
         let field_name = format_ident!("{}", field.name);
 
         let field_ty = &schema.types[field.type_id];
+        let extra_data_field = map_field_type_to_extra_field(field_ty);
         let field_value = match field_ty {
             AstType::Option(_) => {
-                quote!( #field_name.optional_node_id().into() )
+                quote!( #field_name.optional_node_id() )
             }
             AstType::Struct(_) | AstType::Enum(_) => {
-                quote!( #field_name.node_id().into() )
+                quote!( #field_name.node_id() )
             }
+            _ if extra_data_field == "other" => quote!( #field_name.to_extra_data() ),
             _ => quote!( #field_name.into() ),
         };
-        let extra_data_field = format_ident!("{}", map_field_type_to_extra_field(field_ty));
+        let extra_data_field = format_ident!("{}", extra_data_field);
+
         add_extra_data.extend(quote! {
             let #extra_data_id = self.add_extra(ExtraData { #extra_data_field: #field_value });
         });
