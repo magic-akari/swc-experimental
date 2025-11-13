@@ -31,3 +31,11 @@ syn          = { version = "2", default-features = false }
 rspack_experimental_swc_ast_macros  = { path = "crates/swc_ast_macros" }
 rspack_experimental_swc_ecma_ast    = { path = "crates/swc_ecma_ast" }
 rspack_experimental_swc_ecma_parser = { path = "crates/swc_ecma_parser" }
+
+[profile.bench]
+codegen-units = 1
+debug         = true
+lto           = "fat"
+opt-level     = 3
+panic         = "abort"
+strip         = "none"

@@ -7,6 +7,4 @@ fn main() {
 
     let mut parser = Parser::new(syntax, input, None);
     let _root = parser.parse_program().unwrap();
-
-    println!("node len: {}", parser.ast.nodes().len());
 }
