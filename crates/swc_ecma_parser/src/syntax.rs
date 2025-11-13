@@ -175,7 +175,7 @@ pub struct TsSyntax {
 }
 
 impl TsSyntax {
-    fn into_flags(self) -> SyntaxFlags {
+    fn _into_flags(self) -> SyntaxFlags {
         let mut flags = SyntaxFlags::TS
             .union(SyntaxFlags::AUTO_ACCESSORS)
             .union(SyntaxFlags::IMPORT_ATTRIBUTES)

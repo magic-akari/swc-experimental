@@ -39,6 +39,14 @@ macro_rules! define_optional_index_type {
                 Self(u32::MAX)
             }
 
+            pub fn to_option(self) -> Option<$index_type> {
+                if self.0 == u32::MAX {
+                    return None;
+                }
+
+                Some($index_type(self.0))
+            }
+
             pub fn map<U, F>(self, f: F) -> Option<U>
             where
                 F: FnOnce($index_type) -> U,
@@ -51,4 +59,8 @@ macro_rules! define_optional_index_type {
             }
         }
     };
+}
+
+oxc_index::define_index_type! {
+    pub struct BigIntId = u32;
 }

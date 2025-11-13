@@ -33,7 +33,7 @@ pub struct GetterProp {
 #[ast]
 pub struct SetterProp {
     key: PropName,
-    this_param: Option<Pat>,
+    // this_param: Option<Pat>,
     param: Pat,
     body: Option<BlockStmt>,
 }

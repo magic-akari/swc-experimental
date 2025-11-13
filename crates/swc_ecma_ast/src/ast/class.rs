@@ -91,10 +91,10 @@ pub struct Constructor {
     // is_optional: bool,
 }
 
-// #[ast]
-// pub struct Decorator {
-//     expr: Expr,
-// }
+#[ast]
+pub struct Decorator {
+    expr: Expr,
+}
 
 #[repr(u64)]
 pub enum MethodKind {

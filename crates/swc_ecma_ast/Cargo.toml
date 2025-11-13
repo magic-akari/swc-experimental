@@ -4,9 +4,10 @@ name    = "rspack_experimental_swc_ecma_ast"
 version = "0.1.0"
 
 [dependencies]
-num-bigint = { workspace = true }
-oxc_index  = { workspace = true }
-swc_atoms  = { workspace = true }
-swc_common = { workspace = true }
+num-bigint       = { workspace = true }
+oxc_index        = { workspace = true }
+swc_atoms        = { workspace = true }
+swc_common       = { workspace = true }
+unicode-id-start = { workspace = true }
 
 rspack_experimental_swc_ast_macros = { workspace = true }

@@ -19,9 +19,9 @@ impl GetOptionalNodeId for Option<Program> {
         }
     }
 }
-impl Program {
+impl FromNodeId for Program {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::Module => Program::Module(Module::from_node_id(id, ast)),
             NodeKind::Script => Program::Script(Script::from_node_id(id, ast)),
@@ -44,9 +44,9 @@ impl GetOptionalNodeId for Option<Module> {
         }
     }
 }
-impl Module {
+impl FromNodeId for Module {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -65,9 +65,9 @@ impl GetOptionalNodeId for Option<Script> {
         }
     }
 }
-impl Script {
+impl FromNodeId for Script {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -89,9 +89,9 @@ impl GetOptionalNodeId for Option<ModuleItem> {
         }
     }
 }
-impl ModuleItem {
+impl FromNodeId for ModuleItem {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::BlockStmt => ModuleItem::Stmt(Stmt::Block(BlockStmt::from_node_id(id, ast))),
             NodeKind::BreakStmt => ModuleItem::Stmt(Stmt::Break(BreakStmt::from_node_id(id, ast))),
@@ -179,9 +179,9 @@ impl GetOptionalNodeId for Option<ModuleDecl> {
         }
     }
 }
-impl ModuleDecl {
+impl FromNodeId for ModuleDecl {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::ExportAll => ModuleDecl::ExportAll(ExportAll::from_node_id(id, ast)),
             NodeKind::ExportDecl => ModuleDecl::ExportDecl(ExportDecl::from_node_id(id, ast)),
@@ -212,9 +212,9 @@ impl GetOptionalNodeId for Option<ImportDecl> {
         }
     }
 }
-impl ImportDecl {
+impl FromNodeId for ImportDecl {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -237,9 +237,9 @@ impl GetOptionalNodeId for Option<ImportSpecifier> {
         }
     }
 }
-impl ImportSpecifier {
+impl FromNodeId for ImportSpecifier {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::ImportDefaultSpecifier => {
                 ImportSpecifier::Default(ImportDefaultSpecifier::from_node_id(id, ast))
@@ -269,9 +269,9 @@ impl GetOptionalNodeId for Option<ImportNamedSpecifier> {
         }
     }
 }
-impl ImportNamedSpecifier {
+impl FromNodeId for ImportNamedSpecifier {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -290,9 +290,9 @@ impl GetOptionalNodeId for Option<ImportDefaultSpecifier> {
         }
     }
 }
-impl ImportDefaultSpecifier {
+impl FromNodeId for ImportDefaultSpecifier {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -311,9 +311,9 @@ impl GetOptionalNodeId for Option<ImportStarAsSpecifier> {
         }
     }
 }
-impl ImportStarAsSpecifier {
+impl FromNodeId for ImportStarAsSpecifier {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -332,9 +332,9 @@ impl GetOptionalNodeId for Option<ExportDecl> {
         }
     }
 }
-impl ExportDecl {
+impl FromNodeId for ExportDecl {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -353,9 +353,9 @@ impl GetOptionalNodeId for Option<NamedExport> {
         }
     }
 }
-impl NamedExport {
+impl FromNodeId for NamedExport {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -378,9 +378,9 @@ impl GetOptionalNodeId for Option<ExportSpecifier> {
         }
     }
 }
-impl ExportSpecifier {
+impl FromNodeId for ExportSpecifier {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::ExportDefaultSpecifier => {
                 ExportSpecifier::Default(ExportDefaultSpecifier::from_node_id(id, ast))
@@ -410,9 +410,9 @@ impl GetOptionalNodeId for Option<ExportNamespaceSpecifier> {
         }
     }
 }
-impl ExportNamespaceSpecifier {
+impl FromNodeId for ExportNamespaceSpecifier {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -434,9 +434,9 @@ impl GetOptionalNodeId for Option<ModuleExportName> {
         }
     }
 }
-impl ModuleExportName {
+impl FromNodeId for ModuleExportName {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::Ident => ModuleExportName::Ident(Ident::from_node_id(id, ast)),
             NodeKind::Str => ModuleExportName::Str(Str::from_node_id(id, ast)),
@@ -459,9 +459,9 @@ impl GetOptionalNodeId for Option<ExportDefaultSpecifier> {
         }
     }
 }
-impl ExportDefaultSpecifier {
+impl FromNodeId for ExportDefaultSpecifier {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -480,9 +480,9 @@ impl GetOptionalNodeId for Option<ExportNamedSpecifier> {
         }
     }
 }
-impl ExportNamedSpecifier {
+impl FromNodeId for ExportNamedSpecifier {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -501,9 +501,9 @@ impl GetOptionalNodeId for Option<ExportDefaultDecl> {
         }
     }
 }
-impl ExportDefaultDecl {
+impl FromNodeId for ExportDefaultDecl {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -525,9 +525,9 @@ impl GetOptionalNodeId for Option<DefaultDecl> {
         }
     }
 }
-impl DefaultDecl {
+impl FromNodeId for DefaultDecl {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::ClassExpr => DefaultDecl::Class(ClassExpr::from_node_id(id, ast)),
             NodeKind::FnExpr => DefaultDecl::Fn(FnExpr::from_node_id(id, ast)),
@@ -550,9 +550,9 @@ impl GetOptionalNodeId for Option<ExportDefaultExpr> {
         }
     }
 }
-impl ExportDefaultExpr {
+impl FromNodeId for ExportDefaultExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -571,9 +571,9 @@ impl GetOptionalNodeId for Option<ExportAll> {
         }
     }
 }
-impl ExportAll {
+impl FromNodeId for ExportAll {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -592,9 +592,9 @@ impl GetOptionalNodeId for Option<BlockStmt> {
         }
     }
 }
-impl BlockStmt {
+impl FromNodeId for BlockStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -633,9 +633,9 @@ impl GetOptionalNodeId for Option<Stmt> {
         }
     }
 }
-impl Stmt {
+impl FromNodeId for Stmt {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::BlockStmt => Stmt::Block(BlockStmt::from_node_id(id, ast)),
             NodeKind::BreakStmt => Stmt::Break(BreakStmt::from_node_id(id, ast)),
@@ -678,9 +678,9 @@ impl GetOptionalNodeId for Option<ExprStmt> {
         }
     }
 }
-impl ExprStmt {
+impl FromNodeId for ExprStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -699,9 +699,9 @@ impl GetOptionalNodeId for Option<EmptyStmt> {
         }
     }
 }
-impl EmptyStmt {
+impl FromNodeId for EmptyStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -720,9 +720,9 @@ impl GetOptionalNodeId for Option<DebuggerStmt> {
         }
     }
 }
-impl DebuggerStmt {
+impl FromNodeId for DebuggerStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -741,9 +741,9 @@ impl GetOptionalNodeId for Option<WithStmt> {
         }
     }
 }
-impl WithStmt {
+impl FromNodeId for WithStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -762,9 +762,9 @@ impl GetOptionalNodeId for Option<ReturnStmt> {
         }
     }
 }
-impl ReturnStmt {
+impl FromNodeId for ReturnStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -783,9 +783,9 @@ impl GetOptionalNodeId for Option<LabeledStmt> {
         }
     }
 }
-impl LabeledStmt {
+impl FromNodeId for LabeledStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -804,9 +804,9 @@ impl GetOptionalNodeId for Option<BreakStmt> {
         }
     }
 }
-impl BreakStmt {
+impl FromNodeId for BreakStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -825,9 +825,9 @@ impl GetOptionalNodeId for Option<ContinueStmt> {
         }
     }
 }
-impl ContinueStmt {
+impl FromNodeId for ContinueStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -846,9 +846,9 @@ impl GetOptionalNodeId for Option<IfStmt> {
         }
     }
 }
-impl IfStmt {
+impl FromNodeId for IfStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -867,9 +867,9 @@ impl GetOptionalNodeId for Option<SwitchStmt> {
         }
     }
 }
-impl SwitchStmt {
+impl FromNodeId for SwitchStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -888,9 +888,9 @@ impl GetOptionalNodeId for Option<ThrowStmt> {
         }
     }
 }
-impl ThrowStmt {
+impl FromNodeId for ThrowStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -909,9 +909,9 @@ impl GetOptionalNodeId for Option<TryStmt> {
         }
     }
 }
-impl TryStmt {
+impl FromNodeId for TryStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -930,9 +930,9 @@ impl GetOptionalNodeId for Option<WhileStmt> {
         }
     }
 }
-impl WhileStmt {
+impl FromNodeId for WhileStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -951,9 +951,9 @@ impl GetOptionalNodeId for Option<DoWhileStmt> {
         }
     }
 }
-impl DoWhileStmt {
+impl FromNodeId for DoWhileStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -972,9 +972,9 @@ impl GetOptionalNodeId for Option<ForStmt> {
         }
     }
 }
-impl ForStmt {
+impl FromNodeId for ForStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -993,9 +993,9 @@ impl GetOptionalNodeId for Option<ForInStmt> {
         }
     }
 }
-impl ForInStmt {
+impl FromNodeId for ForInStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1014,9 +1014,9 @@ impl GetOptionalNodeId for Option<ForOfStmt> {
         }
     }
 }
-impl ForOfStmt {
+impl FromNodeId for ForOfStmt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1035,9 +1035,9 @@ impl GetOptionalNodeId for Option<SwitchCase> {
         }
     }
 }
-impl SwitchCase {
+impl FromNodeId for SwitchCase {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1056,9 +1056,9 @@ impl GetOptionalNodeId for Option<CatchClause> {
         }
     }
 }
-impl CatchClause {
+impl FromNodeId for CatchClause {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1081,9 +1081,9 @@ impl GetOptionalNodeId for Option<ForHead> {
         }
     }
 }
-impl ForHead {
+impl FromNodeId for ForHead {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::ArrayLit => {
                 ForHead::Pat(Pat::Expr(Expr::Array(ArrayLit::from_node_id(id, ast))))
@@ -1196,9 +1196,9 @@ impl GetOptionalNodeId for Option<VarDeclOrExpr> {
         }
     }
 }
-impl VarDeclOrExpr {
+impl FromNodeId for VarDeclOrExpr {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::ArrayLit => VarDeclOrExpr::Expr(Expr::Array(ArrayLit::from_node_id(id, ast))),
             NodeKind::ArrowExpr => {
@@ -1295,9 +1295,9 @@ impl GetOptionalNodeId for Option<Decl> {
         }
     }
 }
-impl Decl {
+impl FromNodeId for Decl {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::ClassDecl => Decl::Class(ClassDecl::from_node_id(id, ast)),
             NodeKind::FnDecl => Decl::Fn(FnDecl::from_node_id(id, ast)),
@@ -1322,9 +1322,9 @@ impl GetOptionalNodeId for Option<FnDecl> {
         }
     }
 }
-impl FnDecl {
+impl FromNodeId for FnDecl {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1343,9 +1343,9 @@ impl GetOptionalNodeId for Option<ClassDecl> {
         }
     }
 }
-impl ClassDecl {
+impl FromNodeId for ClassDecl {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1364,9 +1364,9 @@ impl GetOptionalNodeId for Option<VarDecl> {
         }
     }
 }
-impl VarDecl {
+impl FromNodeId for VarDecl {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1385,9 +1385,9 @@ impl GetOptionalNodeId for Option<VarDeclarator> {
         }
     }
 }
-impl VarDeclarator {
+impl FromNodeId for VarDeclarator {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1406,9 +1406,9 @@ impl GetOptionalNodeId for Option<UsingDecl> {
         }
     }
 }
-impl UsingDecl {
+impl FromNodeId for UsingDecl {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1455,9 +1455,9 @@ impl GetOptionalNodeId for Option<Expr> {
         }
     }
 }
-impl Expr {
+impl FromNodeId for Expr {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::ArrayLit => Expr::Array(ArrayLit::from_node_id(id, ast)),
             NodeKind::ArrowExpr => Expr::Arrow(ArrowExpr::from_node_id(id, ast)),
@@ -1510,9 +1510,9 @@ impl GetOptionalNodeId for Option<ThisExpr> {
         }
     }
 }
-impl ThisExpr {
+impl FromNodeId for ThisExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1531,9 +1531,9 @@ impl GetOptionalNodeId for Option<ArrayLit> {
         }
     }
 }
-impl ArrayLit {
+impl FromNodeId for ArrayLit {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1552,9 +1552,9 @@ impl GetOptionalNodeId for Option<ObjectLit> {
         }
     }
 }
-impl ObjectLit {
+impl FromNodeId for ObjectLit {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1576,9 +1576,9 @@ impl GetOptionalNodeId for Option<PropOrSpread> {
         }
     }
 }
-impl PropOrSpread {
+impl FromNodeId for PropOrSpread {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::AssignProp => {
                 PropOrSpread::Prop(Prop::Assign(AssignProp::from_node_id(id, ast)))
@@ -1618,9 +1618,9 @@ impl GetOptionalNodeId for Option<SpreadElement> {
         }
     }
 }
-impl SpreadElement {
+impl FromNodeId for SpreadElement {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1639,9 +1639,9 @@ impl GetOptionalNodeId for Option<UnaryExpr> {
         }
     }
 }
-impl UnaryExpr {
+impl FromNodeId for UnaryExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1660,9 +1660,9 @@ impl GetOptionalNodeId for Option<UpdateExpr> {
         }
     }
 }
-impl UpdateExpr {
+impl FromNodeId for UpdateExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1681,9 +1681,9 @@ impl GetOptionalNodeId for Option<BinExpr> {
         }
     }
 }
-impl BinExpr {
+impl FromNodeId for BinExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1702,9 +1702,9 @@ impl GetOptionalNodeId for Option<FnExpr> {
         }
     }
 }
-impl FnExpr {
+impl FromNodeId for FnExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1723,9 +1723,9 @@ impl GetOptionalNodeId for Option<ClassExpr> {
         }
     }
 }
-impl ClassExpr {
+impl FromNodeId for ClassExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1744,9 +1744,9 @@ impl GetOptionalNodeId for Option<AssignExpr> {
         }
     }
 }
-impl AssignExpr {
+impl FromNodeId for AssignExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1765,9 +1765,9 @@ impl GetOptionalNodeId for Option<MemberExpr> {
         }
     }
 }
-impl MemberExpr {
+impl FromNodeId for MemberExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1790,9 +1790,9 @@ impl GetOptionalNodeId for Option<MemberProp> {
         }
     }
 }
-impl MemberProp {
+impl FromNodeId for MemberProp {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::ComputedPropName => {
                 MemberProp::Computed(ComputedPropName::from_node_id(id, ast))
@@ -1818,9 +1818,9 @@ impl GetOptionalNodeId for Option<SuperPropExpr> {
         }
     }
 }
-impl SuperPropExpr {
+impl FromNodeId for SuperPropExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1842,9 +1842,9 @@ impl GetOptionalNodeId for Option<SuperProp> {
         }
     }
 }
-impl SuperProp {
+impl FromNodeId for SuperProp {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::ComputedPropName => {
                 SuperProp::Computed(ComputedPropName::from_node_id(id, ast))
@@ -1869,9 +1869,9 @@ impl GetOptionalNodeId for Option<CondExpr> {
         }
     }
 }
-impl CondExpr {
+impl FromNodeId for CondExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1890,9 +1890,9 @@ impl GetOptionalNodeId for Option<CallExpr> {
         }
     }
 }
-impl CallExpr {
+impl FromNodeId for CallExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1911,9 +1911,9 @@ impl GetOptionalNodeId for Option<NewExpr> {
         }
     }
 }
-impl NewExpr {
+impl FromNodeId for NewExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1932,9 +1932,9 @@ impl GetOptionalNodeId for Option<SeqExpr> {
         }
     }
 }
-impl SeqExpr {
+impl FromNodeId for SeqExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1953,9 +1953,9 @@ impl GetOptionalNodeId for Option<ArrowExpr> {
         }
     }
 }
-impl ArrowExpr {
+impl FromNodeId for ArrowExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1974,9 +1974,9 @@ impl GetOptionalNodeId for Option<YieldExpr> {
         }
     }
 }
-impl YieldExpr {
+impl FromNodeId for YieldExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1995,9 +1995,9 @@ impl GetOptionalNodeId for Option<MetaPropExpr> {
         }
     }
 }
-impl MetaPropExpr {
+impl FromNodeId for MetaPropExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2016,9 +2016,9 @@ impl GetOptionalNodeId for Option<AwaitExpr> {
         }
     }
 }
-impl AwaitExpr {
+impl FromNodeId for AwaitExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2037,9 +2037,9 @@ impl GetOptionalNodeId for Option<Tpl> {
         }
     }
 }
-impl Tpl {
+impl FromNodeId for Tpl {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2058,9 +2058,9 @@ impl GetOptionalNodeId for Option<TaggedTpl> {
         }
     }
 }
-impl TaggedTpl {
+impl FromNodeId for TaggedTpl {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2079,9 +2079,9 @@ impl GetOptionalNodeId for Option<TplElement> {
         }
     }
 }
-impl TplElement {
+impl FromNodeId for TplElement {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2100,9 +2100,9 @@ impl GetOptionalNodeId for Option<ParenExpr> {
         }
     }
 }
-impl ParenExpr {
+impl FromNodeId for ParenExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2125,9 +2125,9 @@ impl GetOptionalNodeId for Option<Callee> {
         }
     }
 }
-impl Callee {
+impl FromNodeId for Callee {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::ArrayLit => Callee::Expr(Expr::Array(ArrayLit::from_node_id(id, ast))),
             NodeKind::ArrowExpr => Callee::Expr(Expr::Arrow(ArrowExpr::from_node_id(id, ast))),
@@ -2190,9 +2190,9 @@ impl GetOptionalNodeId for Option<Super> {
         }
     }
 }
-impl Super {
+impl FromNodeId for Super {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2211,9 +2211,9 @@ impl GetOptionalNodeId for Option<Import> {
         }
     }
 }
-impl Import {
+impl FromNodeId for Import {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2221,8 +2221,9 @@ impl GetNodeId for ExprOrSpread {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
-            Self::SpreadElement(it) => it.node_id(),
+            Self::Spread(it) => it.node_id(),
             Self::Expr(it) => it.node_id(),
+            Self::Elision(it) => it.node_id(),
         }
     }
 }
@@ -2235,9 +2236,9 @@ impl GetOptionalNodeId for Option<ExprOrSpread> {
         }
     }
 }
-impl ExprOrSpread {
+impl FromNodeId for ExprOrSpread {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::ArrayLit => ExprOrSpread::Expr(Expr::Array(ArrayLit::from_node_id(id, ast))),
             NodeKind::ArrowExpr => {
@@ -2259,6 +2260,7 @@ impl ExprOrSpread {
                 ExprOrSpread::Expr(Expr::Class(ClassExpr::from_node_id(id, ast)))
             }
             NodeKind::CondExpr => ExprOrSpread::Expr(Expr::Cond(CondExpr::from_node_id(id, ast))),
+            NodeKind::Elision => ExprOrSpread::Elision(Elision::from_node_id(id, ast)),
             NodeKind::FnExpr => ExprOrSpread::Expr(Expr::Fn(FnExpr::from_node_id(id, ast))),
             NodeKind::Ident => ExprOrSpread::Expr(Expr::Ident(Ident::from_node_id(id, ast))),
             NodeKind::Invalid => ExprOrSpread::Expr(Expr::Invalid(Invalid::from_node_id(id, ast))),
@@ -2287,9 +2289,7 @@ impl ExprOrSpread {
                 ExprOrSpread::Expr(Expr::Lit(Lit::Regex(Regex::from_node_id(id, ast))))
             }
             NodeKind::SeqExpr => ExprOrSpread::Expr(Expr::Seq(SeqExpr::from_node_id(id, ast))),
-            NodeKind::SpreadElement => {
-                ExprOrSpread::SpreadElement(SpreadElement::from_node_id(id, ast))
-            }
+            NodeKind::SpreadElement => ExprOrSpread::Spread(SpreadElement::from_node_id(id, ast)),
             NodeKind::Str => ExprOrSpread::Expr(Expr::Lit(Lit::Str(Str::from_node_id(id, ast)))),
             NodeKind::SuperPropExpr => {
                 ExprOrSpread::Expr(Expr::SuperProp(SuperPropExpr::from_node_id(id, ast)))
@@ -2312,6 +2312,27 @@ impl ExprOrSpread {
         }
     }
 }
+impl GetNodeId for Elision {
+    #[inline]
+    fn node_id(&self) -> NodeId {
+        self.0
+    }
+}
+impl GetOptionalNodeId for Option<Elision> {
+    #[inline]
+    fn optional_node_id(&self) -> OptionalNodeId {
+        match self {
+            Some(it) => it.node_id().into(),
+            None => OptionalNodeId::none(),
+        }
+    }
+}
+impl FromNodeId for Elision {
+    #[inline]
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+        Self(node_id)
+    }
+}
 impl GetNodeId for BlockStmtOrExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
@@ -2330,9 +2351,9 @@ impl GetOptionalNodeId for Option<BlockStmtOrExpr> {
         }
     }
 }
-impl BlockStmtOrExpr {
+impl FromNodeId for BlockStmtOrExpr {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::ArrayLit => {
                 BlockStmtOrExpr::Expr(Expr::Array(ArrayLit::from_node_id(id, ast)))
@@ -2437,9 +2458,9 @@ impl GetOptionalNodeId for Option<AssignTarget> {
         }
     }
 }
-impl AssignTarget {
+impl FromNodeId for AssignTarget {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::ArrayPat => {
                 AssignTarget::Pat(AssignTargetPat::Array(ArrayPat::from_node_id(id, ast)))
@@ -2488,9 +2509,9 @@ impl GetOptionalNodeId for Option<AssignTargetPat> {
         }
     }
 }
-impl AssignTargetPat {
+impl FromNodeId for AssignTargetPat {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::ArrayPat => AssignTargetPat::Array(ArrayPat::from_node_id(id, ast)),
             NodeKind::Invalid => AssignTargetPat::Invalid(Invalid::from_node_id(id, ast)),
@@ -2521,9 +2542,9 @@ impl GetOptionalNodeId for Option<SimpleAssignTarget> {
         }
     }
 }
-impl SimpleAssignTarget {
+impl FromNodeId for SimpleAssignTarget {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::BindingIdent => {
                 SimpleAssignTarget::Ident(BindingIdent::from_node_id(id, ast))
@@ -2556,9 +2577,9 @@ impl GetOptionalNodeId for Option<OptChainExpr> {
         }
     }
 }
-impl OptChainExpr {
+impl FromNodeId for OptChainExpr {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2580,9 +2601,9 @@ impl GetOptionalNodeId for Option<OptChainBase> {
         }
     }
 }
-impl OptChainBase {
+impl FromNodeId for OptChainBase {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::MemberExpr => OptChainBase::Member(MemberExpr::from_node_id(id, ast)),
             NodeKind::OptCall => OptChainBase::Call(OptCall::from_node_id(id, ast)),
@@ -2605,9 +2626,9 @@ impl GetOptionalNodeId for Option<OptCall> {
         }
     }
 }
-impl OptCall {
+impl FromNodeId for OptCall {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2626,9 +2647,9 @@ impl GetOptionalNodeId for Option<Invalid> {
         }
     }
 }
-impl Invalid {
+impl FromNodeId for Invalid {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2647,9 +2668,9 @@ impl GetOptionalNodeId for Option<Function> {
         }
     }
 }
-impl Function {
+impl FromNodeId for Function {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2668,9 +2689,9 @@ impl GetOptionalNodeId for Option<Param> {
         }
     }
 }
-impl Param {
+impl FromNodeId for Param {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2691,9 +2712,9 @@ impl GetOptionalNodeId for Option<ParamOrTsParamProp> {
         }
     }
 }
-impl ParamOrTsParamProp {
+impl FromNodeId for ParamOrTsParamProp {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::Param => ParamOrTsParamProp::Param(Param::from_node_id(id, ast)),
             _ => unreachable!(),
@@ -2715,9 +2736,9 @@ impl GetOptionalNodeId for Option<Class> {
         }
     }
 }
-impl Class {
+impl FromNodeId for Class {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2745,9 +2766,9 @@ impl GetOptionalNodeId for Option<ClassMember> {
         }
     }
 }
-impl ClassMember {
+impl FromNodeId for ClassMember {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::AutoAccessor => {
                 ClassMember::AutoAccessor(AutoAccessor::from_node_id(id, ast))
@@ -2780,9 +2801,9 @@ impl GetOptionalNodeId for Option<ClassProp> {
         }
     }
 }
-impl ClassProp {
+impl FromNodeId for ClassProp {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2801,9 +2822,9 @@ impl GetOptionalNodeId for Option<PrivateProp> {
         }
     }
 }
-impl PrivateProp {
+impl FromNodeId for PrivateProp {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2822,9 +2843,9 @@ impl GetOptionalNodeId for Option<ClassMethod> {
         }
     }
 }
-impl ClassMethod {
+impl FromNodeId for ClassMethod {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2843,9 +2864,9 @@ impl GetOptionalNodeId for Option<PrivateMethod> {
         }
     }
 }
-impl PrivateMethod {
+impl FromNodeId for PrivateMethod {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2864,9 +2885,30 @@ impl GetOptionalNodeId for Option<Constructor> {
         }
     }
 }
-impl Constructor {
+impl FromNodeId for Constructor {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+        Self(node_id)
+    }
+}
+impl GetNodeId for Decorator {
+    #[inline]
+    fn node_id(&self) -> NodeId {
+        self.0
+    }
+}
+impl GetOptionalNodeId for Option<Decorator> {
+    #[inline]
+    fn optional_node_id(&self) -> OptionalNodeId {
+        match self {
+            Some(it) => it.node_id().into(),
+            None => OptionalNodeId::none(),
+        }
+    }
+}
+impl FromNodeId for Decorator {
+    #[inline]
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2885,9 +2927,9 @@ impl GetOptionalNodeId for Option<StaticBlock> {
         }
     }
 }
-impl StaticBlock {
+impl FromNodeId for StaticBlock {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2909,9 +2951,9 @@ impl GetOptionalNodeId for Option<Key> {
         }
     }
 }
-impl Key {
+impl FromNodeId for Key {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::BigInt => Key::Public(PropName::BigInt(BigInt::from_node_id(id, ast))),
             NodeKind::ComputedPropName => {
@@ -2940,9 +2982,9 @@ impl GetOptionalNodeId for Option<AutoAccessor> {
         }
     }
 }
-impl AutoAccessor {
+impl FromNodeId for AutoAccessor {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2968,9 +3010,9 @@ impl GetOptionalNodeId for Option<Prop> {
         }
     }
 }
-impl Prop {
+impl FromNodeId for Prop {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::AssignProp => Prop::Assign(AssignProp::from_node_id(id, ast)),
             NodeKind::GetterProp => Prop::Getter(GetterProp::from_node_id(id, ast)),
@@ -2997,9 +3039,9 @@ impl GetOptionalNodeId for Option<KeyValueProp> {
         }
     }
 }
-impl KeyValueProp {
+impl FromNodeId for KeyValueProp {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3018,9 +3060,9 @@ impl GetOptionalNodeId for Option<AssignProp> {
         }
     }
 }
-impl AssignProp {
+impl FromNodeId for AssignProp {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3039,9 +3081,9 @@ impl GetOptionalNodeId for Option<GetterProp> {
         }
     }
 }
-impl GetterProp {
+impl FromNodeId for GetterProp {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3060,9 +3102,9 @@ impl GetOptionalNodeId for Option<SetterProp> {
         }
     }
 }
-impl SetterProp {
+impl FromNodeId for SetterProp {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3081,9 +3123,9 @@ impl GetOptionalNodeId for Option<MethodProp> {
         }
     }
 }
-impl MethodProp {
+impl FromNodeId for MethodProp {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3108,9 +3150,9 @@ impl GetOptionalNodeId for Option<PropName> {
         }
     }
 }
-impl PropName {
+impl FromNodeId for PropName {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::BigInt => PropName::BigInt(BigInt::from_node_id(id, ast)),
             NodeKind::ComputedPropName => {
@@ -3138,9 +3180,9 @@ impl GetOptionalNodeId for Option<ComputedPropName> {
         }
     }
 }
-impl ComputedPropName {
+impl FromNodeId for ComputedPropName {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3167,9 +3209,9 @@ impl GetOptionalNodeId for Option<Pat> {
         }
     }
 }
-impl Pat {
+impl FromNodeId for Pat {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::ArrayLit => Pat::Expr(Expr::Array(ArrayLit::from_node_id(id, ast))),
             NodeKind::ArrayPat => Pat::Array(ArrayPat::from_node_id(id, ast)),
@@ -3235,9 +3277,9 @@ impl GetOptionalNodeId for Option<ArrayPat> {
         }
     }
 }
-impl ArrayPat {
+impl FromNodeId for ArrayPat {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3256,9 +3298,9 @@ impl GetOptionalNodeId for Option<ObjectPat> {
         }
     }
 }
-impl ObjectPat {
+impl FromNodeId for ObjectPat {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3277,9 +3319,9 @@ impl GetOptionalNodeId for Option<AssignPat> {
         }
     }
 }
-impl AssignPat {
+impl FromNodeId for AssignPat {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3298,9 +3340,9 @@ impl GetOptionalNodeId for Option<RestPat> {
         }
     }
 }
-impl RestPat {
+impl FromNodeId for RestPat {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3323,9 +3365,9 @@ impl GetOptionalNodeId for Option<ObjectPatProp> {
         }
     }
 }
-impl ObjectPatProp {
+impl FromNodeId for ObjectPatProp {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::AssignPatProp => ObjectPatProp::Assign(AssignPatProp::from_node_id(id, ast)),
             NodeKind::KeyValuePatProp => {
@@ -3351,9 +3393,9 @@ impl GetOptionalNodeId for Option<KeyValuePatProp> {
         }
     }
 }
-impl KeyValuePatProp {
+impl FromNodeId for KeyValuePatProp {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3372,9 +3414,9 @@ impl GetOptionalNodeId for Option<AssignPatProp> {
         }
     }
 }
-impl AssignPatProp {
+impl FromNodeId for AssignPatProp {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3393,9 +3435,9 @@ impl GetOptionalNodeId for Option<Ident> {
         }
     }
 }
-impl Ident {
+impl FromNodeId for Ident {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3414,9 +3456,9 @@ impl GetOptionalNodeId for Option<IdentName> {
         }
     }
 }
-impl IdentName {
+impl FromNodeId for IdentName {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3435,9 +3477,9 @@ impl GetOptionalNodeId for Option<PrivateName> {
         }
     }
 }
-impl PrivateName {
+impl FromNodeId for PrivateName {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3456,9 +3498,9 @@ impl GetOptionalNodeId for Option<BindingIdent> {
         }
     }
 }
-impl BindingIdent {
+impl FromNodeId for BindingIdent {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3484,9 +3526,9 @@ impl GetOptionalNodeId for Option<Lit> {
         }
     }
 }
-impl Lit {
+impl FromNodeId for Lit {
     #[inline]
-    pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+    fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
             NodeKind::BigInt => Lit::BigInt(BigInt::from_node_id(id, ast)),
             NodeKind::Bool => Lit::Bool(Bool::from_node_id(id, ast)),
@@ -3513,9 +3555,9 @@ impl GetOptionalNodeId for Option<Str> {
         }
     }
 }
-impl Str {
+impl FromNodeId for Str {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3534,9 +3576,9 @@ impl GetOptionalNodeId for Option<Bool> {
         }
     }
 }
-impl Bool {
+impl FromNodeId for Bool {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3555,9 +3597,9 @@ impl GetOptionalNodeId for Option<Null> {
         }
     }
 }
-impl Null {
+impl FromNodeId for Null {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3576,9 +3618,9 @@ impl GetOptionalNodeId for Option<Num> {
         }
     }
 }
-impl Num {
+impl FromNodeId for Num {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3597,9 +3639,9 @@ impl GetOptionalNodeId for Option<BigInt> {
         }
     }
 }
-impl BigInt {
+impl FromNodeId for BigInt {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3618,9 +3660,9 @@ impl GetOptionalNodeId for Option<Regex> {
         }
     }
 }
-impl Regex {
+impl FromNodeId for Regex {
     #[inline]
-    pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }

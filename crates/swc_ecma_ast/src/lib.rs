@@ -1,25 +1,32 @@
 mod assert_layout;
 mod ast;
+mod common;
+mod derive;
 mod node_id;
 mod generated {
     mod ast_builder;
+    mod ast_clone_in;
     mod ast_node_id;
     mod ast_property;
     // mod ast_visitor;
 }
 
+use std::marker::PhantomData;
+use swc_common::BytePos;
+
 use num_bigint::BigInt as BigIntValue;
 use oxc_index::IndexVec;
 use swc_atoms::{Atom, Wtf8Atom};
 
-use crate::node_id::{
-    AtomId, AtomRef, BigIntId, ExtraDataId, NodeId, OptionalAtomRef, OptionalNodeId,
-    OptionalWtf8AtomId, SubRange, Wtf8AtomId,
+pub use ast::*;
+pub use common::*;
+pub use derive::*;
+pub use node_id::{
+    AtomId, AtomRef, BigIntId, ExtraDataId, GetNodeId, GetOptionalNodeId, NodeId, OptionalAtomRef,
+    OptionalNodeId, OptionalWtf8AtomId, SubRange, TypedSubRange, Wtf8AtomId,
 };
 
-pub mod common;
-pub use ast::*;
-
+#[derive(Default)]
 pub struct Ast {
     nodes: IndexVec<NodeId, AstNode>,
     extra_data: IndexVec<ExtraDataId, ExtraData>,
@@ -29,8 +36,8 @@ pub struct Ast {
 }
 
 pub struct AstNode {
-    span: Span,
-    kind: NodeKind,
+    pub span: Span,
+    pub kind: NodeKind,
     data: NodeData,
 }
 
@@ -82,6 +89,8 @@ pub enum NodeKind {
     ArrayLit,
     ObjectLit,
     SpreadElement,
+    ExprOrSpread,
+    Elision,
     UnaryExpr,
     BinExpr,
     UpdateExpr,
@@ -261,23 +270,96 @@ pub enum NodeKind {
 }
 
 impl Ast {
-    pub fn add_node(&mut self, node: AstNode) -> NodeId {
+    #[inline]
+    fn add_node(&mut self, node: AstNode) -> NodeId {
         self.nodes.push(node)
     }
 
-    pub fn add_extra(&mut self, extra: ExtraData) -> ExtraDataId {
+    #[inline]
+    fn add_extra(&mut self, extra: ExtraData) -> ExtraDataId {
         self.extra_data.push(extra)
     }
 
+    #[inline]
+    pub fn add_typed_sub_range<N: GetNodeId>(&mut self, range: &[N]) -> TypedSubRange<N> {
+        let start = self.extra_data.next_idx();
+        self.extra_data
+            .extend(range.iter().map(|n| ExtraData { node: n.node_id() }));
+        TypedSubRange {
+            inner: SubRange {
+                start,
+                end: self.extra_data.next_idx(),
+            },
+            _phantom: PhantomData,
+        }
+    }
+
+    #[inline]
+    pub fn add_typed_opt_sub_range<N: GetNodeId>(
+        &mut self,
+        range: &[Option<N>],
+    ) -> TypedSubRange<Option<N>> {
+        let start = self.extra_data.next_idx();
+        self.extra_data.extend(range.iter().map(|n| match n {
+            Some(n) => ExtraData {
+                optional_node: n.node_id().into(),
+            },
+            None => ExtraData {
+                optional_node: OptionalNodeId::none(),
+            },
+        }));
+        TypedSubRange {
+            inner: SubRange {
+                start,
+                end: self.extra_data.next_idx(),
+            },
+            _phantom: PhantomData,
+        }
+    }
+
+    #[inline]
+    pub fn add_optional_wtf8_atom_ref(&mut self, atom: Option<Wtf8Atom>) -> OptionalWtf8AtomId {
+        match atom {
+            Some(atom) => self.allocated_wtf8.push(atom).into(),
+            None => OptionalWtf8AtomId::none(),
+        }
+    }
+
+    #[inline]
     pub fn add_wtf8_atom_ref(&mut self, atom: Wtf8Atom) -> Wtf8AtomId {
         self.allocated_wtf8.push(atom)
     }
 
-    pub fn add_atom_ref(&mut self, atom: Atom) -> AtomId {
-        self.allocated_atom.push(atom)
+    #[inline]
+    pub fn add_atom_ref(&mut self, atom: Atom) -> AtomRef {
+        AtomRef::new_alloc(self.allocated_atom.push(atom))
     }
 
+    // TODO: support atom ref
+    #[inline]
+    pub fn get_atom(&self, id: AtomRef) -> &Atom {
+        &self.allocated_atom[AtomId::from_raw(id.lo.0)]
+    }
+
+    #[inline]
+    pub fn get_optional_atom(&self, id: OptionalAtomRef) -> Option<&Atom> {
+        let id = id.unwrap()?;
+        Some(self.get_atom(id))
+    }
+
+    #[inline]
+    pub fn get_wtf8_atom(&self, id: Wtf8AtomId) -> &Wtf8Atom {
+        &self.allocated_wtf8[id]
+    }
+
+    #[inline]
     pub fn add_bigint(&mut self, big_int: BigIntValue) -> BigIntId {
         self.bigint.push(big_int)
+    }
+}
+
+impl Ast {
+    pub fn nodes(&self) -> &[AstNode] {
+        self.nodes.as_raw_slice()
     }
 }

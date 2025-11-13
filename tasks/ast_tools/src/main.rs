@@ -1,5 +1,5 @@
 use crate::{
-    derive::ast_node_id::ast_node_id,
+    derive::{ast_clone_in::ast_clone_in, ast_node_id::ast_node_id},
     generator::{ast_builder::ast_builder, ast_property::ast_property},
     parse::parse_files,
 };
@@ -40,4 +40,7 @@ fn main() {
 
     let ast_node_id = ast_node_id(&schema);
     ast_node_id.write_to_file().unwrap();
+
+    let ast_clone_in = ast_clone_in(&schema);
+    ast_clone_in.write_to_file().unwrap();
 }

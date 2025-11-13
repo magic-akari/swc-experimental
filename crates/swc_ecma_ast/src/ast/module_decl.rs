@@ -30,7 +30,9 @@ pub struct ImportDecl {
 }
 
 #[repr(u64)]
+#[derive(Debug, Default, PartialEq, Eq, Hash)]
 pub enum ImportPhase {
+    #[default]
     Evaluation,
     Source,
     Defer,

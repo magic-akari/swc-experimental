@@ -10,13 +10,13 @@ pub enum Program {
 
 #[ast]
 pub struct Module {
-    body: ModuleItem,
+    body: Vec<ModuleItem>,
     shebang: OptionalAtomRef,
 }
 
 #[ast]
 pub struct Script {
-    body: Stmt,
+    body: Vec<Stmt>,
     shebang: OptionalAtomRef,
 }
 

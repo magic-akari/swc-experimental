@@ -2,7 +2,7 @@ use std::mem;
 
 use rspack_experimental_swc_ast_macros::ast;
 
-use crate::{ast::*, node_id::ExtraDataCompact};
+use crate::{Ast, ast::*, node_id::ExtraDataCompact};
 
 #[ast]
 pub enum Expr {
@@ -248,9 +248,13 @@ pub struct Import {
 
 #[ast]
 pub enum ExprOrSpread {
-    SpreadElement(SpreadElement),
+    Spread(SpreadElement),
     Expr(Expr),
+    Elision(Elision),
 }
+
+#[ast]
+pub struct Elision {}
 
 #[ast]
 pub enum BlockStmtOrExpr {
@@ -308,3 +312,55 @@ pub struct OptCall {
 
 #[ast]
 pub struct Invalid {}
+
+impl Expr {
+    pub fn is_ident_ref_to<S: ?Sized>(&self, ast: &Ast, ident: &S) -> bool
+    where
+        S: AsRef<str>,
+    {
+        match self {
+            Expr::Ident(i) => ast.get_atom(i.sym(ast)) == ident.as_ref(),
+            _ => false,
+        }
+    }
+}
+
+impl AssignTarget {
+    pub fn try_from_pat(ast: &mut Ast, p: Pat) -> Result<Self, Pat> {
+        Ok(match p {
+            Pat::Array(a) => AssignTarget::Pat(AssignTargetPat::Array(a)),
+            Pat::Object(o) => AssignTarget::Pat(AssignTargetPat::Object(o)),
+            Pat::Ident(i) => AssignTarget::Simple(SimpleAssignTarget::Ident(i)),
+            Pat::Invalid(i) => AssignTarget::Simple(SimpleAssignTarget::Invalid(i)),
+            Pat::Expr(e) => match Self::try_from_expr(ast, e) {
+                Ok(v) => v,
+                Err(e) => return Err(Pat::Expr(e)),
+            },
+            _ => return Err(p),
+        })
+    }
+}
+
+impl AssignTarget {
+    pub fn try_from_expr(ast: &mut Ast, e: Expr) -> Result<Self, Expr> {
+        Ok(Self::Simple(SimpleAssignTarget::try_from_expr(ast, e)?))
+    }
+}
+
+impl SimpleAssignTarget {
+    pub fn try_from_expr(ast: &mut Ast, e: Expr) -> Result<Self, Expr> {
+        Ok(match e {
+            Expr::Ident(i) => SimpleAssignTarget::Ident(ast.binding_ident(i.span(ast), i)),
+            Expr::Member(m) => SimpleAssignTarget::Member(m),
+            Expr::SuperProp(s) => SimpleAssignTarget::SuperProp(s),
+            Expr::OptChain(s) => SimpleAssignTarget::OptChain(s),
+            Expr::Paren(s) => SimpleAssignTarget::Paren(s),
+            // Expr::TsAs(a) => SimpleAssignTarget::TsAs(a),
+            // Expr::TsSatisfies(s) => SimpleAssignTarget::TsSatisfies(s),
+            // Expr::TsNonNull(n) => SimpleAssignTarget::TsNonNull(n),
+            // Expr::TsTypeAssertion(a) => SimpleAssignTarget::TsTypeAssertion(a),
+            // Expr::TsInstantiation(a) => SimpleAssignTarget::TsInstantiation(a),
+            _ => return Err(e),
+        })
+    }
+}

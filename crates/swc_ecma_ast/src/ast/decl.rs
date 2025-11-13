@@ -38,6 +38,7 @@ pub struct VarDecl {
 }
 
 #[repr(u64)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub enum VarDeclKind {
     Var,
     Let,

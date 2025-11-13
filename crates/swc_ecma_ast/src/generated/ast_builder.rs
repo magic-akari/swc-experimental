@@ -6,19 +6,29 @@ impl Ast {
     pub fn program_module(
         &mut self,
         span: Span,
-        body: ModuleItem,
+        body: TypedSubRange<ModuleItem>,
         shebang: OptionalAtomRef,
     ) -> Program {
         Program::Module(self.module(span, body, shebang).into())
     }
     #[inline]
-    pub fn program_script(&mut self, span: Span, body: Stmt, shebang: OptionalAtomRef) -> Program {
+    pub fn program_script(
+        &mut self,
+        span: Span,
+        body: TypedSubRange<Stmt>,
+        shebang: OptionalAtomRef,
+    ) -> Program {
         Program::Script(self.script(span, body, shebang).into())
     }
     #[inline]
-    pub fn module(&mut self, span: Span, body: ModuleItem, shebang: OptionalAtomRef) -> Module {
+    pub fn module(
+        &mut self,
+        span: Span,
+        body: TypedSubRange<ModuleItem>,
+        shebang: OptionalAtomRef,
+    ) -> Module {
         let _f0 = self.add_extra(ExtraData {
-            node: body.node_id(),
+            sub_range: body.into(),
         });
         let _f1 = self.add_extra(ExtraData {
             optional_atom: shebang.into(),
@@ -32,9 +42,14 @@ impl Ast {
         }))
     }
     #[inline]
-    pub fn script(&mut self, span: Span, body: Stmt, shebang: OptionalAtomRef) -> Script {
+    pub fn script(
+        &mut self,
+        span: Span,
+        body: TypedSubRange<Stmt>,
+        shebang: OptionalAtomRef,
+    ) -> Script {
         let _f0 = self.add_extra(ExtraData {
-            node: body.node_id(),
+            sub_range: body.into(),
         });
         let _f1 = self.add_extra(ExtraData {
             optional_atom: shebang.into(),
@@ -2167,12 +2182,11 @@ impl Ast {
         &mut self,
         span: Span,
         key: PropName,
-        this_param: Option<Pat>,
         param: Pat,
         body: Option<BlockStmt>,
     ) -> PropOrSpread {
         PropOrSpread::Prop(Prop::Setter(
-            self.setter_prop(span, key, this_param, param, body).into(),
+            self.setter_prop(span, key, param, body).into(),
         ))
     }
     #[inline]
@@ -2841,7 +2855,7 @@ impl Ast {
         dot3_token: Span,
         expr: Expr,
     ) -> ExprOrSpread {
-        ExprOrSpread::SpreadElement(self.spread_element(span, dot3_token, expr).into())
+        ExprOrSpread::Spread(self.spread_element(span, dot3_token, expr).into())
     }
     #[inline]
     pub fn expr_or_spread_expr_this_expr(&mut self, span: Span) -> ExprOrSpread {
@@ -3106,6 +3120,18 @@ impl Ast {
     #[inline]
     pub fn expr_or_spread_expr_invalid(&mut self, span: Span) -> ExprOrSpread {
         ExprOrSpread::Expr(Expr::Invalid(self.invalid(span).into()))
+    }
+    #[inline]
+    pub fn expr_or_spread_elision(&mut self, span: Span) -> ExprOrSpread {
+        ExprOrSpread::Elision(self.elision(span).into())
+    }
+    #[inline]
+    pub fn elision(&mut self, span: Span) -> Elision {
+        Elision(self.add_node(AstNode {
+            span,
+            kind: NodeKind::Elision,
+            data: NodeData { empty: () },
+        }))
     }
     #[inline]
     pub fn block_stmt_or_expr_block_stmt(
@@ -3888,6 +3914,19 @@ impl Ast {
         }))
     }
     #[inline]
+    pub fn decorator(&mut self, span: Span, expr: Expr) -> Decorator {
+        let _f0 = self.add_extra(ExtraData {
+            node: expr.node_id(),
+        });
+        Decorator(self.add_node(AstNode {
+            span,
+            kind: NodeKind::Decorator,
+            data: NodeData {
+                extra_data_start: _f0,
+            },
+        }))
+    }
+    #[inline]
     pub fn static_block(&mut self, span: Span, body: BlockStmt) -> StaticBlock {
         let _f0 = self.add_extra(ExtraData {
             node: body.node_id(),
@@ -3982,11 +4021,10 @@ impl Ast {
         &mut self,
         span: Span,
         key: PropName,
-        this_param: Option<Pat>,
         param: Pat,
         body: Option<BlockStmt>,
     ) -> Prop {
-        Prop::Setter(self.setter_prop(span, key, this_param, param, body).into())
+        Prop::Setter(self.setter_prop(span, key, param, body).into())
     }
     #[inline]
     pub fn prop_method_prop(&mut self, span: Span, key: PropName, function: Function) -> Prop {
@@ -4050,7 +4088,6 @@ impl Ast {
         &mut self,
         span: Span,
         key: PropName,
-        this_param: Option<Pat>,
         param: Pat,
         body: Option<BlockStmt>,
     ) -> SetterProp {
@@ -4058,12 +4095,9 @@ impl Ast {
             node: key.node_id(),
         });
         let _f1 = self.add_extra(ExtraData {
-            optional_node: this_param.optional_node_id(),
-        });
-        let _f2 = self.add_extra(ExtraData {
             node: param.node_id(),
         });
-        let _f3 = self.add_extra(ExtraData {
+        let _f2 = self.add_extra(ExtraData {
             optional_node: body.optional_node_id(),
         });
         SetterProp(self.add_node(AstNode {

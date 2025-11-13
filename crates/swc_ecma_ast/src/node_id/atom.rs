@@ -19,8 +19,8 @@ impl AtomRef {
 
     pub const fn new_alloc(atom: AtomId) -> Self {
         Self {
-            lo: STR_REF_ATOM_LO,
-            hi: BytePos(atom.0),
+            lo: BytePos(atom.0),
+            hi: STR_REF_ATOM_LO,
         }
     }
 }
@@ -59,5 +59,11 @@ impl OptionalAtomRef {
             lo: self.lo,
             hi: self.hi,
         })
+    }
+}
+
+impl From<AtomRef> for OptionalAtomRef {
+    fn from(value: AtomRef) -> Self {
+        Self::new_ref(value.lo, value.hi)
     }
 }

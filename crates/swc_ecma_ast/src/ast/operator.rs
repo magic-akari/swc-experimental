@@ -3,7 +3,7 @@ use std::mem;
 use crate::node_id::ExtraDataCompact;
 
 #[repr(u64)]
-#[derive(Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash, Default)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash, Default)]
 pub enum BinaryOp {
     /// `==`
     #[default]

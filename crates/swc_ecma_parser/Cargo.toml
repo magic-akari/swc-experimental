@@ -10,6 +10,7 @@ num-bigint  = { workspace = true }
 rustc-hash  = { workspace = true }
 seq-macro   = { workspace = true }
 smartstring = { workspace = true }
+stacker     = { workspace = true }
 swc_atoms   = { workspace = true }
 swc_common  = { workspace = true }
 tracing     = { workspace = true }

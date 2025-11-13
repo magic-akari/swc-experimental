@@ -1,6 +1,9 @@
 use rspack_experimental_swc_ast_macros::ast;
 
-use crate::ast::{Decl, Expr, Pat, UsingDecl, VarDecl};
+use crate::{
+    Ast, Lit,
+    ast::{Decl, Expr, Pat, UsingDecl, VarDecl},
+};
 
 #[ast]
 pub struct BlockStmt {
@@ -151,4 +154,28 @@ pub enum ForHead {
 pub enum VarDeclOrExpr {
     VarDecl(VarDecl),
     Expr(Expr),
+}
+
+impl Stmt {
+    pub fn is_use_strict(&self, ast: &Ast) -> bool {
+        match self {
+            Stmt::Expr(expr) => match expr.expr(ast) {
+                Expr::Lit(Lit::Str(s)) => {
+                    let raw = ast.get_optional_atom(s.raw(ast));
+                    matches!(raw, Some(value) if value == "\"use strict\"" || value == "'use strict'")
+                }
+                _ => false,
+            },
+            _ => false,
+        }
+    }
+
+    /// Returns true if the statement does not prevent the directives below
+    /// `self` from being directives.
+    pub fn can_precede_directive(&self, ast: &Ast) -> bool {
+        match self {
+            Stmt::Expr(expr) => matches!(expr.expr(ast), Expr::Lit(Lit::Str(_))),
+            _ => false,
+        }
+    }
 }

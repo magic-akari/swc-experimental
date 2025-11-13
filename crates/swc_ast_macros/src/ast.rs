@@ -13,14 +13,14 @@ pub fn expand_ast(item: Item) -> TokenStream {
 fn expand_struct(item: ItemStruct) -> TokenStream {
     let name = item.ident.clone();
     quote! {
+        #[derive(Debug, Copy, Clone, PartialEq, Eq)]
         pub struct #name(pub(crate) crate::NodeId);
     }
 }
 
 fn expand_enum(item: ItemEnum) -> TokenStream {
-    let fn_cast = quote! {};
     quote! {
+        #[derive(Debug, Copy, Clone, PartialEq, Eq)]
         #item
-        #fn_cast
     }
 }

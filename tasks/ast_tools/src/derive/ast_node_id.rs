@@ -61,9 +61,9 @@ fn generate_node_id_for_struct(ast: &AstStruct, _schema: &Schema) -> TokenStream
     };
 
     let from_node_id = quote! {
-        impl #name {
+        impl FromNodeId for #name {
             #[inline]
-            pub(crate) fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+            fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
                 Self(node_id)
             }
         }
@@ -122,9 +122,9 @@ fn generate_node_id_for_enum(ast: &AstEnum, schema: &Schema) -> TokenStream {
         });
     }
     let from_node_id = quote! {
-        impl #name {
+        impl FromNodeId for #name {
             #[inline]
-            pub(crate) fn from_node_id(id: NodeId, ast: &Ast) -> Self {
+            fn from_node_id(id: NodeId, ast: &Ast) -> Self {
                 match &ast.nodes[id].kind {
                     #from_node_id_arms
                     _ => unreachable!(),

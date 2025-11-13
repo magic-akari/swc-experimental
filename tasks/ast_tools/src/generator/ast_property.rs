@@ -46,6 +46,14 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
         pub fn span(&self, ast: &crate::Ast) -> crate::Span {
             ast.nodes[self.0].span
         }
+        #[inline]
+        pub fn span_lo(&self, ast: &crate::Ast) -> crate::BytePos {
+            self.span(ast).lo
+        }
+        #[inline]
+        pub fn span_hi(&self, ast: &crate::Ast) -> crate::BytePos {
+            self.span(ast).hi
+        }
     });
 
     field_setters.extend(quote! {
@@ -126,11 +134,13 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
     }
 }
 
-fn generate_property_for_enum(ast: &AstEnum, _schema: &Schema) -> TokenStream {
+fn generate_property_for_enum(ast: &AstEnum, schema: &Schema) -> TokenStream {
     let name = format_ident!("{}", ast.name);
 
     let mut field_getters = TokenStream::new();
     let mut field_setters = TokenStream::new();
+    let mut is_variant = TokenStream::new();
+    let mut as_variant = TokenStream::new();
 
     let mut get_span_arms = TokenStream::new();
     let mut set_span_arms = TokenStream::new();
@@ -142,6 +152,26 @@ fn generate_property_for_enum(ast: &AstEnum, _schema: &Schema) -> TokenStream {
         set_span_arms.extend(quote! {
             Self::#variant_name(it) => it.set_span(ast, span),
         });
+
+        let is_fn_name = format_ident!("is_{}", variant.name.to_case(Case::Snake));
+        is_variant.extend(quote! {
+            #[inline]
+            pub fn #is_fn_name(&self) -> bool {
+                matches!(self, Self::#variant_name(_))
+            }
+        });
+
+        let as_fn_name = format_ident!("as_{}", variant.name.to_case(Case::Snake));
+        let struct_name = format_ident!("{}", schema.types[variant.type_id.unwrap()].name());
+        as_variant.extend(quote! {
+            #[inline]
+            pub fn #as_fn_name(&self) -> Option<&#struct_name> {
+                match self {
+                    Self::#variant_name(it) => Some(it),
+                    _ => None,
+                }
+            }
+        });
     }
 
     field_getters.extend(quote! {
@@ -150,6 +180,14 @@ fn generate_property_for_enum(ast: &AstEnum, _schema: &Schema) -> TokenStream {
             match self {
                 #get_span_arms
             }
+        }
+        #[inline]
+        pub fn span_lo(&self, ast: &crate::Ast) -> crate::BytePos {
+            self.span(ast).lo
+        }
+        #[inline]
+        pub fn span_hi(&self, ast: &crate::Ast) -> crate::BytePos {
+            self.span(ast).hi
         }
     });
 
@@ -166,6 +204,8 @@ fn generate_property_for_enum(ast: &AstEnum, _schema: &Schema) -> TokenStream {
         impl #name {
             #field_getters
             #field_setters
+            #is_variant
+            #as_variant
         }
     }
 }

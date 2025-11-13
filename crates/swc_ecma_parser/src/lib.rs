@@ -222,11 +222,7 @@ pub use syntax::{EsSyntax, Syntax, SyntaxFlags, TsSyntax};
 //     callback()
 // }
 
-// #[inline(always)]
-// #[cfg(all(
-//     not(any(target_arch = "wasm32", target_arch = "arm", miri)),
-//     feature = "stacker"
-// ))]
-// fn maybe_grow<R, F: FnOnce() -> R>(red_zone: usize, stack_size: usize, callback: F) -> R {
-//     stacker::maybe_grow(red_zone, stack_size, callback)
-// }
+#[inline(always)]
+fn maybe_grow<R, F: FnOnce() -> R>(red_zone: usize, stack_size: usize, callback: F) -> R {
+    stacker::maybe_grow(red_zone, stack_size, callback)
+}
