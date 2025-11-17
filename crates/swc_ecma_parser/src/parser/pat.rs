@@ -228,7 +228,7 @@ impl<I: Tokens> Parser<I> {
                 let props = object.props(&self.ast);
                 let len = props.len();
 
-                let mut obj_props = Vec::new();
+                let mut obj_props = self.scratch_start();
                 for (idx, prop) in props.iter().enumerate() {
                     let prop = self.ast.get_node(prop);
                     let span = prop.span(&self.ast);
@@ -294,10 +294,10 @@ impl<I: Tokens> Parser<I> {
                         _ => unreachable!(),
                     };
 
-                    obj_props.push(prop);
+                    obj_props.push(self, prop);
                 }
 
-                let props = self.ast.add_typed_sub_range(&obj_props);
+                let props = obj_props.end(self);
                 Ok(self.ast.pat_object_pat(object_span, props, false))
             }
             Expr::Ident(ident) => Ok(Pat::Ident(
@@ -600,7 +600,7 @@ impl<I: Tokens> Parser<I> {
     fn parse_constructor_param(
         &mut self,
         param_start: BytePos,
-        _decorators: Vec<Decorator>,
+        _decorators: TypedSubRange<Decorator>,
     ) -> PResult<ParamOrTsParamProp> {
         // let (accessibility, is_override, readonly) = if self.input().syntax().typescript() {
         //     let accessibility = self.parse_access_modifier()?;
@@ -640,8 +640,10 @@ impl<I: Tokens> Parser<I> {
             .param_or_ts_param_prop_param(self.span(param_start), pat))
     }
 
-    pub(crate) fn parse_constructor_params(&mut self) -> PResult<Vec<ParamOrTsParamProp>> {
-        let mut params = Vec::new();
+    pub(crate) fn parse_constructor_params(
+        &mut self,
+    ) -> PResult<TypedSubRange<ParamOrTsParamProp>> {
+        let mut params = self.scratch_start();
         let mut rest_span = Span::default();
 
         while !self.input().is(Token::RParen) {
@@ -669,12 +671,13 @@ impl<I: Tokens> Parser<I> {
 
                 rest_span = self.span(pat_start);
                 let pat = self.ast.pat_rest_pat(rest_span, dot3_token, pat);
-                params.push(
-                    self.ast
-                        .param_or_ts_param_prop_param(self.span(param_start), pat),
-                );
+                let param = self
+                    .ast
+                    .param_or_ts_param_prop_param(self.span(param_start), pat);
+                params.push(self, param);
             } else {
-                params.push(self.parse_constructor_param(param_start, decorators)?);
+                let param = self.parse_constructor_param(param_start, decorators)?;
+                params.push(self, param);
             }
 
             if !self.input().is(Token::RParen) {
@@ -685,11 +688,12 @@ impl<I: Tokens> Parser<I> {
             }
         }
 
+        let params = params.end(self);
         Ok(params)
     }
 
-    pub(crate) fn parse_formal_params(&mut self) -> PResult<Vec<Param>> {
-        let mut params = Vec::new();
+    pub(crate) fn parse_formal_params(&mut self) -> PResult<TypedSubRange<Param>> {
+        let mut params = self.scratch_start();
         let mut rest_span = Span::default();
 
         while !self.input().is(Token::RParen) {
@@ -735,7 +739,8 @@ impl<I: Tokens> Parser<I> {
             };
             let is_rest = matches!(pat, Pat::Rest(_));
 
-            params.push(self.ast.param(self.span(param_start), pat));
+            let param = self.ast.param(self.span(param_start), pat);
+            params.push(self, param);
 
             if !self.input().is(Token::RParen) {
                 expect!(self, Token::Comma);
@@ -745,10 +750,10 @@ impl<I: Tokens> Parser<I> {
             }
         }
 
-        Ok(params)
+        Ok(params.end(self))
     }
 
-    pub(crate) fn parse_unique_formal_params(&mut self) -> PResult<Vec<Param>> {
+    pub(crate) fn parse_unique_formal_params(&mut self) -> PResult<TypedSubRange<Param>> {
         // FIXME: This is wrong
         self.parse_formal_params()
     }
@@ -757,15 +762,15 @@ impl<I: Tokens> Parser<I> {
         &mut self,
         mut exprs: Vec<AssignTargetOrSpread>,
         trailing_comma: Option<Span>,
-    ) -> PResult<Vec<Pat>> {
+    ) -> PResult<TypedSubRange<Pat>> {
         let pat_ty = PatType::BindingPat;
 
         let len = exprs.len();
         if len == 0 {
-            return Ok(Vec::new());
+            return Ok(TypedSubRange::empty());
         }
 
-        let mut params = Vec::with_capacity(len);
+        let mut params = self.scratch_start();
 
         for expr in exprs.drain(..len - 1) {
             match expr {
@@ -774,9 +779,10 @@ impl<I: Tokens> Parser<I> {
                     self.emit_err(expr.span(&self.ast), SyntaxError::TS1014)
                 }
                 AssignTargetOrSpread::ExprOrSpread(ExprOrSpread::Expr(expr)) => {
-                    params.push(self.reparse_expr_as_pat(pat_ty, expr)?)
+                    let param = self.reparse_expr_as_pat(pat_ty, expr)?;
+                    params.push(self, param);
                 }
-                AssignTargetOrSpread::Pat(pat) => params.push(pat),
+                AssignTargetOrSpread::Pat(pat) => params.push(self, pat),
                 _ => unreachable!(),
             }
         }
@@ -812,10 +818,12 @@ impl<I: Tokens> Parser<I> {
             }
             _ => unreachable!(),
         };
-        params.push(last);
+        params.push(self, last);
 
+        let params = params.end(self);
         if self.ctx().contains(Context::Strict) {
-            for param in params.iter().copied() {
+            for param in params.iter() {
+                let param = self.ast.get_node(param);
                 self.pat_is_valid_argument_in_strict(param)
             }
         }

@@ -44,13 +44,15 @@ impl<I: Tokens> Parser<I> {
         let start = expr.span(&self.ast).lo;
 
         if self.input_mut().is(Token::Comma) {
-            let mut exprs = vec![expr];
+            let mut exprs = self.scratch_start();
+            exprs.push(self, expr);
 
             while self.input_mut().eat(Token::Comma) {
-                exprs.push(self.parse_assignment_expr()?);
+                let expr = self.parse_assignment_expr()?;
+                exprs.push(self, expr);
             }
 
-            let exprs = self.ast.add_typed_sub_range(&exprs);
+            let exprs = exprs.end(self);
             return Ok(self.ast.expr_seq_expr(self.span(start), exprs));
         }
 
@@ -450,7 +452,6 @@ impl<I: Tokens> Parser<I> {
                 _ => (Callee::Expr(callee), false),
             };
             let args = self.parse_args(is_import)?;
-            let args = self.ast.add_typed_sub_range(&args);
 
             let call_expr = match callee {
                 Callee::Expr(e) if unwrap_ts_non_null(e).is_opt_chain() => {
@@ -483,19 +484,21 @@ impl<I: Tokens> Parser<I> {
 
         self.assert_and_bump(Token::LBracket);
 
-        let mut elems = Vec::with_capacity(8);
+        let mut elems = self.scratch_start();
 
         while !self.input().is(Token::RBracket) {
             if self.input().is(Token::Comma) {
                 expect!(self, Token::Comma);
-                elems.push(
-                    self.ast
-                        .expr_or_spread_elision(self.span(self.input.prev_span().hi)),
-                );
+                let elem = self
+                    .ast
+                    .expr_or_spread_elision(self.span(self.input.prev_span().hi));
+
+                elems.push(self, elem);
                 continue;
             }
 
-            elems.push(self.allow_in_expr(|p| p.parse_expr_or_spread())?);
+            let elem = self.allow_in_expr(|p| p.parse_expr_or_spread())?;
+            elems.push(self, elem);
 
             if !self.input().is(Token::RBracket) {
                 expect!(self, Token::Comma);
@@ -509,7 +512,7 @@ impl<I: Tokens> Parser<I> {
         expect!(self, Token::RBracket);
 
         let span = self.span(start);
-        let elems = self.ast.add_typed_sub_range(&elems);
+        let elems = elems.end(self);
         Ok(self.ast.expr_array_lit(span, elems))
     }
 
@@ -563,20 +566,26 @@ impl<I: Tokens> Parser<I> {
         }
     }
 
-    fn parse_tpl_elements(&mut self, is_tagged_tpl: bool) -> PResult<(Vec<Expr>, Vec<TplElement>)> {
+    fn parse_tpl_elements(
+        &mut self,
+        is_tagged_tpl: bool,
+    ) -> PResult<(TypedSubRange<Expr>, TypedSubRange<TplElement>)> {
         trace_cur!(self, parse_tpl_elements);
 
         let mut exprs = Vec::new();
         let cur_elem = self.parse_template_head(is_tagged_tpl)?;
         let mut is_tail = cur_elem.tail(&self.ast);
-        let mut quasis = vec![cur_elem];
+        let mut quasis = vec![cur_elem.node_id()];
 
         while !is_tail {
-            exprs.push(self.allow_in_expr(|p| p.parse_expr())?);
+            exprs.push(self.allow_in_expr(|p| p.parse_expr())?.node_id());
             let elem = self.parse_tpl_element(is_tagged_tpl)?;
             is_tail = elem.tail(&self.ast);
-            quasis.push(elem);
+            quasis.push(elem.node_id());
         }
+
+        let exprs = self.ast.add_typed_sub_range(&exprs);
+        let quasis = self.ast.add_typed_sub_range(&quasis);
         Ok((exprs, quasis))
     }
 
@@ -640,8 +649,10 @@ impl<I: Tokens> Parser<I> {
             raw,
         );
 
+        let mut quasis = self.scratch_start();
+        quasis.push(self, tpl_element);
+        let quasis = quasis.end(self);
         let exprs = self.ast.add_typed_sub_range(&[]);
-        let quasis = self.ast.add_typed_sub_range(&[tpl_element]);
         Ok(self.ast.tpl(span, exprs, quasis))
     }
 
@@ -684,9 +695,6 @@ impl<I: Tokens> Parser<I> {
         let start = self.cur_pos();
 
         let (exprs, quasis) = self.parse_tpl_elements(is_tagged_tpl)?;
-
-        let exprs = self.ast.add_typed_sub_range(&exprs);
-        let quasis = self.ast.add_typed_sub_range(&quasis);
         Ok(self.ast.tpl(self.span(start), exprs, quasis))
     }
 
@@ -887,7 +895,10 @@ impl<I: Tokens> Parser<I> {
 
     /// Parse `Arguments[Yield, Await]`
     #[cfg_attr(feature = "tracing-spans", tracing::instrument(skip_all))]
-    pub(crate) fn parse_args(&mut self, is_dynamic_import: bool) -> PResult<Vec<ExprOrSpread>> {
+    pub(crate) fn parse_args(
+        &mut self,
+        is_dynamic_import: bool,
+    ) -> PResult<TypedSubRange<ExprOrSpread>> {
         trace_cur!(self, parse_args);
 
         self.do_outside_of_context(Context::WillExpectColonForCond, |p| {
@@ -895,7 +906,7 @@ impl<I: Tokens> Parser<I> {
             expect!(p, Token::LParen);
 
             let mut first = true;
-            let mut expr_or_spreads = Vec::with_capacity(2);
+            let mut expr_or_spreads = p.scratch_start();
 
             while !p.input().is(Token::RParen) {
                 if first {
@@ -912,11 +923,12 @@ impl<I: Tokens> Parser<I> {
                     }
                 }
 
-                expr_or_spreads.push(p.allow_in_expr(|p| p.parse_expr_or_spread())?);
+                let expr_or_spread = p.allow_in_expr(|p| p.parse_expr_or_spread())?;
+                expr_or_spreads.push(p, expr_or_spread);
             }
 
             expect!(p, Token::RParen);
-            Ok(expr_or_spreads)
+            Ok(expr_or_spreads.end(p))
         })
     }
 
@@ -1216,7 +1228,6 @@ impl<I: Tokens> Parser<I> {
         // if (self.input.is(Token::LParen) && (!no_call || question_dot)) || type_args.is_some() {
         if self.input.is(Token::LParen) && (!no_call || question_dot) {
             let args = self.parse_args(false)?;
-            let args = self.ast.add_typed_sub_range(&args);
 
             let span = self.span(start);
             return if question_dot || unwrap_ts_non_null(callee).is_opt_chain() {
@@ -1336,7 +1347,6 @@ impl<I: Tokens> Parser<I> {
             }
             Token::LParen if !no_call => {
                 let args = self.parse_args(false)?;
-                let args = self.ast.add_typed_sub_range(&args);
                 Ok(self
                     .ast
                     .expr_call_expr(self.span(start), Callee::Super(lhs), args))
@@ -1392,7 +1402,6 @@ impl<I: Tokens> Parser<I> {
 
         if self.input().is(Token::LParen) {
             let args = self.parse_args(true)?;
-            let args = self.ast.add_typed_sub_range(&args);
             let expr = self
                 .ast
                 .expr_call_expr(self.span(start), Callee::Import(lhs), args);
@@ -1523,7 +1532,6 @@ impl<I: Tokens> Parser<I> {
             if !is_new_expr || self.input().is(Token::LParen) {
                 // Parsed with 'MemberExpression' production.
                 let args = self.parse_args(false)?;
-                let args = self.ast.add_typed_sub_range(&args);
                 let new_expr =
                     self.ast
                         .expr_call_expr(self.span(start), Callee::Expr(callee), args);
@@ -2080,7 +2088,7 @@ impl<I: Tokens> Parser<I> {
                     _ => false,
                 }
             } {
-                let params: Vec<Pat> = {
+                let params = {
                     let items = items.clone_in(&mut self.ast);
                     self.parse_paren_items_as_params(items, None)?
                 };
@@ -2093,7 +2101,6 @@ impl<I: Tokens> Parser<I> {
                 )?;
                 let span = self.span(start);
 
-                let params = self.ast.add_typed_sub_range(&params);
                 let expr = self
                     .ast
                     .expr_or_spread_expr_arrow_expr(span, params, body, is_async, false);
@@ -2218,7 +2225,7 @@ impl<I: Tokens> Parser<I> {
             }
             expect!(self, Token::Arrow);
 
-            let params: Vec<Pat> = self.parse_paren_items_as_params(paren_items, trailing_comma)?;
+            let params = self.parse_paren_items_as_params(paren_items, trailing_comma)?;
 
             let body: BlockStmtOrExpr = self.parse_fn_block_or_expr_body(
                 async_span.is_some(),
@@ -2227,7 +2234,6 @@ impl<I: Tokens> Parser<I> {
                 params.is_simple_parameter_list(&self.ast),
             )?;
 
-            let params = self.ast.add_typed_sub_range(&params);
             let arrow_expr = self.ast.arrow_expr(
                 self.span(expr_start),
                 params,
@@ -2277,22 +2283,20 @@ impl<I: Tokens> Parser<I> {
             }
         }
 
-        let expr_or_spreads = paren_items
-            .into_iter()
-            .map(|item| -> PResult<_> {
-                match item {
-                    AssignTargetOrSpread::ExprOrSpread(e) => Ok(e),
-                    AssignTargetOrSpread::Pat(p) => {
-                        syntax_error!(self, p.span(&self.ast), SyntaxError::InvalidExpr)
-                    }
+        let mut expr_or_spreads = self.scratch_start();
+        for item in paren_items {
+            match item {
+                AssignTargetOrSpread::ExprOrSpread(e) => expr_or_spreads.push(self, e),
+                AssignTargetOrSpread::Pat(p) => {
+                    syntax_error!(self, p.span(&self.ast), SyntaxError::InvalidExpr)
                 }
-            })
-            .collect::<Result<Vec<_>, _>>()?;
+            }
+        }
         if let Some(async_span) = async_span {
             // It's a call expression
             let sym = self.ast.add_atom_ref(atom!("async"));
             let callee = self.ast.callee_expr_ident(async_span, sym, false);
-            let expr_or_spreads = self.ast.add_typed_sub_range(&expr_or_spreads);
+            let expr_or_spreads = expr_or_spreads.end(self);
             return Ok(self.ast.expr_call_expr(
                 self.span(async_span.lo()),
                 callee,
@@ -2301,7 +2305,7 @@ impl<I: Tokens> Parser<I> {
         }
 
         // It was not head of arrow function.
-
+        let expr_or_spreads = expr_or_spreads.end(self);
         if expr_or_spreads.is_empty() {
             syntax_error!(
                 self,
@@ -2314,7 +2318,7 @@ impl<I: Tokens> Parser<I> {
 
         // ParenthesizedExpression cannot contain spread.
         if expr_or_spreads.len() == 1 {
-            let expr = match expr_or_spreads.into_iter().next().unwrap() {
+            let expr = match self.ast.get_node(expr_or_spreads.iter().next().unwrap()) {
                 ExprOrSpread::Spread(spread) => {
                     syntax_error!(
                         self,
@@ -2329,22 +2333,23 @@ impl<I: Tokens> Parser<I> {
         } else {
             debug_assert!(expr_or_spreads.len() >= 2);
 
-            let mut exprs = Vec::with_capacity(expr_or_spreads.len());
-            for expr in expr_or_spreads {
+            let mut exprs = self.scratch_start();
+            for expr in expr_or_spreads.iter() {
+                let expr = self.ast.get_node(expr);
                 match expr {
                     ExprOrSpread::Spread(spread) => {
                         syntax_error!(self, spread.span(&self.ast), SyntaxError::SpreadInParenExpr)
                     }
-                    ExprOrSpread::Expr(expr) => exprs.push(expr),
+                    ExprOrSpread::Expr(expr) => exprs.push(self, expr),
                     _ => unreachable!(),
                 }
             }
+            let exprs = exprs.end(self);
             debug_assert!(exprs.len() >= 2);
 
             // span of sequence expression should not include '(', ')'
-            let span_lo = exprs.first().unwrap().span_lo(&self.ast);
-            let span_hi = exprs.last().unwrap().span_hi(&self.ast);
-            let exprs = self.ast.add_typed_sub_range(&exprs);
+            let span_lo = self.ast.get_node(exprs.first().unwrap()).span_lo(&self.ast);
+            let span_hi = self.ast.get_node(exprs.last().unwrap()).span_hi(&self.ast);
             let seq_expr = self
                 .ast
                 .expr_seq_expr(Span::new_with_checked(span_lo, span_hi), exprs);
@@ -2364,7 +2369,7 @@ impl<I: Tokens> Parser<I> {
         let cur = token_and_span.token;
 
         if cur == Token::Class {
-            return self.parse_class_expr(start, decorators.unwrap_or_default());
+            return self.parse_class_expr(start, decorators.unwrap_or(TypedSubRange::empty()));
         }
 
         let try_parse_arrow_expr = |p: &mut Self, id: Ident, id_is_async| -> PResult<Expr> {
@@ -2414,7 +2419,10 @@ impl<I: Tokens> Parser<I> {
 
                     // async a => body
                     let arg = Pat::Ident(ident);
-                    let params = vec![arg];
+                    let mut params = p.scratch_start();
+                    params.push(p, arg);
+
+                    let params = params.end(p);
                     expect!(p, Token::Arrow);
                     let body = p.parse_fn_block_or_expr_body(
                         true,
@@ -2423,7 +2431,6 @@ impl<I: Tokens> Parser<I> {
                         params.is_simple_parameter_list(&p.ast),
                     )?;
 
-                    let params = p.ast.add_typed_sub_range(&params);
                     return Ok(p
                         .ast
                         .expr_arrow_expr(p.span(start), params, body, true, false));
@@ -2434,7 +2441,12 @@ impl<I: Tokens> Parser<I> {
                             SyntaxError::EvalAndArgumentsInStrict,
                         )
                     }
-                    let params = vec![Pat::Ident(p.ast.binding_ident(id.span(&p.ast), id))];
+
+                    let mut params = p.scratch_start();
+                    let pat = Pat::Ident(p.ast.binding_ident(id.span(&p.ast), id));
+                    params.push(p, pat);
+                    let params = params.end(p);
+
                     let body = p.parse_fn_block_or_expr_body(
                         false,
                         false,
@@ -2442,7 +2454,6 @@ impl<I: Tokens> Parser<I> {
                         params.is_simple_parameter_list(&p.ast),
                     )?;
 
-                    let params = p.ast.add_typed_sub_range(&params);
                     return Ok(p
                         .ast
                         .expr_arrow_expr(p.span(start), params, body, false, false));

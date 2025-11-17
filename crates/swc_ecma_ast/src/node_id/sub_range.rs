@@ -1,7 +1,7 @@
 use std::{marker::PhantomData, ops::Deref};
 
 use crate::{
-    Ast,
+    Ast, AstNode,
     node_id::{ExtraDataId, FromNodeId},
 };
 
@@ -48,6 +48,15 @@ impl<T> TypedSubRange<T> {
         self.end.index() - self.start.index()
     }
 
+    pub fn get(&self, index: usize) -> NodeExtraDataId<T> {
+        assert!(index < self.len());
+        let id = self.start + index;
+        NodeExtraDataId {
+            inner: id,
+            _phantom: PhantomData::default(),
+        }
+    }
+
     pub fn first(&self) -> Option<NodeExtraDataId<T>> {
         if self.is_empty() {
             return None;
@@ -55,6 +64,17 @@ impl<T> TypedSubRange<T> {
 
         Some(NodeExtraDataId {
             inner: self.start,
+            _phantom: PhantomData::default(),
+        })
+    }
+
+    pub fn last(&self) -> Option<NodeExtraDataId<T>> {
+        if self.is_empty() {
+            return None;
+        }
+
+        Some(NodeExtraDataId {
+            inner: self.end - 1,
             _phantom: PhantomData::default(),
         })
     }
@@ -199,6 +219,11 @@ impl Ast {
     pub fn get_node<T: FromNodeId>(&self, id: NodeExtraDataId<T>) -> T {
         let node_id = unsafe { self.extra_data[id.inner].node };
         T::from_node_id(node_id, self)
+    }
+
+    pub fn get_raw_node<T>(&self, id: NodeExtraDataId<T>) -> &AstNode {
+        let node_id = unsafe { self.extra_data[id.inner].node };
+        &self.nodes[node_id]
     }
 
     pub fn get_opt_node<T: FromNodeId>(&self, id: NodeExtraDataId<Option<T>>) -> Option<T> {

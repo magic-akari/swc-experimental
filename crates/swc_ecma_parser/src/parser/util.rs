@@ -1,27 +1,42 @@
+use std::marker::PhantomData;
+
 use rspack_experimental_swc_ecma_ast::*;
 use swc_common::Span;
 
+use crate::{Parser, input::Tokens};
+
 pub trait IsSimpleParameterList {
-    fn is_simple_parameter_list(&self, ast: &Ast) -> bool;
+    fn is_simple_parameter_list(self, ast: &Ast) -> bool;
 }
 
-impl IsSimpleParameterList for Vec<Param> {
-    fn is_simple_parameter_list(&self, ast: &Ast) -> bool {
-        self.iter()
-            .all(|param| matches!(param.pat(ast), Pat::Ident(_)))
+impl IsSimpleParameterList for TypedSubRange<Param> {
+    #[inline]
+    fn is_simple_parameter_list(self, ast: &Ast) -> bool {
+        self.iter().all(|param| {
+            let param = ast.get_node(param);
+            matches!(param.pat(ast), Pat::Ident(_))
+        })
     }
 }
 
-impl IsSimpleParameterList for Vec<Pat> {
-    fn is_simple_parameter_list(&self, _ast: &Ast) -> bool {
-        self.iter().all(|pat| matches!(pat, Pat::Ident(_)))
+impl IsSimpleParameterList for TypedSubRange<Pat> {
+    #[inline]
+    fn is_simple_parameter_list(self, ast: &Ast) -> bool {
+        self.iter().all(|pat| {
+            let pat = ast.get_node(pat);
+            matches!(pat, Pat::Ident(_))
+        })
     }
 }
 
-impl IsSimpleParameterList for Vec<ParamOrTsParamProp> {
-    fn is_simple_parameter_list(&self, ast: &Ast) -> bool {
-        self.iter().all(|param| match param {
-            ParamOrTsParamProp::Param(param) => matches!(param.pat(ast), Pat::Ident(_)),
+impl IsSimpleParameterList for TypedSubRange<ParamOrTsParamProp> {
+    #[inline]
+    fn is_simple_parameter_list(self, ast: &Ast) -> bool {
+        self.iter().all(|param| {
+            let param = ast.get_node(param);
+            match param {
+                ParamOrTsParamProp::Param(param) => matches!(param.pat(ast), Pat::Ident(_)),
+            }
         })
     }
 }
@@ -140,5 +155,46 @@ impl FromStmt for ModuleItem {
 impl FromStmt for Stmt {
     fn from_stmt(stmt: Stmt) -> Self {
         stmt
+    }
+}
+
+pub(crate) struct ScratchIndex<N: GetNodeId> {
+    start: usize,
+    _p: PhantomData<N>,
+}
+
+impl<N: GetNodeId> ScratchIndex<N> {
+    pub(crate) fn new(start: usize) -> Self {
+        Self {
+            start,
+            _p: PhantomData::default(),
+        }
+    }
+
+    pub(crate) fn end<I: Tokens>(self, p: &mut Parser<I>) -> TypedSubRange<N> {
+        let range = p.ast.add_typed_sub_range(&p.scratch[self.start..]);
+        unsafe { p.scratch.set_len(self.start) };
+
+        // // Check if all nodes in range are of the same kind
+        // if cfg!(debug_assertions) {
+        //     if let Some(first) = range.first() {
+        //         let kind = p.ast.get_raw_node(first).kind;
+        //         for i in 0..range.len() {
+        //             let node = p.ast.get_raw_node(range.get(i));
+        //             debug_assert!(
+        //                 node.kind == kind,
+        //                 "expected {:?}, got {:?}",
+        //                 kind,
+        //                 node.kind
+        //             );
+        //         }
+        //     }
+        // }
+
+        range
+    }
+
+    pub(crate) fn push<I: Tokens>(&mut self, p: &mut Parser<I>, node: N) {
+        p.scratch.push(node.node_id());
     }
 }

@@ -212,7 +212,7 @@ impl<I: Tokens> Parser<I> {
         //     }
         // }
 
-        let mut decls = Vec::with_capacity(4);
+        let mut decls = self.scratch_start();
         loop {
             // Handle
             //      var a,;
@@ -237,7 +237,7 @@ impl<I: Tokens> Parser<I> {
                 self.parse_var_declarator(for_loop, kind)
             }?;
 
-            decls.push(decl);
+            decls.push(self, decl);
 
             if !self.input_mut().eat(Token::Comma) {
                 break;
@@ -258,7 +258,7 @@ impl<I: Tokens> Parser<I> {
             }
         }
 
-        let decls = self.ast.add_typed_sub_range(&decls);
+        let decls = decls.end(self);
         Ok(self.ast.var_decl(self.span(start), kind, false, decls))
     }
 
@@ -277,7 +277,7 @@ impl<I: Tokens> Parser<I> {
 
         self.assert_and_bump(Token::Using);
 
-        let mut decls = Vec::new();
+        let mut decls = self.scratch_start();
         loop {
             // Handle
             //      var a,;
@@ -289,7 +289,8 @@ impl<I: Tokens> Parser<I> {
                 break;
             }
 
-            decls.push(self.parse_var_declarator(false, VarDeclKind::Var)?);
+            let decl = self.parse_var_declarator(false, VarDeclKind::Var)?;
+            decls.push(self, decl);
             if !self.input_mut().eat(Token::Comma) {
                 break;
             }
@@ -303,7 +304,9 @@ impl<I: Tokens> Parser<I> {
             self.emit_err(self.span(start), SyntaxError::UsingDeclNotAllowed);
         }
 
-        for decl in &decls {
+        let decls = decls.end(self);
+        for decl in decls.iter() {
+            let decl = self.ast.get_node(decl);
             match decl.name(&self.ast) {
                 Pat::Ident(..) => {}
                 _ => {
@@ -318,7 +321,6 @@ impl<I: Tokens> Parser<I> {
 
         self.expect_general_semi()?;
 
-        let decls = self.ast.add_typed_sub_range(&decls);
         Ok(Some(self.ast.using_decl(self.span(start), is_await, decls)))
     }
 
@@ -418,7 +420,10 @@ impl<I: Tokens> Parser<I> {
                 .ast
                 .var_declarator(self.span(start), Pat::Ident(name), Some(init));
 
-            let decls = self.ast.add_typed_sub_range(&[decl]);
+            let mut decls = self.scratch_start();
+            decls.push(self, decl);
+            let decls = decls.end(self);
+
             let pat = self
                 .ast
                 .using_decl(self.span(start), is_await_using_decl, decls);
@@ -760,7 +765,7 @@ impl<I: Tokens> Parser<I> {
                 p.state_mut().labels.push(atom.clone());
 
                 let body = if p.input().is(Token::Function) {
-                    let f = p.parse_fn_decl(Vec::new())?;
+                    let f = p.parse_fn_decl(TypedSubRange::empty())?;
                     if let Decl::Fn(fn_decl) = &f {
                         let function = fn_decl.function(&p.ast);
                         if p.ctx().contains(Context::Strict) {
@@ -855,7 +860,7 @@ impl<I: Tokens> Parser<I> {
         let discriminant = self.allow_in_expr(|p| p.parse_expr())?;
         expect!(self, Token::RParen);
 
-        let mut cases = Vec::new();
+        let mut cases = self.scratch_start();
         let mut span_of_previous_default = None;
 
         expect!(self, Token::LBrace);
@@ -865,7 +870,7 @@ impl<I: Tokens> Parser<I> {
                 let cur = p.input().cur();
                 cur == Token::Case || cur == Token::Default
             } {
-                let mut cons = Vec::new();
+                let mut cons = p.scratch_start();
                 let is_case = p.input().is(Token::Case);
                 let case_start = p.cur_pos();
                 p.bump();
@@ -885,17 +890,18 @@ impl<I: Tokens> Parser<I> {
                     let cur = p.input().cur();
                     !(cur == Token::Case || cur == Token::Default || cur == Token::RBrace)
                 } {
-                    cons.push(
-                        p.do_outside_of_context(Context::TopLevel, Self::parse_stmt_list_item)?,
-                    );
+                    let con =
+                        p.do_outside_of_context(Context::TopLevel, Self::parse_stmt_list_item)?;
+                    cons.push(p, con);
                 }
 
-                let cons = p.ast.add_typed_sub_range(&cons);
-                cases.push(p.ast.switch_case(
+                let cons = cons.end(p);
+                let case = p.ast.switch_case(
                     Span::new_with_checked(case_start, p.input().prev_span().hi),
                     test,
                     cons,
-                ));
+                );
+                cases.push(p, case);
             }
 
             Ok(())
@@ -904,7 +910,7 @@ impl<I: Tokens> Parser<I> {
         // eof or rbrace
         expect!(self, Token::RBrace);
 
-        let cases = self.ast.add_typed_sub_range(&cases);
+        let cases = cases.end(self);
         Ok(self
             .ast
             .stmt_switch_stmt(self.span(switch_start), discriminant, cases))
@@ -921,7 +927,7 @@ impl<I: Tokens> Parser<I> {
     pub(crate) fn parse_stmt_like<Type: FromStmt>(
         &mut self,
         include_decl: bool,
-        handle_import_export: impl Fn(&mut Self, Vec<Decorator>) -> PResult<Type>,
+        handle_import_export: impl Fn(&mut Self, TypedSubRange<Decorator>) -> PResult<Type>,
     ) -> PResult<Type> {
         trace_cur!(self, parse_stmt_like);
 
@@ -931,7 +937,7 @@ impl<I: Tokens> Parser<I> {
         let decorators = if self.input().get_cur().token == Token::At {
             self.parse_decorators(true)?
         } else {
-            vec![]
+            TypedSubRange::empty()
         };
 
         let cur = self.input().cur();
@@ -952,7 +958,7 @@ impl<I: Tokens> Parser<I> {
         &mut self,
         start: BytePos,
         include_decl: bool,
-        decorators: Vec<Decorator>,
+        decorators: TypedSubRange<Decorator>,
     ) -> PResult<Stmt> {
         trace_cur!(self, parse_stmt_internal);
 
@@ -1231,11 +1237,11 @@ impl<I: Tokens> Parser<I> {
         &mut self,
         allow_directives: bool,
         end: Option<Token>,
-        handle_import_export: impl Fn(&mut Self, Vec<Decorator>) -> PResult<Type>,
+        handle_import_export: impl Fn(&mut Self, TypedSubRange<Decorator>) -> PResult<Type>,
     ) -> PResult<TypedSubRange<Type>> {
         trace_cur!(self, parse_block_body);
 
-        let mut stmts = Vec::with_capacity(8);
+        let mut stmts = self.scratch_start();
 
         let has_strict_directive = allow_directives
             && (self
@@ -1247,7 +1253,7 @@ impl<I: Tokens> Parser<I> {
                     .cur()
                     .is_str_raw_content("'use strict'", self.input()));
 
-        let parse_stmts = |p: &mut Self, stmts: &mut Vec<Type>| -> PResult<()> {
+        let parse_stmts = |p: &mut Self, stmts: &mut ScratchIndex<Type>| -> PResult<()> {
             let is_stmt_start = |p: &mut Self| {
                 let cur = p.input().cur();
                 match end {
@@ -1268,7 +1274,7 @@ impl<I: Tokens> Parser<I> {
             };
             while is_stmt_start(p) {
                 let stmt = p.parse_stmt_like(true, &handle_import_export)?;
-                stmts.push(stmt);
+                stmts.push(p, stmt);
             }
             Ok(())
         };
@@ -1283,12 +1289,15 @@ impl<I: Tokens> Parser<I> {
             self.bump();
         }
 
-        let stmts = self.ast.add_typed_sub_range(&stmts);
+        let stmts = stmts.end(self);
         Ok(stmts)
     }
 }
 
-fn handle_import_export<I: Tokens>(p: &mut Parser<I>, _: Vec<Decorator>) -> PResult<Stmt> {
+fn handle_import_export<I: Tokens>(
+    p: &mut Parser<I>,
+    _: TypedSubRange<Decorator>,
+) -> PResult<Stmt> {
     let start = p.cur_pos();
     if p.input().is(Token::Import) && peek!(p).is_some_and(|peek| peek == Token::LParen) {
         let expr = p.parse_expr()?;

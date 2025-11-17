@@ -321,7 +321,10 @@ impl<I: Tokens> Parser<I> {
         }
     }
 
-    pub(crate) fn parse_export(&mut self, mut decorators: Vec<Decorator>) -> PResult<ModuleDecl> {
+    pub(crate) fn parse_export(
+        &mut self,
+        mut decorators: TypedSubRange<Decorator>,
+    ) -> PResult<ModuleDecl> {
         if !self.ctx().contains(Context::Module) && self.ctx().contains(Context::TopLevel) {
             // Switch to module mode
             let ctx = self.ctx() | Context::Module | Context::Strict;
@@ -588,24 +591,23 @@ impl<I: Tokens> Parser<I> {
                     .module_decl_export_all(self.span(start), src, type_only, with));
             }
 
-            let mut specifiers = Vec::new();
+            let mut specifiers = self.scratch_start();
 
             let mut has_default = false;
             let mut has_ns = false;
 
             if let Some(default) = default {
                 has_default = true;
-                specifiers.push(
-                    self.ast.export_specifier_export_default_specifier(
-                        default.span(&self.ast),
-                        default,
-                    ),
-                );
+
+                let specifier = self
+                    .ast
+                    .export_specifier_export_default_specifier(default.span(&self.ast), default);
+                specifiers.push(self, specifier);
             }
 
             // export foo, * as bar
             //           ^
-            if !specifiers.is_empty()
+            if has_default
                 && self.input().is(Token::Comma)
                 && peek!(self).is_some_and(|cur| cur == Token::Asterisk)
             {
@@ -615,7 +617,7 @@ impl<I: Tokens> Parser<I> {
             }
             // export     * as bar
             //            ^
-            else if specifiers.is_empty() && self.input().is(Token::Asterisk) {
+            else if !has_default && self.input().is(Token::Asterisk) {
                 has_ns = true;
             }
 
@@ -623,17 +625,18 @@ impl<I: Tokens> Parser<I> {
                 self.assert_and_bump(Token::Asterisk);
                 expect!(self, Token::As);
                 let name = self.parse_module_export_name()?;
-                specifiers.push(self.ast.export_specifier_export_namespace_specifier(
+                let specifier = self.ast.export_specifier_export_namespace_specifier(
                     self.span(ns_export_specifier_start),
                     name,
-                ))
+                );
+                specifiers.push(self, specifier);
             }
 
             if has_default || has_ns {
                 if self.input().is(Token::From) {
                     let (src, with) = self.parse_from_clause_and_semi()?;
 
-                    let specifiers = self.ast.add_typed_sub_range(&specifiers);
+                    let specifiers = specifiers.end(self);
                     return Ok(self.ast.module_decl_named_export(
                         self.span(start),
                         specifiers,
@@ -653,7 +656,7 @@ impl<I: Tokens> Parser<I> {
 
             while !self.input().is(Token::RBrace) {
                 let specifier = self.parse_named_export_specifier(type_only)?;
-                specifiers.push(ExportSpecifier::Named(specifier));
+                specifiers.push(self, ExportSpecifier::Named(specifier));
 
                 if self.input().is(Token::RBrace) {
                     break;
@@ -663,10 +666,12 @@ impl<I: Tokens> Parser<I> {
             }
             expect!(self, Token::RBrace);
 
+            let specifiers = specifiers.end(self);
             let opt = if self.input().is(Token::From) {
                 Some(self.parse_from_clause_and_semi()?)
             } else {
-                for s in &specifiers {
+                for s in specifiers.iter() {
+                    let s = self.ast.get_node(s);
                     match s {
                         ExportSpecifier::Default(default) => {
                             self.emit_err(
@@ -727,7 +732,6 @@ impl<I: Tokens> Parser<I> {
                 None => (None, None),
             };
 
-            let specifiers = self.ast.add_typed_sub_range(&specifiers);
             return Ok(self.ast.module_decl_named_export(
                 self.span(start),
                 specifiers,
@@ -797,7 +801,7 @@ impl<I: Tokens> Parser<I> {
 
         let mut type_only = false;
         let mut phase = ImportPhase::Evaluation;
-        let mut specifiers = Vec::with_capacity(4);
+        let mut specifiers = self.scratch_start();
 
         'import_maybe_ident: {
             if self.is_ident_ref() {
@@ -867,10 +871,11 @@ impl<I: Tokens> Parser<I> {
                 if !self.input().is(Token::From) {
                     expect!(self, Token::Comma);
                 }
-                specifiers.push(
-                    self.ast
-                        .import_specifier_import_default_specifier(local.span(&self.ast), local),
-                );
+
+                let specifier = self
+                    .ast
+                    .import_specifier_import_default_specifier(local.span(&self.ast), local);
+                specifiers.push(self, specifier);
             }
         }
 
@@ -880,14 +885,15 @@ impl<I: Tokens> Parser<I> {
             if phase != ImportPhase::Source && self.input_mut().eat(Token::Asterisk) {
                 expect!(self, Token::As);
                 let local = self.parse_imported_binding()?;
-                specifiers.push(self.ast.import_specifier_import_star_as_specifier(
-                    self.span(import_spec_start),
-                    local,
-                ));
+                let specifier = self
+                    .ast
+                    .import_specifier_import_star_as_specifier(self.span(import_spec_start), local);
+                specifiers.push(self, specifier);
                 // Named imports are only allowed in evaluation phase.
             } else if phase == ImportPhase::Evaluation && self.input_mut().eat(Token::LBrace) {
                 while !self.input().is(Token::RBrace) {
-                    specifiers.push(self.parse_import_specifier(type_only)?);
+                    let specifier = self.parse_import_specifier(type_only)?;
+                    specifiers.push(self, specifier);
 
                     if self.input().is(Token::RBrace) {
                         break;
@@ -922,7 +928,7 @@ impl<I: Tokens> Parser<I> {
 
         self.expect_general_semi()?;
 
-        let specifiers = self.ast.add_typed_sub_range(&specifiers);
+        let specifiers = specifiers.end(self);
         Ok(self.ast.module_item_module_decl_import_decl(
             self.span(start),
             specifiers,
@@ -936,7 +942,7 @@ impl<I: Tokens> Parser<I> {
 
 fn handle_import_export<I: Tokens>(
     p: &mut Parser<I>,
-    decorators: Vec<Decorator>,
+    decorators: TypedSubRange<Decorator>,
 ) -> PResult<ModuleItem> {
     if !p
         .ctx()

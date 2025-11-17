@@ -13,7 +13,7 @@ use crate::{
     parser::{
         input::Tokens,
         state::{State, WithState},
-        util::ExprExt,
+        util::{ExprExt, ScratchIndex},
     },
     syntax::SyntaxFlags,
 };
@@ -56,6 +56,8 @@ pub struct ParserCheckpoint<I: Tokens> {
 pub struct Parser<I: self::input::Tokens> {
     // TODO: just for debug
     pub ast: Ast,
+    /// Don't mutable this directly. Use Parser::scratch_xxx instead for safety.
+    scratch: Vec<NodeId>,
     state: State,
     input: self::input::Buffer<I>,
     found_module_item: bool,
@@ -104,6 +106,11 @@ impl<I: Tokens> Parser<I> {
     fn mark_found_module_item(&mut self) {
         self.found_module_item = true;
     }
+
+    #[inline]
+    fn scratch_start<N: GetNodeId>(&self) -> ScratchIndex<N> {
+        ScratchIndex::new(self.scratch.len())
+    }
 }
 
 impl<'a> Parser<crate::lexer::Lexer<'a>> {
@@ -122,6 +129,7 @@ impl<I: Tokens> Parser<I> {
 
         let mut p = Parser {
             ast: Ast::default(),
+            scratch: Vec::new(),
             state: Default::default(),
             input: crate::parser::input::Buffer::new(input),
             found_module_item: false,
@@ -229,11 +237,11 @@ impl<I: Tokens> Parser<I> {
         let ret = if has_module_item {
             self.ast.program_module(self.span(start), body, shebang)
         } else {
-            let mut stmts = Vec::with_capacity(body.len());
+            let mut stmts = self.scratch_start();
             for item in body.iter() {
                 let item = self.ast.get_node(item);
                 match item {
-                    ModuleItem::Stmt(stmt) => stmts.push(stmt),
+                    ModuleItem::Stmt(stmt) => stmts.push(self, stmt),
                     ModuleItem::ModuleDecl(_) => {
                         unreachable!("module is handled above")
                     }
@@ -242,7 +250,7 @@ impl<I: Tokens> Parser<I> {
                 }
             }
 
-            let body = self.ast.add_typed_sub_range(&stmts);
+            let body = stmts.end(self);
             self.ast.program_script(self.span(start), body, shebang)
         };
 
@@ -570,14 +578,15 @@ impl<I: Tokens> Parser<I> {
                 let inner_start = p.input().cur_pos();
                 let mut expr = p.allow_in_expr(Self::parse_assignment_expr)?;
                 if p.syntax().typescript() && p.input().is(Token::Comma) {
-                    let mut exprs = vec![expr];
+                    let mut exprs = p.scratch_start();
+                    exprs.push(p, expr);
                     while p.input_mut().eat(Token::Comma) {
-                        //
-                        exprs.push(p.allow_in_expr(Self::parse_assignment_expr)?);
+                        let expr = p.allow_in_expr(Self::parse_assignment_expr)?;
+                        exprs.push(p, expr);
                     }
                     p.emit_err(p.span(inner_start), SyntaxError::TS1171);
 
-                    let exprs = p.ast.add_typed_sub_range(&exprs);
+                    let exprs = exprs.end(p);
                     expr = p.ast.expr_seq_expr(p.span(inner_start), exprs);
                 }
                 expect!(p, Token::RBracket);

@@ -281,10 +281,10 @@ impl Ast {
     }
 
     #[inline]
-    pub fn add_typed_sub_range<N: GetNodeId>(&mut self, range: &[N]) -> TypedSubRange<N> {
+    pub fn add_typed_sub_range<N: GetNodeId>(&mut self, range: &[NodeId]) -> TypedSubRange<N> {
         let start = self.extra_data.next_idx();
         self.extra_data
-            .extend(range.iter().map(|n| ExtraData { node: n.node_id() }));
+            .extend(range.iter().map(|n| ExtraData { node: *n }));
         TypedSubRange {
             inner: SubRange {
                 start,

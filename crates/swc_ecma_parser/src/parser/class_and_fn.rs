@@ -18,7 +18,7 @@ struct MakeMethodArgs {
     // accessibility: Option<Accessibility>,
     is_abstract: bool,
     static_token: Option<Span>,
-    decorators: Vec<Decorator>,
+    decorators: TypedSubRange<Decorator>,
     is_optional: bool,
     is_override: bool,
     key: Key,
@@ -68,18 +68,24 @@ impl<I: Tokens> Parser<I> {
         Ok(expr)
     }
 
-    pub(crate) fn parse_decorators(&mut self, allow_export: bool) -> PResult<Vec<Decorator>> {
+    pub(crate) fn parse_decorators(
+        &mut self,
+        allow_export: bool,
+    ) -> PResult<TypedSubRange<Decorator>> {
         if !self.syntax().decorators() {
-            return Ok(Vec::new());
+            return Ok(TypedSubRange::empty());
         }
         trace_cur!(self, parse_decorators);
 
-        let mut decorators = Vec::new();
+        let mut decorators = self.scratch_start();
         let start = self.cur_pos();
 
         while self.input().is(Token::At) {
-            decorators.push(self.parse_decorator()?);
+            let decorator = self.parse_decorator()?;
+            decorators.push(self, decorator);
         }
+
+        let decorators = decorators.end(self);
         if decorators.is_empty() {
             return Ok(decorators);
         }
@@ -197,14 +203,14 @@ impl<I: Tokens> Parser<I> {
     /// `parse_args` closure should not eat '(' or ')'.
     pub(crate) fn parse_fn_args_body<F>(
         &mut self,
-        _decorators: Vec<Decorator>,
+        _decorators: TypedSubRange<Decorator>,
         start: BytePos,
         parse_args: F,
         is_async: bool,
         is_generator: bool,
     ) -> PResult<Function>
     where
-        F: FnOnce(&mut Self) -> PResult<Vec<Param>>,
+        F: FnOnce(&mut Self) -> PResult<TypedSubRange<Param>>,
     {
         trace_cur!(self, parse_fn_args_body);
         let f = |p: &mut Self| {
@@ -263,9 +269,10 @@ impl<I: Tokens> Parser<I> {
 
             if p.syntax().typescript() && body.is_none() {
                 // Declare functions cannot have assignment pattern in parameters
-                for param in &params {
+                for param in params.iter() {
                     // TODO: Search deeply for assignment pattern using a Visitor
 
+                    let param = p.ast.get_node(param);
                     let span = match param.pat(&p.ast) {
                         Pat::Assign(pat) => Some(pat.span(&p.ast)),
                         _ => None,
@@ -277,7 +284,6 @@ impl<I: Tokens> Parser<I> {
                 }
             }
 
-            let params = p.ast.add_typed_sub_range(&params);
             Ok(p.ast
                 .function(p.span(start), params, body, is_generator, is_async))
         };
@@ -300,28 +306,31 @@ impl<I: Tokens> Parser<I> {
     pub(crate) fn parse_async_fn_expr(&mut self) -> PResult<Expr> {
         let start = self.cur_pos();
         expect!(self, Token::Async);
-        self.parse_fn(None, Some(start), Vec::new())
+        self.parse_fn(None, Some(start), TypedSubRange::empty())
     }
 
     /// Parse function expression
     pub(crate) fn parse_fn_expr(&mut self) -> PResult<Expr> {
-        self.parse_fn(None, None, Vec::new())
+        self.parse_fn(None, None, TypedSubRange::empty())
     }
 
-    pub(crate) fn parse_async_fn_decl(&mut self, decorators: Vec<Decorator>) -> PResult<Decl> {
+    pub(crate) fn parse_async_fn_decl(
+        &mut self,
+        decorators: TypedSubRange<Decorator>,
+    ) -> PResult<Decl> {
         let start = self.cur_pos();
         expect!(self, Token::Async);
         self.parse_fn(None, Some(start), decorators)
     }
 
-    pub(crate) fn parse_fn_decl(&mut self, decorators: Vec<Decorator>) -> PResult<Decl> {
+    pub(crate) fn parse_fn_decl(&mut self, decorators: TypedSubRange<Decorator>) -> PResult<Decl> {
         self.parse_fn(None, None, decorators)
     }
 
     pub(crate) fn parse_default_async_fn(
         &mut self,
         start: BytePos,
-        decorators: Vec<Decorator>,
+        decorators: TypedSubRange<Decorator>,
     ) -> PResult<ExportDefaultDecl> {
         let start_of_async = self.cur_pos();
         expect!(self, Token::Async);
@@ -331,7 +340,7 @@ impl<I: Tokens> Parser<I> {
     pub(crate) fn parse_default_fn(
         &mut self,
         start: BytePos,
-        decorators: Vec<Decorator>,
+        decorators: TypedSubRange<Decorator>,
     ) -> PResult<ExportDefaultDecl> {
         self.parse_fn(Some(start), None, decorators)
     }
@@ -340,7 +349,7 @@ impl<I: Tokens> Parser<I> {
         &mut self,
         _start_of_output_type: Option<BytePos>,
         start_of_async: Option<BytePos>,
-        decorators: Vec<Decorator>,
+        decorators: TypedSubRange<Decorator>,
         is_fn_expr: bool,
         is_ident_required: bool,
     ) -> PResult<(Option<Ident>, Function)> {
@@ -405,7 +414,7 @@ impl<I: Tokens> Parser<I> {
         &mut self,
         start_of_output_type: Option<BytePos>,
         start_of_async: Option<BytePos>,
-        decorators: Vec<Decorator>,
+        decorators: TypedSubRange<Decorator>,
     ) -> PResult<T>
     where
         T: OutputType,
@@ -430,7 +439,7 @@ impl<I: Tokens> Parser<I> {
         &mut self,
         start: BytePos,
         class_start: BytePos,
-        decorators: Vec<Decorator>,
+        decorators: TypedSubRange<Decorator>,
         is_abstract: bool,
     ) -> PResult<Decl> {
         self.parse_class(start, class_start, decorators, is_abstract)
@@ -439,7 +448,7 @@ impl<I: Tokens> Parser<I> {
     pub(crate) fn parse_class_expr(
         &mut self,
         start: BytePos,
-        decorators: Vec<Decorator>,
+        decorators: TypedSubRange<Decorator>,
     ) -> PResult<Expr> {
         self.parse_class(start, start, decorators, false)
     }
@@ -448,7 +457,7 @@ impl<I: Tokens> Parser<I> {
         &mut self,
         start: BytePos,
         class_start: BytePos,
-        decorators: Vec<Decorator>,
+        decorators: TypedSubRange<Decorator>,
         is_abstract: bool,
     ) -> PResult<ExportDefaultDecl> {
         self.parse_class(start, class_start, decorators, is_abstract)
@@ -472,7 +481,7 @@ impl<I: Tokens> Parser<I> {
         }: MakeMethodArgs,
     ) -> PResult<ClassMember>
     where
-        F: FnOnce(&mut Self) -> PResult<Vec<Param>>,
+        F: FnOnce(&mut Self) -> PResult<TypedSubRange<Param>>,
     {
         trace_cur!(self, make_method);
 
@@ -640,7 +649,7 @@ impl<I: Tokens> Parser<I> {
     fn make_property(
         &mut self,
         start: BytePos,
-        _decorators: Vec<Decorator>,
+        _decorators: TypedSubRange<Decorator>,
         // accessibility: Option<Accessibility>,
         key: Key,
         is_static: bool,
@@ -738,7 +747,7 @@ impl<I: Tokens> Parser<I> {
         // accessibility: Option<Accessibility>,
         static_token: Option<Span>,
         accessor_token: Option<Span>,
-        decorators: Vec<Decorator>,
+        decorators: TypedSubRange<Decorator>,
     ) -> PResult<ClassMember> {
         let is_static = static_token.is_some();
 
@@ -999,7 +1008,7 @@ impl<I: Tokens> Parser<I> {
                     Key::Public(key) => key,
                     _ => unreachable!("is_constructor() returns false for PrivateName"),
                 };
-                let params = self.ast.add_typed_sub_range(&params);
+
                 return Ok(self
                     .ast
                     .class_member_constructor(self.span(start), key, params, body));
@@ -1123,7 +1132,10 @@ impl<I: Tokens> Parser<I> {
                     |p| {
                         let params = p.parse_formal_params()?;
 
-                        if params.iter().any(|param| is_not_this(&p.ast, *param)) {
+                        if params
+                            .iter()
+                            .any(|param| is_not_this(&p.ast, p.ast.get_node(param)))
+                        {
                             p.emit_err(key_span, SyntaxError::GetterParam);
                         }
 
@@ -1149,7 +1161,7 @@ impl<I: Tokens> Parser<I> {
 
                         if params
                             .iter()
-                            .filter(|param| is_not_this(&p.ast, **param))
+                            .filter(|param| is_not_this(&p.ast, p.ast.get_node(*param)))
                             .count()
                             != 1
                         {
@@ -1157,11 +1169,8 @@ impl<I: Tokens> Parser<I> {
                         }
 
                         if !params.is_empty() {
-                            if let Pat::Rest(..) = params[0].pat(&p.ast) {
-                                p.emit_err(
-                                    params[0].pat(&p.ast).span(&p.ast),
-                                    SyntaxError::RestPatInSetter,
-                                );
+                            if let Pat::Rest(rest) = p.ast.get_node(params.get(0)).pat(&p.ast) {
+                                p.emit_err(rest.span(&p.ast), SyntaxError::RestPatInSetter);
                             }
                         }
 
@@ -1389,14 +1398,15 @@ impl<I: Tokens> Parser<I> {
         )
     }
 
-    fn parse_class_body(&mut self) -> PResult<Vec<ClassMember>> {
-        let mut elems = Vec::with_capacity(32);
+    fn parse_class_body(&mut self) -> PResult<TypedSubRange<ClassMember>> {
+        let mut elems = self.scratch_start();
         let mut has_constructor_with_body = false;
         while !self.input().is(Token::RBrace) {
             if self.input_mut().eat(Token::Semi) {
                 let span = self.input().prev_span();
                 debug_assert!(span.lo <= span.hi);
-                elems.push(self.ast.class_member_empty_stmt(span));
+                let member = self.ast.class_member_empty_stmt(span);
+                elems.push(self, member);
                 continue;
             }
             let elem =
@@ -1413,16 +1423,16 @@ impl<I: Tokens> Parser<I> {
                     has_constructor_with_body = true;
                 }
             }
-            elems.push(elem);
+            elems.push(self, elem);
         }
-        Ok(elems)
+        Ok(elems.end(self))
     }
 
     fn parse_class<T>(
         &mut self,
         start: BytePos,
         class_start: BytePos,
-        decorators: Vec<Decorator>,
+        decorators: TypedSubRange<Decorator>,
         is_abstract: bool,
     ) -> PResult<T>
     where
@@ -1464,7 +1474,7 @@ impl<I: Tokens> Parser<I> {
         &mut self,
         _start: BytePos,
         class_start: BytePos,
-        _decorators: Vec<Decorator>,
+        _decorators: TypedSubRange<Decorator>,
         is_ident_required: bool,
     ) -> PResult<(Option<Ident>, Class)> {
         self.strict_mode(|p| {
@@ -1559,7 +1569,6 @@ impl<I: Tokens> Parser<I> {
             }
 
             let span = p.span(class_start);
-            let body = p.ast.add_typed_sub_range(&body);
             let class = p.ast.class(span, body, super_class, false);
             Ok((ident, class))
         })

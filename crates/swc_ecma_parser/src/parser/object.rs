@@ -7,10 +7,15 @@ use crate::{
 };
 
 impl<I: Tokens> Parser<I> {
-    pub(crate) fn parse_object<Object, ObjectProp>(
+    pub(crate) fn parse_object<Object, ObjectProp: GetNodeId>(
         &mut self,
         parse_prop: impl Fn(&mut Self) -> PResult<ObjectProp>,
-        make_object: impl Fn(&mut Self, Span, Vec<ObjectProp>, Option<Span>) -> PResult<Object>,
+        make_object: impl Fn(
+            &mut Self,
+            Span,
+            TypedSubRange<ObjectProp>,
+            Option<Span>,
+        ) -> PResult<Object>,
     ) -> PResult<Object> {
         self.do_outside_of_context(Context::WillExpectColonForCond, |p| {
             trace_cur!(p, parse_object);
@@ -19,10 +24,11 @@ impl<I: Tokens> Parser<I> {
             let mut trailing_comma = None;
             p.assert_and_bump(Token::LBrace);
 
-            let mut props = Vec::with_capacity(8);
+            let mut props = p.scratch_start();
 
             while !p.input_mut().eat(Token::RBrace) {
-                props.push(parse_prop(p)?);
+                let prop = parse_prop(p)?;
+                props.push(p, prop);
 
                 if !p.input().is(Token::RBrace) {
                     expect!(p, Token::Comma);
@@ -33,6 +39,7 @@ impl<I: Tokens> Parser<I> {
             }
 
             let span = p.span(start);
+            let props = props.end(p);
             make_object(p, span, props, trailing_comma)
         })
     }
@@ -95,11 +102,12 @@ impl<I: Tokens> Parser<I> {
     fn make_binding_object(
         &mut self,
         span: Span,
-        props: Vec<ObjectPatProp>,
+        props: TypedSubRange<ObjectPatProp>,
         trailing_comma: Option<Span>,
     ) -> PResult<Pat> {
         let len = props.len();
         for (i, prop) in props.iter().enumerate() {
+            let prop = self.ast.get_node(prop);
             if i == len - 1 {
                 if let ObjectPatProp::Rest(rest) = prop {
                     match rest.arg(&self.ast) {
@@ -126,7 +134,6 @@ impl<I: Tokens> Parser<I> {
         let optional = (self.input().syntax().dts() || self.ctx().contains(Context::InDeclare))
             && self.input_mut().eat(Token::QuestionMark);
 
-        let props = self.ast.add_typed_sub_range(&props);
         Ok(self.ast.pat_object_pat(span, props, optional))
     }
 
@@ -137,7 +144,7 @@ impl<I: Tokens> Parser<I> {
     fn make_expr_object(
         &mut self,
         span: Span,
-        props: Vec<PropOrSpread>,
+        props: TypedSubRange<PropOrSpread>,
         trailing_comma: Option<Span>,
     ) -> PResult<Expr> {
         if let Some(trailing_comma) = trailing_comma {
@@ -146,7 +153,6 @@ impl<I: Tokens> Parser<I> {
                 .insert(span.lo, trailing_comma);
         }
 
-        let props = self.ast.add_typed_sub_range(&props);
         Ok(self.ast.expr_object_lit(span, props))
     }
 
@@ -174,7 +180,7 @@ impl<I: Tokens> Parser<I> {
                     p.do_outside_of_context(Context::InClassField, |p| {
                         p.parse_fn_args_body(
                             // no decorator in an object literal
-                            Vec::new(),
+                            TypedSubRange::empty(),
                             start,
                             Self::parse_unique_formal_params,
                             false,
@@ -246,7 +252,7 @@ impl<I: Tokens> Parser<I> {
                     p.do_outside_of_context(Context::InClassField, |p| {
                         p.parse_fn_args_body(
                             // no decorator in an object literal
-                            Vec::new(),
+                            TypedSubRange::empty(),
                             start,
                             Self::parse_unique_formal_params,
                             false,
@@ -322,12 +328,15 @@ impl<I: Tokens> Parser<I> {
                             "get" => p
                                 .parse_fn_args_body(
                                     // no decorator in an object literal
-                                    Vec::new(),
+                                    TypedSubRange::empty(),
                                     start,
                                     |p| {
                                         let params = p.parse_formal_params()?;
 
-                                        if params.iter().any(|param| is_not_this(&p.ast, *param)) {
+                                        if params
+                                            .iter()
+                                            .any(|param| is_not_this(&p.ast, p.ast.get_node(param)))
+                                        {
                                             p.emit_err(key_span, SyntaxError::GetterParam);
                                         }
 
@@ -352,14 +361,16 @@ impl<I: Tokens> Parser<I> {
                             "set" => {
                                 p.parse_fn_args_body(
                                     // no decorator in an object literal
-                                    Vec::new(),
+                                    TypedSubRange::empty(),
                                     start,
                                     |p| {
                                         let params = p.parse_formal_params()?;
 
                                         if params
                                             .iter()
-                                            .filter(|param| is_not_this(&p.ast, **param))
+                                            .filter(|param| {
+                                                is_not_this(&p.ast, p.ast.get_node(*param))
+                                            })
                                             .count()
                                             != 1
                                         {
@@ -367,9 +378,11 @@ impl<I: Tokens> Parser<I> {
                                         }
 
                                         if !params.is_empty() {
-                                            if let Pat::Rest(..) = params[0].pat(&p.ast) {
+                                            if let Pat::Rest(rest) =
+                                                p.ast.get_node(params.get(0)).pat(&p.ast)
+                                            {
                                                 p.emit_err(
-                                                    params[0].span(&p.ast),
+                                                    rest.span(&p.ast),
                                                     SyntaxError::RestPatInSetter,
                                                 );
                                             }
@@ -406,7 +419,7 @@ impl<I: Tokens> Parser<I> {
                             "async" => p
                                 .parse_fn_args_body(
                                     // no decorator in an object literal
-                                    Vec::new(),
+                                    TypedSubRange::empty(),
                                     start,
                                     Self::parse_unique_formal_params,
                                     true,
