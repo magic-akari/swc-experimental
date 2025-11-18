@@ -491,12 +491,12 @@ impl<I: Tokens> Parser<I> {
         while !self.input().is(Token::RBracket) {
             if self.input().is(Token::Comma) {
                 expect!(self, Token::Comma);
-                elems.push(None);
+                elems.push(OptionalNodeId::none());
                 continue;
             }
 
             let elem = self.allow_in_expr(|p| p.parse_expr_or_spread())?;
-            elems.push(Some(elem));
+            elems.push(elem.optional_node_id());
 
             if !self.input().is(Token::RBracket) {
                 expect!(self, Token::Comma);

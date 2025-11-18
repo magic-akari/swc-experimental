@@ -7,8 +7,8 @@ use crate::{
     lexer::Token,
     parser::{Parser, expr::AssignTargetOrSpread, util::ExprExt},
 };
-use swc_experimental_ecma_ast::*;
 use swc_common::BytePos;
+use swc_experimental_ecma_ast::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PatType {
@@ -337,11 +337,11 @@ impl<I: Tokens> Parser<I> {
                                 self.reparse_expr_as_pat(
                                     pat_ty.element(),
                                     expr_or_spread.expr(&self.ast),
-                                )
-                                .map(Some)?,
+                                )?
+                                .optional_node_id(),
                             ),
                         },
-                        None => params.push(None),
+                        None => params.push(OptionalNodeId::none()),
                     }
                 }
 
@@ -375,17 +375,18 @@ impl<I: Tokens> Parser<I> {
                                                 spread.span(&self.ast),
                                                 pat,
                                             )
-                                        })
-                                        .map(Some)?
+                                        })?
+                                        .optional_node_id()
                                 }
                                 None => {
                                     // TODO: is BindingPat correct?
-                                    self.reparse_expr_as_pat(pat_ty.element(), expr).map(Some)?
+                                    self.reparse_expr_as_pat(pat_ty.element(), expr)?
+                                        .optional_node_id()
                                 }
                             }
                         }
                         // TODO: syntax error if last element is ellison and ...rest exists.
-                        None => None,
+                        None => OptionalNodeId::none(),
                     };
                     params.push(last);
                 }
@@ -462,7 +463,7 @@ impl<I: Tokens> Parser<I> {
 
         while !self.input().is(Token::RBracket) {
             if self.input_mut().eat(Token::Comma) {
-                elems.push(None);
+                elems.push(OptionalNodeId::none());
                 continue;
             }
 
@@ -481,9 +482,9 @@ impl<I: Tokens> Parser<I> {
                 rest_span = self.span(start);
 
                 let pat = self.ast.pat_rest_pat(rest_span, dot3_token, pat);
-                elems.push(Some(pat));
+                elems.push(pat.optional_node_id());
             } else {
-                elems.push(self.parse_binding_element().map(Some)?);
+                elems.push(self.parse_binding_element()?.optional_node_id());
             }
 
             if !self.input().is(Token::RBracket) {

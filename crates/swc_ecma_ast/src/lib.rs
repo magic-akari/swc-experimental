@@ -295,19 +295,13 @@ impl Ast {
     }
 
     #[inline]
-    pub fn add_typed_opt_sub_range<N: GetNodeId>(
+    pub fn add_typed_opt_sub_range<N: GetOptionalNodeId>(
         &mut self,
-        range: &[Option<N>],
+        range: &[OptionalNodeId],
     ) -> TypedSubRange<Option<N>> {
         let start = self.extra_data.next_idx();
-        self.extra_data.extend(range.iter().map(|n| match n {
-            Some(n) => ExtraData {
-                optional_node: n.node_id().into(),
-            },
-            None => ExtraData {
-                optional_node: OptionalNodeId::none(),
-            },
-        }));
+        self.extra_data
+            .extend(range.iter().map(|n| ExtraData { optional_node: *n }));
         TypedSubRange {
             inner: SubRange {
                 start,
