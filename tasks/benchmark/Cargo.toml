@@ -3,14 +3,21 @@ edition = "2024"
 name    = "benchmark"
 version = "0.1.0"
 
-[dependencies]
-swc_experimental_ecma_parser = { workspace = true }
-
 [dev-dependencies]
+swc_experimental_ecma_ast    = { workspace = true }
+swc_experimental_ecma_parser = { workspace = true }
+swc_experimental_ecma_visit  = { workspace = true }
+
 criterion       = { workspace = true }
 mimalloc        = { workspace = true }
+swc_ecma_ast    = { workspace = true }
 swc_ecma_parser = { workspace = true }
+swc_ecma_visit  = { workspace = true }
 
 [[bench]]
 harness = false
 name    = "parser"
+
+[[bench]]
+harness = false
+name    = "visit"

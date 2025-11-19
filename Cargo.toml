@@ -37,7 +37,9 @@ swc_experimental_ecma_visit    = { path = "crates/swc_ecma_visit" }
 # Dev
 criterion       = "0.7.0"
 mimalloc        = "0.1.48"
+swc_ecma_ast    = "18.0.0"
 swc_ecma_parser = "27.0.4"
+swc_ecma_visit  = "18.0.1"
 
 [profile.bench]
 codegen-units = 1

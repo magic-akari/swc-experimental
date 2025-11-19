@@ -104,8 +104,12 @@ version = "0.1.0"
 dependencies = [
  "criterion",
  "mimalloc",
+ "swc_ecma_ast",
  "swc_ecma_parser",
+ "swc_ecma_visit",
+ "swc_experimental_ecma_ast",
  "swc_experimental_ecma_parser",
+ "swc_experimental_ecma_visit",
 ]
 
 [[package]]
@@ -1156,6 +1160,21 @@ dependencies = [
  "swc_atoms 9.0.0",
  "swc_common 17.0.1",
  "swc_ecma_ast",
+ "tracing",
+]
+
+[[package]]
+name = "swc_ecma_visit"
+version = "18.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a9611a72a4008d62608547a394e5d72a5245413104db096d95a52368a8cc1d63"
+dependencies = [
+ "new_debug_unreachable",
+ "num-bigint",
+ "swc_atoms 9.0.0",
+ "swc_common 17.0.1",
+ "swc_ecma_ast",
+ "swc_visit",
  "tracing",
 ]
 
