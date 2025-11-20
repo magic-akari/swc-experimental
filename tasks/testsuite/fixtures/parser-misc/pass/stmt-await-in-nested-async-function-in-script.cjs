@@ -1,0 +1,1 @@
+async function foo () { function bar(x = await) {} }

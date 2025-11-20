@@ -1,5 +1,5 @@
+use swc_common::{DUMMY_SP, Span};
 use swc_experimental_ecma_ast::*;
-use swc_common::Span;
 
 use crate::{
     Context, PResult, Parser, error::SyntaxError, input::Tokens, lexer::Token,
@@ -411,8 +411,13 @@ impl<I: Tokens> Parser<I> {
                                         p.emit_err(key_span, SyntaxError::SetterParam);
                                     }
 
-                                    let param =
-                                        p.ast.get_node(params.iter().next().unwrap()).pat(&p.ast);
+                                    let param = match params.iter().next() {
+                                        Some(param) => p.ast.get_node(param).pat(&p.ast),
+                                        None => {
+                                            p.emit_err(key_span, SyntaxError::SetterParam);
+                                            p.ast.pat_invalid(DUMMY_SP)
+                                        }
+                                    };
                                     p.ast.prop_or_spread_prop_setter_prop(
                                         p.span(start),
                                         key,

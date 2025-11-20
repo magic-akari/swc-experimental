@@ -1,0 +1,1 @@
+class Foo { declare static { 1 + 1 }; }

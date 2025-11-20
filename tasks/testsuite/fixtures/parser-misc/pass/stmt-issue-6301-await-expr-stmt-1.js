@@ -1,0 +1,1 @@
+try { await, await; } catch { console.log('caught'); }

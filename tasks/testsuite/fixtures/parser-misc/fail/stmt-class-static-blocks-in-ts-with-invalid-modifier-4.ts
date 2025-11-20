@@ -1,0 +1,1 @@
+class Foo { private static { 1 + 1 }; }

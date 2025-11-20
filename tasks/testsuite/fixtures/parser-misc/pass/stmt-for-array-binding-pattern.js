@@ -1,0 +1,1 @@
+let [, , t] = simple_array; t < 10; t++

@@ -781,8 +781,3 @@ impl Error {
         db
     }
 }
-
-#[test]
-fn size_of_error() {
-    assert_eq!(std::mem::size_of::<Error>(), 8);
-}

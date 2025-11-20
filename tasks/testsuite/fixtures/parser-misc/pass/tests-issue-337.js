@@ -1,0 +1,1 @@
+const foo = 'bar' in bas ? 'beep' : 'boop';

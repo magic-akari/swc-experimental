@@ -1,6 +1,6 @@
-use swc_experimental_ecma_ast::*;
 use swc_atoms::atom;
 use swc_common::{BytePos, Span};
+use swc_experimental_ecma_ast::*;
 
 use crate::{
     Context, PResult, Parser,
@@ -1709,44 +1709,8 @@ fn is_constructor(ast: &Ast, key: Key) -> bool {
 
 pub(crate) fn is_not_this(ast: &Ast, p: Param) -> bool {
     let Pat::Ident(ident) = p.pat(ast) else {
-        return false;
+        return true;
     };
 
-    ast.get_atom(ident.id(ast).sym(ast)) == "this"
+    ast.get_atom(ident.id(ast).sym(ast)) != "this"
 }
-
-// #[cfg(test)]
-// mod tests {
-
-//     use swc_common::DUMMY_SP as span;
-//     use swc_ecma_ast::*;
-//     use swc_ecma_visit::assert_eq_ignore_span;
-
-//     use crate::{Syntax, test_parser};
-
-//     fn expr(s: &'static str) -> Box<Expr> {
-//         test_parser(s, Syntax::default(), |p| p.parse_expr())
-//     }
-
-//     #[test]
-//     fn class_expr() {
-//         assert_eq_ignore_span!(
-//             expr("(class extends a {})"),
-//             Box::new(Expr::Paren(ParenExpr {
-//                 span,
-//                 expr: Box::new(Expr::Class(ClassExpr {
-//                     ident: None,
-//                     class: Box::new(Class {
-//                         decorators: Vec::new(),
-//                         span,
-//                         body: Vec::new(),
-//                         super_class: Some(expr("a")),
-//                         implements: Vec::new(),
-//                         is_abstract: false,
-//                         ..Default::default()
-//                     }),
-//                 })),
-//             }))
-//         );
-//     }
-// }

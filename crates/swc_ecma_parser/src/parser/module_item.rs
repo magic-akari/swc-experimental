@@ -1,6 +1,6 @@
-use swc_experimental_ecma_ast::*;
 use swc_atoms::atom;
 use swc_common::Span;
+use swc_experimental_ecma_ast::*;
 
 use crate::{Context, PResult, Parser, error::SyntaxError, input::Tokens, lexer::Token};
 
@@ -963,26 +963,3 @@ fn handle_import_export<I: Tokens>(
 
     Ok(decl)
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use crate::{EsSyntax, Syntax};
-
-//     #[test]
-//     fn test_legacy_decorator() {
-//         crate::test_parser(
-//             "@foo
-// export default class Foo {
-//   bar() {
-//     class Baz {}
-//   }
-// }",
-//             Syntax::Es(EsSyntax {
-//                 decorators: true,
-//                 decorators_before_export: true,
-//                 ..Default::default()
-//             }),
-//             |p| p.parse_module(),
-//         );
-//     }
-// }

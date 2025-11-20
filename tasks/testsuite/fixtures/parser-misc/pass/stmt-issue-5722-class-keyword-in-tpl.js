@@ -1,0 +1,1 @@
+console.log(`${toStr({class: fn})}`)

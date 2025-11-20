@@ -1,5 +1,5 @@
 [workspace]
-members  = ["crates/*", "tasks/ast_tools", "tasks/benchmark"]
+members  = ["crates/*", "tasks/ast_tools", "tasks/benchmark", "tasks/testsuite"]
 resolver = "2"
 
 [workspace.dependencies]
@@ -35,11 +35,13 @@ swc_experimental_ecma_semantic = { path = "crates/swc_ecma_semantic" }
 swc_experimental_ecma_visit    = { path = "crates/swc_ecma_visit" }
 
 # Dev
+colored         = "3.0.0"
 criterion       = "0.7.0"
 mimalloc        = "0.1.48"
-swc_ecma_ast    = "18.0.0"
-swc_ecma_parser = "27.0.4"
-swc_ecma_visit  = "18.0.1"
+pico-args       = "0.5.0"
+swc_ecma_ast    = "17.0.0"
+swc_ecma_parser = "26.0.1"
+swc_ecma_visit  = "17.0.0"
 
 [profile.bench]
 codegen-units = 1

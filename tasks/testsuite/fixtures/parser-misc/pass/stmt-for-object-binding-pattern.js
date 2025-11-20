@@ -1,0 +1,1 @@
+let {num} = obj; num < 11; num++

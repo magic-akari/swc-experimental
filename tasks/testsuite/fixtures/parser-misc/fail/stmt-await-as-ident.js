@@ -1,0 +1,1 @@
+async function foo() { let await = 1; }

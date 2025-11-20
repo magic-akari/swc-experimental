@@ -1,9 +1,9 @@
 #![allow(clippy::let_unit_value)]
 #![deny(non_snake_case)]
 
-use swc_experimental_ecma_ast::*;
 use rustc_hash::FxHashMap;
 use swc_common::{BytePos, Span, comments::Comments, input::StringInput};
+use swc_experimental_ecma_ast::*;
 
 use crate::{
     Context, Syntax,
@@ -17,10 +17,6 @@ use crate::{
     },
     syntax::SyntaxFlags,
 };
-// #[cfg(test)]
-// extern crate test;
-// #[cfg(test)]
-// use test::Bencher;
 
 use crate::error::Error;
 

@@ -1,0 +1,1 @@
+class Foo { abstract static { 1 + 1 }; }
