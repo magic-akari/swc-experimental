@@ -145,8 +145,8 @@ pub mod unstable {
 }
 
 use error::Error;
-use swc_experimental_ecma_ast::*;
 use swc_common::{SourceFile, comments::Comments, input::SourceFileInput};
+use swc_experimental_ecma_ast::*;
 
 mod context;
 pub mod error;
@@ -209,20 +209,3 @@ expose!(parse_file_as_module, Module, |p| { p.parse_module() });
 expose!(parse_file_as_script, Script, |p| { p.parse_script() });
 expose!(parse_file_as_commonjs, Script, |p| { p.parse_commonjs() });
 expose!(parse_file_as_program, Program, |p| { p.parse_program() });
-
-// #[inline(always)]
-// #[cfg(any(
-//     target_arch = "wasm32",
-//     target_arch = "arm",
-//     not(feature = "stacker"),
-//     // miri does not work with stacker
-//     miri
-// ))]
-// fn maybe_grow<R, F: FnOnce() -> R>(_red_zone: usize, _stack_size: usize, callback: F) -> R {
-//     callback()
-// }
-
-#[inline(always)]
-fn maybe_grow<R, F: FnOnce() -> R>(red_zone: usize, stack_size: usize, callback: F) -> R {
-    stacker::maybe_grow(red_zone, stack_size, callback)
-}

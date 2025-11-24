@@ -521,22 +521,6 @@ impl<I: Tokens> Parser<I> {
         self.parse_stmt_like(false, handle_import_export)
     }
 
-    /// Utility function used to parse large if else statements iteratively.
-    ///
-    /// THis function is recursive, but it is very cheap so stack overflow will
-    /// not occur.
-    fn adjust_if_else_clause(&mut self, cur: IfStmt, alt: Stmt) {
-        let span = self.span(cur.span_lo(&self.ast));
-        cur.set_span(&mut self.ast, span);
-
-        if let Some(Stmt::If(prev_alt)) = cur.alt(&self.ast) {
-            self.adjust_if_else_clause(prev_alt, alt)
-        } else {
-            debug_assert!(cur.alt(&self.ast).is_none());
-            cur.set_alt(&mut self.ast, Some(alt));
-        }
-    }
-
     fn parse_if_stmt(&mut self) -> PResult<IfStmt> {
         let start = self.cur_pos();
 
@@ -545,84 +529,24 @@ impl<I: Tokens> Parser<I> {
 
         expect!(self, Token::LParen);
 
-        let test = self
-            .do_outside_of_context(Context::IgnoreElseClause, |p| {
-                p.allow_in_expr(|p| p.parse_expr())
-            })
-            .map_err(|err| {
-                Error::new(
-                    err.span(),
-                    SyntaxError::WithLabel {
-                        inner: Box::new(err),
-                        span: if_token,
-                        note: "Tried to parse the condition for an if statement",
-                    },
-                )
-            })?;
-
+        let test = self.allow_in_expr(|p| p.parse_expr()).map_err(|err| {
+            Error::new(
+                err.span(),
+                SyntaxError::WithLabel {
+                    inner: Box::new(err),
+                    span: if_token,
+                    note: "Tried to parse the condition for an if statement",
+                },
+            )
+        })?;
         expect!(self, Token::RParen);
 
-        let cons = {
-            // Prevent stack overflow
-            crate::maybe_grow(256 * 1024, 1024 * 1024, || {
-                // // Annex B
-                // if !self.ctx().contains(Context::Strict) && self.input().is(Token::FUNCTION)
-                // {     // TODO: report error?
-                // }
-                self.do_outside_of_context(
-                    Context::IgnoreElseClause.union(Context::TopLevel),
-                    Self::parse_stmt,
-                )
-            })?
-        };
-
-        // We parse `else` branch iteratively, to avoid stack overflow
-        // See https://github.com/swc-project/swc/pull/3961
-
-        let alt = if self.ctx().contains(Context::IgnoreElseClause) {
-            None
-        } else {
-            let mut cur = None;
-
-            let last = loop {
-                if !self.input_mut().eat(Token::Else) {
-                    break None;
-                }
-
-                if !self.input().is(Token::If) {
-                    // As we eat `else` above, we need to parse statement once.
-                    let last = self.do_outside_of_context(
-                        Context::IgnoreElseClause.union(Context::TopLevel),
-                        Self::parse_stmt,
-                    )?;
-                    break Some(last);
-                }
-
-                // We encountered `else if`
-
-                let alt =
-                    self.do_inside_of_context(Context::IgnoreElseClause, Self::parse_if_stmt)?;
-
-                match cur {
-                    Some(cur) => {
-                        self.adjust_if_else_clause(cur, Stmt::If(alt));
-                    }
-                    _ => {
-                        cur = Some(alt);
-                    }
-                }
-            };
-
-            match cur {
-                Some(cur) => {
-                    if let Some(last) = last {
-                        self.adjust_if_else_clause(cur, last);
-                    }
-                    Some(Stmt::If(cur))
-                }
-                _ => last,
-            }
-        };
+        let cons = self.parse_stmt()?;
+        let alt = self
+            .input_mut()
+            .eat(Token::Else)
+            .then(|| self.parse_stmt())
+            .transpose()?;
 
         let span = self.span(start);
         Ok(self.ast.if_stmt(span, test, cons, alt))
