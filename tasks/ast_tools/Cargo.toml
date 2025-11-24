@@ -3,6 +3,9 @@ edition = "2024"
 name    = "ast_tools"
 version = "0.1.0"
 
+[features]
+debug_drop = []
+
 [dependencies]
 phf          = { workspace = true, features = ["macros"] }
 prettyplease = { workspace = true }

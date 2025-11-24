@@ -31,6 +31,35 @@ pub fn ast_builder(schema: &Schema) -> RawOutput {
         };
     }
 
+    #[allow(unused_mut)]
+    let mut drops = TokenStream::new();
+    #[cfg(feature = "debug_drop")]
+    for ty in schema.types.iter() {
+        match ty {
+            AstType::Struct(ast_struct) => {
+                let ident = format_ident!("{}", ast_struct.name);
+                drops.extend(quote! {
+                    impl Drop for #ident {
+                        fn drop(&mut self) {
+                            panic!("Detect drop");
+                        }
+                    }
+                });
+            }
+            AstType::Enum(ast_enum) => {
+                let ident = format_ident!("{}", ast_enum.name);
+                drops.extend(quote! {
+                    impl Drop for #ident {
+                        fn drop(&mut self) {
+                            panic!("Detect drop");
+                        }
+                    }
+                });
+            }
+            _ => continue,
+        };
+    }
+
     let output = quote! {
             #![allow(unused)]
             use swc_common::Span;
@@ -44,6 +73,8 @@ pub fn ast_builder(schema: &Schema) -> RawOutput {
             impl Ast {
                 #build_functions
             }
+
+            #drops
     };
 
     RustOutput {
