@@ -4,10 +4,6 @@ use std::{borrow::Cow, char, iter::FusedIterator, rc::Rc};
 
 use either::Either::{self, Left, Right};
 use num_bigint::BigInt as BigIntValue;
-use swc_experimental_ecma_ast::{
-    EsVersion, is_valid_ascii_continue, is_valid_ascii_start, is_valid_non_ascii_continue,
-    is_valid_non_ascii_start,
-};
 use smartstring::{LazyCompact, SmartString};
 use swc_atoms::{
     Atom, AtomStoreCell,
@@ -17,6 +13,10 @@ use swc_common::{
     BytePos, Span,
     comments::{Comment, CommentKind, Comments},
     input::{Input, StringInput},
+};
+use swc_experimental_ecma_ast::{
+    EsVersion, is_valid_ascii_continue, is_valid_ascii_start, is_valid_non_ascii_continue,
+    is_valid_non_ascii_start,
 };
 
 use self::table::{BYTE_HANDLERS, ByteHandler};
@@ -772,7 +772,7 @@ impl<'a> Lexer<'a> {
                             let next2 = [bytes[byte_pos + 1], bytes[byte_pos + 2]];
                             if next2 == LS_BYTES_2_AND_3 || next2 == PS_BYTES_2_AND_3 {
                                 self.state_mut().mark_had_line_break();
-                                self.input_mut().bump_bytes(2);
+                                pos_offset += 2
                             }
                         }
                         true
@@ -781,29 +781,29 @@ impl<'a> Lexer<'a> {
                         let bytes = self.input().as_str().as_bytes();
                         if bytes.get(pos_offset + 1) == Some(&b'/') {
                             // Consume "*/"
-                            self.input_mut().bump_bytes(pos_offset + 2);
-
-                            let end = self.cur_pos();
+                            pos_offset += 2;
 
                             // Decide trailing / leading
                             let mut is_for_next =
                                 had_line_break_before_last || !self.state().can_have_trailing_comment();
 
                             // If next char is ';' without newline, treat as trailing
-                            if !had_line_break_before_last && self.input().is_byte(b';') {
+                            if !had_line_break_before_last && bytes.get(pos_offset) == Some(&b';') {
                                 is_for_next = false;
                             }
 
                             if self.comments_buffer().is_some() {
-                                let src = unsafe {
+                                let s = unsafe {
+                                    let cur = self.input().cur_pos();
                                     // Safety: We got slice_start and end from self.input so those are
                                     // valid.
-                                    self.input_mut().slice(slice_start, end)
+                                    let s = self.input_mut().slice(slice_start, BytePos((pos_offset - 2) as u32));
+                                    self.input_mut().reset_to(cur);
+                                    s
                                 };
-                                let s = &src[..src.len() - 2];
                                 let cmt = Comment {
                                     kind: CommentKind::Block,
-                                    span: Span::new_with_checked(start, end),
+                                    span: Span::new_with_checked(start, BytePos(pos_offset as u32)),
                                     text: self.atom(s),
                                 };
 
@@ -821,10 +821,10 @@ impl<'a> Lexer<'a> {
                                 }
                             }
 
-                            return;
+                            false
+                        } else {
+                            true
                         }
-
-                        true
                     }
                     _ => {
                         self.state_mut().mark_had_line_break();
