@@ -28,7 +28,7 @@ pub use node_id::{
 
 #[derive(Default)]
 pub struct Ast {
-    nodes: IndexVec<NodeId, AstNode>,
+    pub nodes: IndexVec<NodeId, AstNode>,
     extra_data: IndexVec<ExtraDataId, ExtraData>,
     allocated_atom: IndexVec<AtomId, Atom>,
     allocated_wtf8: IndexVec<Wtf8AtomId, Wtf8Atom>,
@@ -349,11 +349,5 @@ impl Ast {
     #[inline]
     pub fn add_bigint(&mut self, big_int: BigIntValue) -> BigIntId {
         self.bigint.push(big_int)
-    }
-}
-
-impl Ast {
-    pub fn nodes(&self) -> &[AstNode] {
-        self.nodes.as_raw_slice()
     }
 }
