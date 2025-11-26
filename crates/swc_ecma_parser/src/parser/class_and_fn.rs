@@ -35,12 +35,9 @@ impl<I: Tokens> Parser<I> {
         disallow_let: bool,
     ) -> PResult<Option<Ident>> {
         if required {
-            self.parse_binding_ident(disallow_let)
-                .map(|v| v.id(&self.ast))
-                .map(Some)
+            self.parse_binding_ident(disallow_let).map(Some)
         } else {
             self.parse_opt_binding_ident(disallow_let)
-                .map(|v| v.map(|v| v.id(&self.ast)))
         }
     }
 
@@ -1113,8 +1110,10 @@ impl<I: Tokens> Parser<I> {
             );
         }
 
-        if let Some(i) = getter_or_setter_ident {
+        if let Some(ident) = getter_or_setter_ident {
             let key_span = key.span(&self.ast);
+            let sym = ident.sym(&self.ast);
+            self.ast.free_node(ident.node_id());
 
             // handle get foo(){} / set foo(v){}
             let key = self.parse_class_prop_name()?;
@@ -1127,7 +1126,7 @@ impl<I: Tokens> Parser<I> {
                 self.emit_err(key_span, SyntaxError::ConstructorAccessor);
             }
 
-            return match self.ast.get_atom(i.sym(&self.ast)).as_str() {
+            return match self.ast.get_atom(sym).as_str() {
                 "get" => self.make_method(
                     |p| {
                         let params = p.parse_formal_params()?;

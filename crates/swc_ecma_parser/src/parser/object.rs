@@ -90,13 +90,14 @@ impl<I: Tokens> Parser<I> {
             None
         };
 
-        let key = self
+        let key_ident = self
             .ast
             .ident(key.span(&self.ast), key.sym(&self.ast), false);
-        let key = self.ast.binding_ident(key.span(&self.ast), key);
+        let key_ident = self.ast.binding_ident(key_ident.span(&self.ast), key_ident);
+        self.ast.free_node(key.node_id());
         Ok(self
             .ast
-            .object_pat_prop_assign_pat_prop(self.span(start), key, value))
+            .object_pat_prop_assign_pat_prop(self.span(start), key_ident, value))
     }
 
     fn make_binding_object(
@@ -274,6 +275,9 @@ impl<I: Tokens> Parser<I> {
             // TODO
             _ => unexpected!(self, "identifier"),
         };
+        let ident_span = ident.span(&self.ast);
+        let ident_sym = ident.sym(&self.ast);
+        self.ast.free_node(ident.node_id());
 
         if self.input_mut().eat(Token::QuestionMark) {
             self.emit_err(self.input().prev_span(), SyntaxError::TS1162);
@@ -283,19 +287,11 @@ impl<I: Tokens> Parser<I> {
         // It means we should check for invalid expressions like { for, }
         let cur = self.input().cur();
         if matches!(cur, Token::Eq | Token::Comma | Token::RBrace) {
-            if self
-                .ctx()
-                .is_reserved_word(self.ast.get_atom(ident.sym(&self.ast)))
-            {
-                self.emit_err(
-                    ident.span(&self.ast),
-                    SyntaxError::ReservedWordInObjShorthandOrPat,
-                );
+            if self.ctx().is_reserved_word(self.ast.get_atom(ident_sym)) {
+                self.emit_err(ident_span, SyntaxError::ReservedWordInObjShorthandOrPat);
             }
 
-            let ident = self
-                .ast
-                .ident(ident.span(&self.ast), ident.sym(&self.ast), false);
+            let ident = self.ast.ident(ident_span, ident_sym, false);
             if self.input_mut().eat(Token::Eq) {
                 let value = self.allow_in_expr(Self::parse_assignment_expr)?;
                 let span = self.span(start);
@@ -309,7 +305,7 @@ impl<I: Tokens> Parser<I> {
         // set a(v){}
         // async a(){}
 
-        let ident = self.ast.get_atom(ident.sym(&self.ast)).clone();
+        let ident = self.ast.get_atom(ident_sym).clone();
         match ident.as_str() {
             "get" | "set" | "async" => {
                 trace_cur!(self, parse_object_prop__after_accessor);
@@ -352,11 +348,10 @@ impl<I: Tokens> Parser<I> {
                                         p.emit_err(key_span, SyntaxError::TS1056);
                                     }
 
-                                    p.ast.prop_or_spread_prop_getter_prop(
-                                        p.span(start),
-                                        key,
-                                        function.body(&p.ast),
-                                    )
+                                    let body = function.body(&p.ast);
+                                    p.ast.free_node(function.node_id());
+                                    p.ast
+                                        .prop_or_spread_prop_getter_prop(p.span(start), key, body)
                                 }),
                             "set" => {
                                 p.parse_fn_args_body(
@@ -412,18 +407,26 @@ impl<I: Tokens> Parser<I> {
                                     }
 
                                     let param = match params.iter().next() {
-                                        Some(param) => p.ast.get_node(param).pat(&p.ast),
+                                        Some(param) => {
+                                            let param = p.ast.get_node(param);
+                                            let pat = param.pat(&p.ast);
+                                            p.ast.free_node(param.node_id());
+                                            pat
+                                        }
                                         None => {
                                             p.emit_err(key_span, SyntaxError::SetterParam);
                                             p.ast.pat_invalid(DUMMY_SP)
                                         }
                                     };
+
+                                    let body = function.body(&p.ast);
+                                    p.ast.free_node(function.node_id());
                                     p.ast.prop_or_spread_prop_setter_prop(
                                         p.span(start),
                                         key,
                                         this,
                                         param,
-                                        function.body(&p.ast),
+                                        body,
                                     )
                                 })
                             }

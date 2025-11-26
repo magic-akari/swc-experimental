@@ -1,14 +1,16 @@
 mod assert_layout;
 mod ast;
+mod ast_list;
 mod common;
 mod derive;
 mod node_id;
+mod visit;
 mod generated {
     mod ast_builder;
     mod ast_clone_in;
     mod ast_node_id;
     mod ast_property;
-    // mod ast_visitor;
+    pub(crate) mod ast_visitor;
 }
 
 use std::marker::PhantomData;
@@ -21,14 +23,17 @@ use swc_atoms::{Atom, Wtf8Atom};
 pub use ast::*;
 pub use common::*;
 pub use derive::*;
+pub use generated::ast_visitor::*;
 pub use node_id::{
     AtomId, AtomRef, BigIntId, ExtraDataId, GetNodeId, GetOptionalNodeId, NodeId, OptionalAtomRef,
     OptionalNodeId, OptionalWtf8AtomId, SubRange, TypedSubRange, Wtf8AtomId,
 };
 
+use crate::ast_list::NodeList;
+
 #[derive(Default)]
 pub struct Ast {
-    pub nodes: IndexVec<NodeId, AstNode>,
+    nodes: NodeList,
     extra_data: IndexVec<ExtraDataId, ExtraData>,
     allocated_atom: IndexVec<AtomId, Atom>,
     allocated_wtf8: IndexVec<Wtf8AtomId, Wtf8Atom>,
@@ -44,6 +49,7 @@ pub struct AstNode {
 pub union NodeData {
     empty: (),
     extra_data_start: ExtraDataId,
+    next_free: OptionalNodeId,
 }
 
 pub union ExtraData {
@@ -266,13 +272,13 @@ pub enum NodeKind {
     TsConstAssertion,
     TsInstantiation,
 
-    __LAST,
+    __FREED,
 }
 
 impl Ast {
     #[inline]
     fn add_node(&mut self, node: AstNode) -> NodeId {
-        self.nodes.push(node)
+        self.nodes.add_node(node)
     }
 
     #[inline]
@@ -349,5 +355,20 @@ impl Ast {
     #[inline]
     pub fn add_bigint(&mut self, big_int: BigIntValue) -> BigIntId {
         self.bigint.push(big_int)
+    }
+}
+
+impl Ast {
+    #[inline]
+    pub fn free_node(&mut self, node_id: NodeId) {
+        self.nodes.free_node(node_id);
+    }
+
+    pub fn nodes(&self) -> impl Iterator<Item = (NodeId, &AstNode)> {
+        self.nodes.iter()
+    }
+
+    pub fn nodes_len(&self) -> u32 {
+        self.nodes.len()
     }
 }

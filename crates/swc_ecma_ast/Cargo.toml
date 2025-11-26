@@ -4,6 +4,7 @@ name    = "swc_experimental_ecma_ast"
 version = "0.1.0"
 
 [dependencies]
+cranelift-entity = { workspace = true }
 num-bigint       = { workspace = true }
 oxc_index        = { workspace = true }
 swc_atoms        = { workspace = true }

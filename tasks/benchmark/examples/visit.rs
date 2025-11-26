@@ -1,26 +1,94 @@
 use swc_common::BytePos;
-use swc_experimental_ecma_ast::{Ast, Ident};
-use swc_experimental_ecma_parser::{EsSyntax, Parser, StringInput, Syntax};
-use swc_experimental_ecma_visit::{Visit, VisitWith};
+use swc_experimental_ecma_ast::NodeKind;
+
+fn test_legacy(src: &str) -> usize {
+    use swc_ecma_parser::{Parser, StringInput, Syntax, lexer::Lexer};
+    use swc_ecma_visit::VisitWith;
+
+    let input = StringInput::new(src, BytePos(0), BytePos(src.len() as u32));
+    let lexer = Lexer::new(
+        Syntax::Es(Default::default()),
+        Default::default(),
+        input,
+        None,
+    );
+    let mut parser = Parser::new_from(lexer);
+    let module = parser.parse_module().unwrap();
+
+    struct Counter {
+        count: usize,
+    }
+
+    impl swc_ecma_visit::Visit for Counter {
+        fn visit_ident(&mut self, _node: &swc_ecma_ast::Ident) {
+            self.count += 1;
+        }
+    }
+
+    let mut counter = Counter { count: 0 };
+    module.visit_with(&mut counter);
+    counter.count
+}
+
+fn test_new(src: &str) -> usize {
+    use swc_experimental_ecma_ast::Ast;
+    use swc_experimental_ecma_parser::{Lexer, Parser, StringInput};
+    use swc_experimental_ecma_visit::VisitWith;
+
+    let input = StringInput::new(src, BytePos(0), BytePos(src.len() as u32));
+    let lexer = Lexer::new(
+        swc_experimental_ecma_parser::Syntax::Es(Default::default()),
+        Default::default(),
+        input,
+        None,
+    );
+    let mut parser = Parser::new_from(lexer);
+    let module = parser.parse_module().unwrap();
+
+    struct Counter {
+        count: usize,
+    }
+
+    impl swc_experimental_ecma_visit::Visit for Counter {
+        fn visit_ident(&mut self, _node: swc_experimental_ecma_ast::Ident, _ast: &Ast) {
+            self.count += 1;
+        }
+    }
+
+    let mut counter = Counter { count: 0 };
+    module.visit_with(&mut counter, &parser.ast);
+    counter.count
+}
+
+fn test_post_order(src: &str) -> usize {
+    use swc_experimental_ecma_parser::{Lexer, Parser, StringInput};
+
+    let input = StringInput::new(src, BytePos(0), BytePos(src.len() as u32));
+    let lexer = Lexer::new(
+        swc_experimental_ecma_parser::Syntax::Es(Default::default()),
+        Default::default(),
+        input,
+        None,
+    );
+    let mut parser = Parser::new_from(lexer);
+    let _ = parser.parse_module().unwrap();
+
+    let mut counter = 0;
+    for (_, node) in parser.ast.nodes() {
+        match node.kind {
+            NodeKind::Ident => counter += 1,
+            _ => {}
+        }
+    }
+    counter
+}
 
 fn main() {
     let source = include_str!("../files/typescript.js");
-    let syntax = Syntax::Es(EsSyntax::default());
-    let input = StringInput::new(source, BytePos(0), BytePos(source.len() as u32));
+    let legacy = test_legacy(source);
+    let new = test_new(source);
+    let post_order = test_post_order(source);
 
-    let mut parser = Parser::new(syntax, input, None);
-    let program = parser.parse_program().unwrap();
-
-    let mut counter = Counter { count: 0 };
-    program.visit_with(&mut counter, &parser.ast);
-}
-
-struct Counter {
-    count: usize,
-}
-
-impl Visit for Counter {
-    fn visit_ident(&mut self, _node: Ident, _ast: &Ast) {
-        self.count += 1;
-    }
+    assert_eq!(legacy, new);
+    assert_eq!(legacy, post_order);
 }

@@ -418,6 +418,7 @@ impl<I: Tokens> Parser<I> {
 
         if is_using_decl {
             let name = self.parse_binding_ident(false)?;
+            let name = self.ast.binding_ident(self.span(start), name);
             let decl = self
                 .ast
                 .var_declarator(self.span(start), Pat::Ident(name), Some(init));

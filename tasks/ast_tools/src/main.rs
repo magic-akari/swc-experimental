@@ -28,7 +28,6 @@ const SOURCE_PATHS: &[&str] = &[
 ];
 
 const AST_CRATE_PATH: &str = "swc_ecma_ast";
-const VISIT_CRATE_PATH: &str = "swc_ecma_visit";
 
 fn main() {
     let schema = parse_files(SOURCE_PATHS);

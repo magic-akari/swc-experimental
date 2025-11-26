@@ -18,7 +18,7 @@ fn main() {
     };
     root.visit_with(&mut used, &parser.ast);
 
-    for (node_id, node) in parser.ast.nodes.iter_enumerated() {
+    for (node_id, node) in parser.ast.nodes() {
         if !used.used.contains(&node_id) {
             let source = &source[node.span.lo.0 as usize..node.span.hi.0 as usize];
             println!("Unused node: {:?}, source: {}", node.kind, source);
@@ -27,7 +27,7 @@ fn main() {
 
     println!(
         "Total: {}, Used: {}",
-        parser.ast.nodes.len(),
+        parser.ast.nodes().count(),
         used.used.len()
     )
 }

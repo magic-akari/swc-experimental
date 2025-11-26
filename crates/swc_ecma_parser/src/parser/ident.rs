@@ -1,7 +1,7 @@
 use either::Either;
-use swc_experimental_ecma_ast::*;
 use swc_atoms::atom;
 use swc_common::BytePos;
+use swc_experimental_ecma_ast::*;
 
 use crate::{Context, PResult, Parser, error::SyntaxError, input::Tokens, lexer::Token};
 
@@ -12,12 +12,8 @@ impl<I: Tokens> Parser<I> {
         let module_export_name = if cur == Token::Str {
             ModuleExportName::Str(self.parse_str_lit())
         } else if cur.is_word() {
-            let ident = self.parse_ident_name()?;
-            ModuleExportName::Ident(self.ast.ident(
-                ident.span(&self.ast),
-                ident.sym(&self.ast),
-                false,
-            ))
+            let (span, sym) = self.parse_ident_name()?;
+            ModuleExportName::Ident(self.ast.ident(span, sym, false))
         } else {
             unexpected!(self, "identifier or string");
         };
@@ -26,7 +22,7 @@ impl<I: Tokens> Parser<I> {
 
     /// Use this when spec says "IdentifierName".
     /// This allows idents like `catch`.
-    pub(crate) fn parse_ident_name(&mut self) -> PResult<IdentName> {
+    pub(crate) fn parse_ident_name(&mut self) -> PResult<(Span, AtomRef)> {
         let token_and_span = self.input().get_cur();
         let start = token_and_span.span.lo;
         let cur = token_and_span.token;
@@ -38,10 +34,12 @@ impl<I: Tokens> Parser<I> {
             syntax_error!(self, SyntaxError::ExpectedIdent)
         };
         let w = self.ast.add_atom_ref(w);
-        Ok(self.ast.ident_name(self.span(start), w))
+        Ok((self.span(start), w))
     }
 
-    pub(crate) fn parse_maybe_private_name(&mut self) -> PResult<Either<PrivateName, IdentName>> {
+    pub(crate) fn parse_maybe_private_name(
+        &mut self,
+    ) -> PResult<Either<PrivateName, (Span, AtomRef)>> {
         let is_private = self.input().is(Token::Hash);
         if is_private {
             self.parse_private_name().map(Either::Left)
@@ -61,8 +59,8 @@ impl<I: Tokens> Parser<I> {
                 SyntaxError::SpaceBetweenHashAndIdent
             );
         }
-        let id = self.parse_ident_name()?;
-        Ok(self.ast.private_name(self.span(start), id.sym(&self.ast)))
+        let (_, sym) = self.parse_ident_name()?;
+        Ok(self.ast.private_name(self.span(start), sym))
     }
 
     /// IdentifierReference
@@ -81,10 +79,10 @@ impl<I: Tokens> Parser<I> {
         self.parse_ident_ref()
     }
 
-    /// babel: `parseBindingIdentifier`
-    ///
-    /// spec: `BindingIdentifier`
-    pub(crate) fn parse_binding_ident(&mut self, disallow_let: bool) -> PResult<BindingIdent> {
+    /// Different from legacy SWC: This function returns [Ident] instead of [BindingIdent]
+    /// Legacy SWC transforms [BindingIdent] back to [Ident], leading to memory hole in ast context
+    /// https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#prod-BindingIdentifier
+    pub(crate) fn parse_binding_ident(&mut self, disallow_let: bool) -> PResult<Ident> {
         trace_cur!(self, parse_binding_ident);
 
         let cur = self.input().cur();
@@ -99,7 +97,7 @@ impl<I: Tokens> Parser<I> {
 
             let word = self.ast.add_atom_ref(word);
             let ident = self.ast.ident(span, word, false);
-            return Ok(self.ast.binding_ident(span, ident));
+            return Ok(ident);
         }
 
         // "yield" and "await" is **lexically** accepted.
@@ -113,13 +111,10 @@ impl<I: Tokens> Parser<I> {
             self.emit_err(ident.span(&self.ast), SyntaxError::ExpectedIdent);
         }
 
-        Ok(self.ast.binding_ident(ident.span(&self.ast), ident))
+        Ok(ident)
     }
 
-    pub(crate) fn parse_opt_binding_ident(
-        &mut self,
-        disallow_let: bool,
-    ) -> PResult<Option<BindingIdent>> {
+    pub(crate) fn parse_opt_binding_ident(&mut self, disallow_let: bool) -> PResult<Option<Ident>> {
         trace_cur!(self, parse_opt_binding_ident);
         let token_and_span = self.input().get_cur();
         let cur = token_and_span.token;
@@ -127,7 +122,7 @@ impl<I: Tokens> Parser<I> {
             let start = token_and_span.span.lo;
             let sym = self.ast.add_atom_ref(atom!("this"));
             let ident = self.ast.ident(self.span(start), sym, false);
-            Ok(Some(self.ast.binding_ident(self.span(start), ident)))
+            Ok(Some(ident))
         } else if cur.is_word() && !cur.is_reserved(self.ctx()) {
             self.parse_binding_ident(disallow_let).map(Some)
         } else {

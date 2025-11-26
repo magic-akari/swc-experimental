@@ -1,6 +1,1 @@
-mod ast_visitor;
-pub mod generated {
-    pub(crate) mod ast_visitor;
-}
-
-pub use generated::ast_visitor::*;
+pub use swc_experimental_ecma_ast::{Visit, VisitMut, VisitMutWith, VisitWith};

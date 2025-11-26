@@ -3,9 +3,10 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 use crate::{
-    VISIT_CRATE_PATH,
+    AST_CRATE_PATH,
     output::{RawOutput, RustOutput, output_path},
     schema::{AstType, Schema},
+    util::map_field_type_to_extra_field,
 };
 
 pub fn ast_visitor(schema: &Schema) -> RawOutput {
@@ -39,15 +40,36 @@ pub fn ast_visitor(schema: &Schema) -> RawOutput {
                 let mut visit_children = TokenStream::new();
                 let mut visit_mut_children = TokenStream::new();
 
-                for field in ast.fields.iter() {
+                for (offset, field) in ast.fields.iter().enumerate() {
                     let field_ty = &schema.types[field.type_id];
                     let field_ty_ident = field_ty.repr_ident(schema);
-                    let field_accessor = format_ident!("{}", field.name.to_case(Case::Snake));
+
+                    let extra_data_name = map_field_type_to_extra_field(field_ty);
+                    let extra_data_name = format_ident!("{extra_data_name}");
+                    let cast_expr = match &field_ty {
+                        AstType::Vec(_) => quote!(unsafe { ret.cast_to_typed() }),
+                        AstType::Option(ast) => {
+                            let field_inner_ident =
+                                schema.types[ast.inner_type_id].repr_ident(schema);
+                            quote!( ret.map(|id| #field_inner_ident::from_node_id(id, ast)) )
+                        }
+                        AstType::Struct(_) | AstType::Enum(_) => {
+                            let field_inner_ty = field_ty.repr_ident(schema);
+                            quote!( #field_inner_ty::from_node_id(ret, ast) )
+                        }
+                        _ if extra_data_name == "other" => {
+                            let field_ty = field_ty.repr_ident(schema);
+                            quote!(#field_ty::from_extra_data(ret))
+                        }
+                        _ => quote!(ret.into()),
+                    };
                     visit_children.extend(quote! {
-                        <#field_ty_ident as VisitWith<V>>::visit_with(self.#field_accessor(ast), visitor, ast);
+                        let ret = unsafe { ast.extra_data.as_raw_slice().get_unchecked((offset + #offset).index()).#extra_data_name };
+                        <#field_ty_ident as VisitWith<V>>::visit_with(#cast_expr, visitor, ast);
                     });
                     visit_mut_children.extend(quote! {
-                        <#field_ty_ident as VisitMutWith<V>>::visit_mut_with(self.#field_accessor(ast), visitor, ast);
+                        let ret = unsafe { ast.extra_data.as_raw_slice().get_unchecked((offset + #offset).index()).#extra_data_name };
+                        <#field_ty_ident as VisitMutWith<V>>::visit_mut_with(#cast_expr, visitor, ast);
                     });
                 }
 
@@ -58,6 +80,7 @@ pub fn ast_visitor(schema: &Schema) -> RawOutput {
                         }
 
                         fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
+                            let offset = unsafe { ast.nodes[self.0].data.extra_data_start };
                             #visit_children
                         }
                     }
@@ -69,6 +92,7 @@ pub fn ast_visitor(schema: &Schema) -> RawOutput {
                         }
 
                         fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
+                            let offset = unsafe { ast.nodes[self.0].data.extra_data_start };
                             #visit_mut_children
                         }
                     }
@@ -271,7 +295,7 @@ pub fn ast_visitor(schema: &Schema) -> RawOutput {
             #![allow(unused)]
             use swc_common::Span;
 
-            use swc_experimental_ecma_ast::*;
+            use crate::{Ast, node_id::*, ast::*};
 
             pub trait Visit {
                 #visit_functions
@@ -297,7 +321,7 @@ pub fn ast_visitor(schema: &Schema) -> RawOutput {
     };
 
     RustOutput {
-        path: output_path(VISIT_CRATE_PATH, "ast_visitor"),
+        path: output_path(AST_CRATE_PATH, "ast_visitor"),
         tokens: output,
     }
     .into()

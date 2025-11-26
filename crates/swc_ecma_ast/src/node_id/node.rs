@@ -1,4 +1,6 @@
-use crate::{Ast, define_optional_index_type};
+use cranelift_entity::entity_impl;
+
+use crate::Ast;
 
 pub trait GetNodeId {
     fn node_id(&self) -> NodeId;
@@ -19,8 +21,43 @@ pub trait FromNodeId {
     fn from_node_id(id: NodeId, ast: &Ast) -> Self;
 }
 
-oxc_index::define_index_type! {
-    pub struct NodeId = u32;
+#[derive(Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct NodeId(u32);
+entity_impl!(NodeId, "node");
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct OptionalNodeId(u32);
+
+impl From<NodeId> for OptionalNodeId {
+    fn from(value: NodeId) -> Self {
+        Self(value.0)
+    }
 }
 
-define_optional_index_type!(OptionalNodeId, NodeId);
+impl OptionalNodeId {
+    #[inline]
+    pub fn none() -> Self {
+        Self(u32::MAX)
+    }
+
+    #[inline]
+    pub fn to_option(self) -> Option<NodeId> {
+        if self.0 == u32::MAX {
+            return None;
+        }
+
+        Some(NodeId(self.0))
+    }
+
+    #[inline]
+    pub fn map<U, F>(self, f: F) -> Option<U>
+    where
+        F: FnOnce(NodeId) -> U,
+    {
+        if self.0 == u32::MAX {
+            return None;
+        }
+
+        Some(f(NodeId(self.0)))
+    }
+}

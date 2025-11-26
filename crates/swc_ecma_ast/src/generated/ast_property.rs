@@ -61,14 +61,7 @@ impl Module {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> TypedSubRange<ModuleItem> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -80,14 +73,7 @@ impl Module {
     }
     #[inline]
     pub fn shebang(&self, ast: &crate::Ast) -> OptionalAtomRef {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -103,14 +89,7 @@ impl Module {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: TypedSubRange<ModuleItem>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -121,14 +100,7 @@ impl Module {
     }
     #[inline]
     pub fn set_shebang(&self, ast: &mut crate::Ast, shebang: OptionalAtomRef) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -153,14 +125,7 @@ impl Script {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> TypedSubRange<Stmt> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -172,14 +137,7 @@ impl Script {
     }
     #[inline]
     pub fn shebang(&self, ast: &crate::Ast) -> OptionalAtomRef {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -195,14 +153,7 @@ impl Script {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: TypedSubRange<Stmt>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -213,14 +164,7 @@ impl Script {
     }
     #[inline]
     pub fn set_shebang(&self, ast: &mut crate::Ast, shebang: OptionalAtomRef) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -389,14 +333,7 @@ impl ImportDecl {
     }
     #[inline]
     pub fn specifiers(&self, ast: &crate::Ast) -> TypedSubRange<ImportSpecifier> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -408,14 +345,7 @@ impl ImportDecl {
     }
     #[inline]
     pub fn src(&self, ast: &crate::Ast) -> Str {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -427,14 +357,7 @@ impl ImportDecl {
     }
     #[inline]
     pub fn type_only(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -446,14 +369,7 @@ impl ImportDecl {
     }
     #[inline]
     pub fn with(&self, ast: &crate::Ast) -> Option<ObjectLit> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -465,14 +381,7 @@ impl ImportDecl {
     }
     #[inline]
     pub fn phase(&self, ast: &crate::Ast) -> ImportPhase {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 4usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 4usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -488,14 +397,7 @@ impl ImportDecl {
     }
     #[inline]
     pub fn set_specifiers(&self, ast: &mut crate::Ast, specifiers: TypedSubRange<ImportSpecifier>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -506,14 +408,7 @@ impl ImportDecl {
     }
     #[inline]
     pub fn set_src(&self, ast: &mut crate::Ast, src: Str) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -524,14 +419,7 @@ impl ImportDecl {
     }
     #[inline]
     pub fn set_type_only(&self, ast: &mut crate::Ast, type_only: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -542,14 +430,7 @@ impl ImportDecl {
     }
     #[inline]
     pub fn set_with(&self, ast: &mut crate::Ast, with: Option<ObjectLit>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -560,14 +441,7 @@ impl ImportDecl {
     }
     #[inline]
     pub fn set_phase(&self, ast: &mut crate::Ast, phase: ImportPhase) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 4usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 4usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -651,14 +525,7 @@ impl ImportNamedSpecifier {
     }
     #[inline]
     pub fn local(&self, ast: &crate::Ast) -> Ident {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -670,14 +537,7 @@ impl ImportNamedSpecifier {
     }
     #[inline]
     pub fn imported(&self, ast: &crate::Ast) -> Option<ModuleExportName> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -689,14 +549,7 @@ impl ImportNamedSpecifier {
     }
     #[inline]
     pub fn is_type_only(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -712,14 +565,7 @@ impl ImportNamedSpecifier {
     }
     #[inline]
     pub fn set_local(&self, ast: &mut crate::Ast, local: Ident) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -730,14 +576,7 @@ impl ImportNamedSpecifier {
     }
     #[inline]
     pub fn set_imported(&self, ast: &mut crate::Ast, imported: Option<ModuleExportName>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -748,14 +587,7 @@ impl ImportNamedSpecifier {
     }
     #[inline]
     pub fn set_is_type_only(&self, ast: &mut crate::Ast, is_type_only: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -780,14 +612,7 @@ impl ImportDefaultSpecifier {
     }
     #[inline]
     pub fn local(&self, ast: &crate::Ast) -> Ident {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -803,14 +628,7 @@ impl ImportDefaultSpecifier {
     }
     #[inline]
     pub fn set_local(&self, ast: &mut crate::Ast, local: Ident) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -835,14 +653,7 @@ impl ImportStarAsSpecifier {
     }
     #[inline]
     pub fn local(&self, ast: &crate::Ast) -> Ident {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -858,14 +669,7 @@ impl ImportStarAsSpecifier {
     }
     #[inline]
     pub fn set_local(&self, ast: &mut crate::Ast, local: Ident) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -890,14 +694,7 @@ impl ExportDecl {
     }
     #[inline]
     pub fn decl(&self, ast: &crate::Ast) -> Decl {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -913,14 +710,7 @@ impl ExportDecl {
     }
     #[inline]
     pub fn set_decl(&self, ast: &mut crate::Ast, decl: Decl) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -945,14 +735,7 @@ impl NamedExport {
     }
     #[inline]
     pub fn specifiers(&self, ast: &crate::Ast) -> TypedSubRange<ExportSpecifier> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -964,14 +747,7 @@ impl NamedExport {
     }
     #[inline]
     pub fn src(&self, ast: &crate::Ast) -> Option<Str> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -983,14 +759,7 @@ impl NamedExport {
     }
     #[inline]
     pub fn type_only(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -1002,14 +771,7 @@ impl NamedExport {
     }
     #[inline]
     pub fn with(&self, ast: &crate::Ast) -> Option<ObjectLit> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -1025,14 +787,7 @@ impl NamedExport {
     }
     #[inline]
     pub fn set_specifiers(&self, ast: &mut crate::Ast, specifiers: TypedSubRange<ExportSpecifier>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -1043,14 +798,7 @@ impl NamedExport {
     }
     #[inline]
     pub fn set_src(&self, ast: &mut crate::Ast, src: Option<Str>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -1061,14 +809,7 @@ impl NamedExport {
     }
     #[inline]
     pub fn set_type_only(&self, ast: &mut crate::Ast, type_only: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -1079,14 +820,7 @@ impl NamedExport {
     }
     #[inline]
     pub fn set_with(&self, ast: &mut crate::Ast, with: Option<ObjectLit>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -1170,14 +904,7 @@ impl ExportNamespaceSpecifier {
     }
     #[inline]
     pub fn name(&self, ast: &crate::Ast) -> ModuleExportName {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -1193,14 +920,7 @@ impl ExportNamespaceSpecifier {
     }
     #[inline]
     pub fn set_name(&self, ast: &mut crate::Ast, name: ModuleExportName) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -1271,14 +991,7 @@ impl ExportDefaultSpecifier {
     }
     #[inline]
     pub fn exported(&self, ast: &crate::Ast) -> Ident {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -1294,14 +1007,7 @@ impl ExportDefaultSpecifier {
     }
     #[inline]
     pub fn set_exported(&self, ast: &mut crate::Ast, exported: Ident) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -1326,14 +1032,7 @@ impl ExportNamedSpecifier {
     }
     #[inline]
     pub fn orig(&self, ast: &crate::Ast) -> ModuleExportName {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -1345,14 +1044,7 @@ impl ExportNamedSpecifier {
     }
     #[inline]
     pub fn exported(&self, ast: &crate::Ast) -> Option<ModuleExportName> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -1364,14 +1056,7 @@ impl ExportNamedSpecifier {
     }
     #[inline]
     pub fn is_type_only(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -1387,14 +1072,7 @@ impl ExportNamedSpecifier {
     }
     #[inline]
     pub fn set_orig(&self, ast: &mut crate::Ast, orig: ModuleExportName) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -1405,14 +1083,7 @@ impl ExportNamedSpecifier {
     }
     #[inline]
     pub fn set_exported(&self, ast: &mut crate::Ast, exported: Option<ModuleExportName>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -1423,14 +1094,7 @@ impl ExportNamedSpecifier {
     }
     #[inline]
     pub fn set_is_type_only(&self, ast: &mut crate::Ast, is_type_only: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -1455,14 +1119,7 @@ impl ExportDefaultDecl {
     }
     #[inline]
     pub fn decl(&self, ast: &crate::Ast) -> DefaultDecl {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -1478,14 +1135,7 @@ impl ExportDefaultDecl {
     }
     #[inline]
     pub fn set_decl(&self, ast: &mut crate::Ast, decl: DefaultDecl) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -1556,14 +1206,7 @@ impl ExportDefaultExpr {
     }
     #[inline]
     pub fn expr(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -1579,14 +1222,7 @@ impl ExportDefaultExpr {
     }
     #[inline]
     pub fn set_expr(&self, ast: &mut crate::Ast, expr: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -1611,14 +1247,7 @@ impl ExportAll {
     }
     #[inline]
     pub fn src(&self, ast: &crate::Ast) -> Str {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -1630,14 +1259,7 @@ impl ExportAll {
     }
     #[inline]
     pub fn type_only(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -1649,14 +1271,7 @@ impl ExportAll {
     }
     #[inline]
     pub fn with(&self, ast: &crate::Ast) -> Option<ObjectLit> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -1672,14 +1287,7 @@ impl ExportAll {
     }
     #[inline]
     pub fn set_src(&self, ast: &mut crate::Ast, src: Str) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -1690,14 +1298,7 @@ impl ExportAll {
     }
     #[inline]
     pub fn set_type_only(&self, ast: &mut crate::Ast, type_only: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -1708,14 +1309,7 @@ impl ExportAll {
     }
     #[inline]
     pub fn set_with(&self, ast: &mut crate::Ast, with: Option<ObjectLit>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -1740,14 +1334,7 @@ impl BlockStmt {
     }
     #[inline]
     pub fn stmts(&self, ast: &crate::Ast) -> TypedSubRange<Stmt> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -1763,14 +1350,7 @@ impl BlockStmt {
     }
     #[inline]
     pub fn set_stmts(&self, ast: &mut crate::Ast, stmts: TypedSubRange<Stmt>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2062,14 +1642,7 @@ impl ExprStmt {
     }
     #[inline]
     pub fn expr(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2085,14 +1658,7 @@ impl ExprStmt {
     }
     #[inline]
     pub fn set_expr(&self, ast: &mut crate::Ast, expr: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2153,14 +1719,7 @@ impl WithStmt {
     }
     #[inline]
     pub fn obj(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2172,14 +1731,7 @@ impl WithStmt {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> Stmt {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2195,14 +1747,7 @@ impl WithStmt {
     }
     #[inline]
     pub fn set_obj(&self, ast: &mut crate::Ast, obj: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2213,14 +1758,7 @@ impl WithStmt {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: Stmt) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2245,14 +1783,7 @@ impl ReturnStmt {
     }
     #[inline]
     pub fn arg(&self, ast: &crate::Ast) -> Option<Expr> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2268,14 +1799,7 @@ impl ReturnStmt {
     }
     #[inline]
     pub fn set_arg(&self, ast: &mut crate::Ast, arg: Option<Expr>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2300,14 +1824,7 @@ impl LabeledStmt {
     }
     #[inline]
     pub fn label(&self, ast: &crate::Ast) -> Ident {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2319,14 +1836,7 @@ impl LabeledStmt {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> Stmt {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2342,14 +1852,7 @@ impl LabeledStmt {
     }
     #[inline]
     pub fn set_label(&self, ast: &mut crate::Ast, label: Ident) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2360,14 +1863,7 @@ impl LabeledStmt {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: Stmt) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2392,14 +1888,7 @@ impl BreakStmt {
     }
     #[inline]
     pub fn label(&self, ast: &crate::Ast) -> Option<Ident> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2415,14 +1904,7 @@ impl BreakStmt {
     }
     #[inline]
     pub fn set_label(&self, ast: &mut crate::Ast, label: Option<Ident>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2447,14 +1929,7 @@ impl ContinueStmt {
     }
     #[inline]
     pub fn label(&self, ast: &crate::Ast) -> Option<Ident> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2470,14 +1945,7 @@ impl ContinueStmt {
     }
     #[inline]
     pub fn set_label(&self, ast: &mut crate::Ast, label: Option<Ident>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2502,14 +1970,7 @@ impl IfStmt {
     }
     #[inline]
     pub fn test(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2521,14 +1982,7 @@ impl IfStmt {
     }
     #[inline]
     pub fn cons(&self, ast: &crate::Ast) -> Stmt {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2540,14 +1994,7 @@ impl IfStmt {
     }
     #[inline]
     pub fn alt(&self, ast: &crate::Ast) -> Option<Stmt> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2563,14 +2010,7 @@ impl IfStmt {
     }
     #[inline]
     pub fn set_test(&self, ast: &mut crate::Ast, test: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2581,14 +2021,7 @@ impl IfStmt {
     }
     #[inline]
     pub fn set_cons(&self, ast: &mut crate::Ast, cons: Stmt) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2599,14 +2032,7 @@ impl IfStmt {
     }
     #[inline]
     pub fn set_alt(&self, ast: &mut crate::Ast, alt: Option<Stmt>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2631,14 +2057,7 @@ impl SwitchStmt {
     }
     #[inline]
     pub fn discriminant(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2650,14 +2069,7 @@ impl SwitchStmt {
     }
     #[inline]
     pub fn cases(&self, ast: &crate::Ast) -> TypedSubRange<SwitchCase> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2673,14 +2085,7 @@ impl SwitchStmt {
     }
     #[inline]
     pub fn set_discriminant(&self, ast: &mut crate::Ast, discriminant: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2691,14 +2096,7 @@ impl SwitchStmt {
     }
     #[inline]
     pub fn set_cases(&self, ast: &mut crate::Ast, cases: TypedSubRange<SwitchCase>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2723,14 +2121,7 @@ impl ThrowStmt {
     }
     #[inline]
     pub fn arg(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2746,14 +2137,7 @@ impl ThrowStmt {
     }
     #[inline]
     pub fn set_arg(&self, ast: &mut crate::Ast, arg: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2778,14 +2162,7 @@ impl TryStmt {
     }
     #[inline]
     pub fn block(&self, ast: &crate::Ast) -> BlockStmt {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2797,14 +2174,7 @@ impl TryStmt {
     }
     #[inline]
     pub fn handler(&self, ast: &crate::Ast) -> Option<CatchClause> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2816,14 +2186,7 @@ impl TryStmt {
     }
     #[inline]
     pub fn finalizer(&self, ast: &crate::Ast) -> Option<BlockStmt> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2839,14 +2202,7 @@ impl TryStmt {
     }
     #[inline]
     pub fn set_block(&self, ast: &mut crate::Ast, block: BlockStmt) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2857,14 +2213,7 @@ impl TryStmt {
     }
     #[inline]
     pub fn set_handler(&self, ast: &mut crate::Ast, handler: Option<CatchClause>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2875,14 +2224,7 @@ impl TryStmt {
     }
     #[inline]
     pub fn set_finalizer(&self, ast: &mut crate::Ast, finalizer: Option<BlockStmt>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2907,14 +2249,7 @@ impl WhileStmt {
     }
     #[inline]
     pub fn test(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2926,14 +2261,7 @@ impl WhileStmt {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> Stmt {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -2949,14 +2277,7 @@ impl WhileStmt {
     }
     #[inline]
     pub fn set_test(&self, ast: &mut crate::Ast, test: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2967,14 +2288,7 @@ impl WhileStmt {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: Stmt) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -2999,14 +2313,7 @@ impl DoWhileStmt {
     }
     #[inline]
     pub fn test(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3018,14 +2325,7 @@ impl DoWhileStmt {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> Stmt {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3041,14 +2341,7 @@ impl DoWhileStmt {
     }
     #[inline]
     pub fn set_test(&self, ast: &mut crate::Ast, test: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3059,14 +2352,7 @@ impl DoWhileStmt {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: Stmt) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3091,14 +2377,7 @@ impl ForStmt {
     }
     #[inline]
     pub fn init(&self, ast: &crate::Ast) -> Option<VarDeclOrExpr> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3110,14 +2389,7 @@ impl ForStmt {
     }
     #[inline]
     pub fn test(&self, ast: &crate::Ast) -> Option<Expr> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3129,14 +2401,7 @@ impl ForStmt {
     }
     #[inline]
     pub fn update(&self, ast: &crate::Ast) -> Option<Expr> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3148,14 +2413,7 @@ impl ForStmt {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> Stmt {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3171,14 +2429,7 @@ impl ForStmt {
     }
     #[inline]
     pub fn set_init(&self, ast: &mut crate::Ast, init: Option<VarDeclOrExpr>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3189,14 +2440,7 @@ impl ForStmt {
     }
     #[inline]
     pub fn set_test(&self, ast: &mut crate::Ast, test: Option<Expr>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3207,14 +2451,7 @@ impl ForStmt {
     }
     #[inline]
     pub fn set_update(&self, ast: &mut crate::Ast, update: Option<Expr>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3225,14 +2462,7 @@ impl ForStmt {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: Stmt) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3257,14 +2487,7 @@ impl ForInStmt {
     }
     #[inline]
     pub fn left(&self, ast: &crate::Ast) -> ForHead {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3276,14 +2499,7 @@ impl ForInStmt {
     }
     #[inline]
     pub fn right(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3295,14 +2511,7 @@ impl ForInStmt {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> Stmt {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3318,14 +2527,7 @@ impl ForInStmt {
     }
     #[inline]
     pub fn set_left(&self, ast: &mut crate::Ast, left: ForHead) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3336,14 +2538,7 @@ impl ForInStmt {
     }
     #[inline]
     pub fn set_right(&self, ast: &mut crate::Ast, right: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3354,14 +2549,7 @@ impl ForInStmt {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: Stmt) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3386,14 +2574,7 @@ impl ForOfStmt {
     }
     #[inline]
     pub fn is_await(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3405,14 +2586,7 @@ impl ForOfStmt {
     }
     #[inline]
     pub fn left(&self, ast: &crate::Ast) -> ForHead {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3424,14 +2598,7 @@ impl ForOfStmt {
     }
     #[inline]
     pub fn right(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3443,14 +2610,7 @@ impl ForOfStmt {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> Stmt {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3466,14 +2626,7 @@ impl ForOfStmt {
     }
     #[inline]
     pub fn set_is_await(&self, ast: &mut crate::Ast, is_await: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3484,14 +2637,7 @@ impl ForOfStmt {
     }
     #[inline]
     pub fn set_left(&self, ast: &mut crate::Ast, left: ForHead) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3502,14 +2648,7 @@ impl ForOfStmt {
     }
     #[inline]
     pub fn set_right(&self, ast: &mut crate::Ast, right: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3520,14 +2659,7 @@ impl ForOfStmt {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: Stmt) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3552,14 +2684,7 @@ impl SwitchCase {
     }
     #[inline]
     pub fn test(&self, ast: &crate::Ast) -> Option<Expr> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3571,14 +2696,7 @@ impl SwitchCase {
     }
     #[inline]
     pub fn cons(&self, ast: &crate::Ast) -> TypedSubRange<Stmt> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3594,14 +2712,7 @@ impl SwitchCase {
     }
     #[inline]
     pub fn set_test(&self, ast: &mut crate::Ast, test: Option<Expr>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3612,14 +2723,7 @@ impl SwitchCase {
     }
     #[inline]
     pub fn set_cons(&self, ast: &mut crate::Ast, cons: TypedSubRange<Stmt>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3644,14 +2748,7 @@ impl CatchClause {
     }
     #[inline]
     pub fn param(&self, ast: &crate::Ast) -> Option<Pat> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3663,14 +2760,7 @@ impl CatchClause {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> BlockStmt {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3686,14 +2776,7 @@ impl CatchClause {
     }
     #[inline]
     pub fn set_param(&self, ast: &mut crate::Ast, param: Option<Pat>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3704,14 +2787,7 @@ impl CatchClause {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: BlockStmt) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3913,14 +2989,7 @@ impl FnDecl {
     }
     #[inline]
     pub fn ident(&self, ast: &crate::Ast) -> Ident {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3932,14 +3001,7 @@ impl FnDecl {
     }
     #[inline]
     pub fn declare(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3951,14 +3013,7 @@ impl FnDecl {
     }
     #[inline]
     pub fn function(&self, ast: &crate::Ast) -> Function {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -3974,14 +3029,7 @@ impl FnDecl {
     }
     #[inline]
     pub fn set_ident(&self, ast: &mut crate::Ast, ident: Ident) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -3992,14 +3040,7 @@ impl FnDecl {
     }
     #[inline]
     pub fn set_declare(&self, ast: &mut crate::Ast, declare: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -4010,14 +3051,7 @@ impl FnDecl {
     }
     #[inline]
     pub fn set_function(&self, ast: &mut crate::Ast, function: Function) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -4042,14 +3076,7 @@ impl ClassDecl {
     }
     #[inline]
     pub fn ident(&self, ast: &crate::Ast) -> Ident {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -4061,14 +3088,7 @@ impl ClassDecl {
     }
     #[inline]
     pub fn declare(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -4080,14 +3100,7 @@ impl ClassDecl {
     }
     #[inline]
     pub fn class(&self, ast: &crate::Ast) -> Class {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -4103,14 +3116,7 @@ impl ClassDecl {
     }
     #[inline]
     pub fn set_ident(&self, ast: &mut crate::Ast, ident: Ident) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -4121,14 +3127,7 @@ impl ClassDecl {
     }
     #[inline]
     pub fn set_declare(&self, ast: &mut crate::Ast, declare: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -4139,14 +3138,7 @@ impl ClassDecl {
     }
     #[inline]
     pub fn set_class(&self, ast: &mut crate::Ast, class: Class) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -4171,14 +3163,7 @@ impl VarDecl {
     }
     #[inline]
     pub fn kind(&self, ast: &crate::Ast) -> VarDeclKind {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -4190,14 +3175,7 @@ impl VarDecl {
     }
     #[inline]
     pub fn declare(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -4209,14 +3187,7 @@ impl VarDecl {
     }
     #[inline]
     pub fn decls(&self, ast: &crate::Ast) -> TypedSubRange<VarDeclarator> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -4232,14 +3203,7 @@ impl VarDecl {
     }
     #[inline]
     pub fn set_kind(&self, ast: &mut crate::Ast, kind: VarDeclKind) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -4250,14 +3214,7 @@ impl VarDecl {
     }
     #[inline]
     pub fn set_declare(&self, ast: &mut crate::Ast, declare: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -4268,14 +3225,7 @@ impl VarDecl {
     }
     #[inline]
     pub fn set_decls(&self, ast: &mut crate::Ast, decls: TypedSubRange<VarDeclarator>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -4300,14 +3250,7 @@ impl VarDeclarator {
     }
     #[inline]
     pub fn name(&self, ast: &crate::Ast) -> Pat {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -4319,14 +3262,7 @@ impl VarDeclarator {
     }
     #[inline]
     pub fn init(&self, ast: &crate::Ast) -> Option<Expr> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -4342,14 +3278,7 @@ impl VarDeclarator {
     }
     #[inline]
     pub fn set_name(&self, ast: &mut crate::Ast, name: Pat) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -4360,14 +3289,7 @@ impl VarDeclarator {
     }
     #[inline]
     pub fn set_init(&self, ast: &mut crate::Ast, init: Option<Expr>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -4392,14 +3314,7 @@ impl UsingDecl {
     }
     #[inline]
     pub fn is_await(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -4411,14 +3326,7 @@ impl UsingDecl {
     }
     #[inline]
     pub fn decls(&self, ast: &crate::Ast) -> TypedSubRange<VarDeclarator> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -4434,14 +3342,7 @@ impl UsingDecl {
     }
     #[inline]
     pub fn set_is_await(&self, ast: &mut crate::Ast, is_await: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -4452,14 +3353,7 @@ impl UsingDecl {
     }
     #[inline]
     pub fn set_decls(&self, ast: &mut crate::Ast, decls: TypedSubRange<VarDeclarator>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -4873,14 +3767,7 @@ impl ArrayLit {
     }
     #[inline]
     pub fn elems(&self, ast: &crate::Ast) -> TypedSubRange<Option<ExprOrSpread>> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -4896,14 +3783,7 @@ impl ArrayLit {
     }
     #[inline]
     pub fn set_elems(&self, ast: &mut crate::Ast, elems: TypedSubRange<Option<ExprOrSpread>>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -4928,14 +3808,7 @@ impl ObjectLit {
     }
     #[inline]
     pub fn props(&self, ast: &crate::Ast) -> TypedSubRange<PropOrSpread> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -4951,14 +3824,7 @@ impl ObjectLit {
     }
     #[inline]
     pub fn set_props(&self, ast: &mut crate::Ast, props: TypedSubRange<PropOrSpread>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5029,14 +3895,7 @@ impl SpreadElement {
     }
     #[inline]
     pub fn dot_3_token(&self, ast: &crate::Ast) -> Span {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5048,14 +3907,7 @@ impl SpreadElement {
     }
     #[inline]
     pub fn expr(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5071,14 +3923,7 @@ impl SpreadElement {
     }
     #[inline]
     pub fn set_dot3_token(&self, ast: &mut crate::Ast, dot3_token: Span) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5089,14 +3934,7 @@ impl SpreadElement {
     }
     #[inline]
     pub fn set_expr(&self, ast: &mut crate::Ast, expr: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5121,14 +3959,7 @@ impl UnaryExpr {
     }
     #[inline]
     pub fn op(&self, ast: &crate::Ast) -> UnaryOp {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5140,14 +3971,7 @@ impl UnaryExpr {
     }
     #[inline]
     pub fn arg(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5163,14 +3987,7 @@ impl UnaryExpr {
     }
     #[inline]
     pub fn set_op(&self, ast: &mut crate::Ast, op: UnaryOp) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5181,14 +3998,7 @@ impl UnaryExpr {
     }
     #[inline]
     pub fn set_arg(&self, ast: &mut crate::Ast, arg: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5213,14 +4023,7 @@ impl UpdateExpr {
     }
     #[inline]
     pub fn op(&self, ast: &crate::Ast) -> UpdateOp {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5232,14 +4035,7 @@ impl UpdateExpr {
     }
     #[inline]
     pub fn prefix(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5251,14 +4047,7 @@ impl UpdateExpr {
     }
     #[inline]
     pub fn arg(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5274,14 +4063,7 @@ impl UpdateExpr {
     }
     #[inline]
     pub fn set_op(&self, ast: &mut crate::Ast, op: UpdateOp) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5292,14 +4074,7 @@ impl UpdateExpr {
     }
     #[inline]
     pub fn set_prefix(&self, ast: &mut crate::Ast, prefix: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5310,14 +4085,7 @@ impl UpdateExpr {
     }
     #[inline]
     pub fn set_arg(&self, ast: &mut crate::Ast, arg: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5342,14 +4110,7 @@ impl BinExpr {
     }
     #[inline]
     pub fn op(&self, ast: &crate::Ast) -> BinaryOp {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5361,14 +4122,7 @@ impl BinExpr {
     }
     #[inline]
     pub fn left(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5380,14 +4134,7 @@ impl BinExpr {
     }
     #[inline]
     pub fn right(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5403,14 +4150,7 @@ impl BinExpr {
     }
     #[inline]
     pub fn set_op(&self, ast: &mut crate::Ast, op: BinaryOp) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5421,14 +4161,7 @@ impl BinExpr {
     }
     #[inline]
     pub fn set_left(&self, ast: &mut crate::Ast, left: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5439,14 +4172,7 @@ impl BinExpr {
     }
     #[inline]
     pub fn set_right(&self, ast: &mut crate::Ast, right: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5471,14 +4197,7 @@ impl FnExpr {
     }
     #[inline]
     pub fn ident(&self, ast: &crate::Ast) -> Option<Ident> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5490,14 +4209,7 @@ impl FnExpr {
     }
     #[inline]
     pub fn function(&self, ast: &crate::Ast) -> Function {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5513,14 +4225,7 @@ impl FnExpr {
     }
     #[inline]
     pub fn set_ident(&self, ast: &mut crate::Ast, ident: Option<Ident>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5531,14 +4236,7 @@ impl FnExpr {
     }
     #[inline]
     pub fn set_function(&self, ast: &mut crate::Ast, function: Function) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5563,14 +4261,7 @@ impl ClassExpr {
     }
     #[inline]
     pub fn ident(&self, ast: &crate::Ast) -> Option<Ident> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5582,14 +4273,7 @@ impl ClassExpr {
     }
     #[inline]
     pub fn class(&self, ast: &crate::Ast) -> Class {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5605,14 +4289,7 @@ impl ClassExpr {
     }
     #[inline]
     pub fn set_ident(&self, ast: &mut crate::Ast, ident: Option<Ident>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5623,14 +4300,7 @@ impl ClassExpr {
     }
     #[inline]
     pub fn set_class(&self, ast: &mut crate::Ast, class: Class) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5655,14 +4325,7 @@ impl AssignExpr {
     }
     #[inline]
     pub fn op(&self, ast: &crate::Ast) -> AssignOp {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5674,14 +4337,7 @@ impl AssignExpr {
     }
     #[inline]
     pub fn left(&self, ast: &crate::Ast) -> AssignTarget {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5693,14 +4349,7 @@ impl AssignExpr {
     }
     #[inline]
     pub fn right(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5716,14 +4365,7 @@ impl AssignExpr {
     }
     #[inline]
     pub fn set_op(&self, ast: &mut crate::Ast, op: AssignOp) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5734,14 +4376,7 @@ impl AssignExpr {
     }
     #[inline]
     pub fn set_left(&self, ast: &mut crate::Ast, left: AssignTarget) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5752,14 +4387,7 @@ impl AssignExpr {
     }
     #[inline]
     pub fn set_right(&self, ast: &mut crate::Ast, right: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5784,14 +4412,7 @@ impl MemberExpr {
     }
     #[inline]
     pub fn obj(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5803,14 +4424,7 @@ impl MemberExpr {
     }
     #[inline]
     pub fn prop(&self, ast: &crate::Ast) -> MemberProp {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5826,14 +4440,7 @@ impl MemberExpr {
     }
     #[inline]
     pub fn set_obj(&self, ast: &mut crate::Ast, obj: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5844,14 +4451,7 @@ impl MemberExpr {
     }
     #[inline]
     pub fn set_prop(&self, ast: &mut crate::Ast, prop: MemberProp) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5935,14 +4535,7 @@ impl SuperPropExpr {
     }
     #[inline]
     pub fn obj(&self, ast: &crate::Ast) -> Super {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5954,14 +4547,7 @@ impl SuperPropExpr {
     }
     #[inline]
     pub fn prop(&self, ast: &crate::Ast) -> SuperProp {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -5977,14 +4563,7 @@ impl SuperPropExpr {
     }
     #[inline]
     pub fn set_obj(&self, ast: &mut crate::Ast, obj: Super) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -5995,14 +4574,7 @@ impl SuperPropExpr {
     }
     #[inline]
     pub fn set_prop(&self, ast: &mut crate::Ast, prop: SuperProp) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6073,14 +4645,7 @@ impl CondExpr {
     }
     #[inline]
     pub fn test(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6092,14 +4657,7 @@ impl CondExpr {
     }
     #[inline]
     pub fn cons(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6111,14 +4669,7 @@ impl CondExpr {
     }
     #[inline]
     pub fn alt(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6134,14 +4685,7 @@ impl CondExpr {
     }
     #[inline]
     pub fn set_test(&self, ast: &mut crate::Ast, test: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6152,14 +4696,7 @@ impl CondExpr {
     }
     #[inline]
     pub fn set_cons(&self, ast: &mut crate::Ast, cons: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6170,14 +4707,7 @@ impl CondExpr {
     }
     #[inline]
     pub fn set_alt(&self, ast: &mut crate::Ast, alt: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6202,14 +4732,7 @@ impl CallExpr {
     }
     #[inline]
     pub fn callee(&self, ast: &crate::Ast) -> Callee {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6221,14 +4744,7 @@ impl CallExpr {
     }
     #[inline]
     pub fn args(&self, ast: &crate::Ast) -> TypedSubRange<ExprOrSpread> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6244,14 +4760,7 @@ impl CallExpr {
     }
     #[inline]
     pub fn set_callee(&self, ast: &mut crate::Ast, callee: Callee) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6262,14 +4771,7 @@ impl CallExpr {
     }
     #[inline]
     pub fn set_args(&self, ast: &mut crate::Ast, args: TypedSubRange<ExprOrSpread>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6294,14 +4796,7 @@ impl NewExpr {
     }
     #[inline]
     pub fn callee(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6313,14 +4808,7 @@ impl NewExpr {
     }
     #[inline]
     pub fn args(&self, ast: &crate::Ast) -> TypedSubRange<ExprOrSpread> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6336,14 +4824,7 @@ impl NewExpr {
     }
     #[inline]
     pub fn set_callee(&self, ast: &mut crate::Ast, callee: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6354,14 +4835,7 @@ impl NewExpr {
     }
     #[inline]
     pub fn set_args(&self, ast: &mut crate::Ast, args: TypedSubRange<ExprOrSpread>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6386,14 +4860,7 @@ impl SeqExpr {
     }
     #[inline]
     pub fn exprs(&self, ast: &crate::Ast) -> TypedSubRange<Expr> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6409,14 +4876,7 @@ impl SeqExpr {
     }
     #[inline]
     pub fn set_exprs(&self, ast: &mut crate::Ast, exprs: TypedSubRange<Expr>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6441,14 +4901,7 @@ impl ArrowExpr {
     }
     #[inline]
     pub fn params(&self, ast: &crate::Ast) -> TypedSubRange<Pat> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6460,14 +4913,7 @@ impl ArrowExpr {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> BlockStmtOrExpr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6479,14 +4925,7 @@ impl ArrowExpr {
     }
     #[inline]
     pub fn is_async(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6498,14 +4937,7 @@ impl ArrowExpr {
     }
     #[inline]
     pub fn is_generator(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6521,14 +4953,7 @@ impl ArrowExpr {
     }
     #[inline]
     pub fn set_params(&self, ast: &mut crate::Ast, params: TypedSubRange<Pat>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6539,14 +4964,7 @@ impl ArrowExpr {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: BlockStmtOrExpr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6557,14 +4975,7 @@ impl ArrowExpr {
     }
     #[inline]
     pub fn set_is_async(&self, ast: &mut crate::Ast, is_async: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6575,14 +4986,7 @@ impl ArrowExpr {
     }
     #[inline]
     pub fn set_is_generator(&self, ast: &mut crate::Ast, is_generator: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6607,14 +5011,7 @@ impl YieldExpr {
     }
     #[inline]
     pub fn arg(&self, ast: &crate::Ast) -> Option<Expr> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6626,14 +5023,7 @@ impl YieldExpr {
     }
     #[inline]
     pub fn delegate(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6649,14 +5039,7 @@ impl YieldExpr {
     }
     #[inline]
     pub fn set_arg(&self, ast: &mut crate::Ast, arg: Option<Expr>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6667,14 +5050,7 @@ impl YieldExpr {
     }
     #[inline]
     pub fn set_delegate(&self, ast: &mut crate::Ast, delegate: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6699,14 +5075,7 @@ impl MetaPropExpr {
     }
     #[inline]
     pub fn kind(&self, ast: &crate::Ast) -> MetaPropKind {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6722,14 +5091,7 @@ impl MetaPropExpr {
     }
     #[inline]
     pub fn set_kind(&self, ast: &mut crate::Ast, kind: MetaPropKind) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6754,14 +5116,7 @@ impl AwaitExpr {
     }
     #[inline]
     pub fn arg(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6777,14 +5132,7 @@ impl AwaitExpr {
     }
     #[inline]
     pub fn set_arg(&self, ast: &mut crate::Ast, arg: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6809,14 +5157,7 @@ impl Tpl {
     }
     #[inline]
     pub fn exprs(&self, ast: &crate::Ast) -> TypedSubRange<Expr> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6828,14 +5169,7 @@ impl Tpl {
     }
     #[inline]
     pub fn quasis(&self, ast: &crate::Ast) -> TypedSubRange<TplElement> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6851,14 +5185,7 @@ impl Tpl {
     }
     #[inline]
     pub fn set_exprs(&self, ast: &mut crate::Ast, exprs: TypedSubRange<Expr>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6869,14 +5196,7 @@ impl Tpl {
     }
     #[inline]
     pub fn set_quasis(&self, ast: &mut crate::Ast, quasis: TypedSubRange<TplElement>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6901,14 +5221,7 @@ impl TaggedTpl {
     }
     #[inline]
     pub fn tag(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6920,14 +5233,7 @@ impl TaggedTpl {
     }
     #[inline]
     pub fn tpl(&self, ast: &crate::Ast) -> Tpl {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6943,14 +5249,7 @@ impl TaggedTpl {
     }
     #[inline]
     pub fn set_tag(&self, ast: &mut crate::Ast, tag: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6961,14 +5260,7 @@ impl TaggedTpl {
     }
     #[inline]
     pub fn set_tpl(&self, ast: &mut crate::Ast, tpl: Tpl) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6993,14 +5285,7 @@ impl TplElement {
     }
     #[inline]
     pub fn tail(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -7012,14 +5297,7 @@ impl TplElement {
     }
     #[inline]
     pub fn cooked(&self, ast: &crate::Ast) -> OptionalWtf8AtomId {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -7031,14 +5309,7 @@ impl TplElement {
     }
     #[inline]
     pub fn raw(&self, ast: &crate::Ast) -> AtomRef {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -7054,14 +5325,7 @@ impl TplElement {
     }
     #[inline]
     pub fn set_tail(&self, ast: &mut crate::Ast, tail: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -7072,14 +5336,7 @@ impl TplElement {
     }
     #[inline]
     pub fn set_cooked(&self, ast: &mut crate::Ast, cooked: OptionalWtf8AtomId) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -7090,14 +5347,7 @@ impl TplElement {
     }
     #[inline]
     pub fn set_raw(&self, ast: &mut crate::Ast, raw: AtomRef) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -7122,14 +5372,7 @@ impl ParenExpr {
     }
     #[inline]
     pub fn expr(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -7145,14 +5388,7 @@ impl ParenExpr {
     }
     #[inline]
     pub fn set_expr(&self, ast: &mut crate::Ast, expr: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -7254,14 +5490,7 @@ impl Import {
     }
     #[inline]
     pub fn phase(&self, ast: &crate::Ast) -> ImportPhase {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -7277,14 +5506,7 @@ impl Import {
     }
     #[inline]
     pub fn set_phase(&self, ast: &mut crate::Ast, phase: ImportPhase) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -7309,14 +5531,7 @@ impl ExprOrSpread {
     }
     #[inline]
     pub fn spread(&self, ast: &crate::Ast) -> Option<SpreadDot3Token> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -7328,14 +5543,7 @@ impl ExprOrSpread {
     }
     #[inline]
     pub fn expr(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -7351,14 +5559,7 @@ impl ExprOrSpread {
     }
     #[inline]
     pub fn set_spread(&self, ast: &mut crate::Ast, spread: Option<SpreadDot3Token>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -7369,14 +5570,7 @@ impl ExprOrSpread {
     }
     #[inline]
     pub fn set_expr(&self, ast: &mut crate::Ast, expr: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -7668,14 +5862,7 @@ impl OptChainExpr {
     }
     #[inline]
     pub fn optional(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -7687,14 +5874,7 @@ impl OptChainExpr {
     }
     #[inline]
     pub fn base(&self, ast: &crate::Ast) -> OptChainBase {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -7710,14 +5890,7 @@ impl OptChainExpr {
     }
     #[inline]
     pub fn set_optional(&self, ast: &mut crate::Ast, optional: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -7728,14 +5901,7 @@ impl OptChainExpr {
     }
     #[inline]
     pub fn set_base(&self, ast: &mut crate::Ast, base: OptChainBase) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -7806,14 +5972,7 @@ impl OptCall {
     }
     #[inline]
     pub fn callee(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -7825,14 +5984,7 @@ impl OptCall {
     }
     #[inline]
     pub fn args(&self, ast: &crate::Ast) -> TypedSubRange<ExprOrSpread> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -7848,14 +6000,7 @@ impl OptCall {
     }
     #[inline]
     pub fn set_callee(&self, ast: &mut crate::Ast, callee: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -7866,14 +6011,7 @@ impl OptCall {
     }
     #[inline]
     pub fn set_args(&self, ast: &mut crate::Ast, args: TypedSubRange<ExprOrSpread>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -7916,14 +6054,7 @@ impl Function {
     }
     #[inline]
     pub fn params(&self, ast: &crate::Ast) -> TypedSubRange<Param> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -7935,14 +6066,7 @@ impl Function {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> Option<BlockStmt> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -7954,14 +6078,7 @@ impl Function {
     }
     #[inline]
     pub fn is_generator(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -7973,14 +6090,7 @@ impl Function {
     }
     #[inline]
     pub fn is_async(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -7996,14 +6106,7 @@ impl Function {
     }
     #[inline]
     pub fn set_params(&self, ast: &mut crate::Ast, params: TypedSubRange<Param>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8014,14 +6117,7 @@ impl Function {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: Option<BlockStmt>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8032,14 +6128,7 @@ impl Function {
     }
     #[inline]
     pub fn set_is_generator(&self, ast: &mut crate::Ast, is_generator: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8050,14 +6139,7 @@ impl Function {
     }
     #[inline]
     pub fn set_is_async(&self, ast: &mut crate::Ast, is_async: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8082,14 +6164,7 @@ impl Param {
     }
     #[inline]
     pub fn pat(&self, ast: &crate::Ast) -> Pat {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8105,14 +6180,7 @@ impl Param {
     }
     #[inline]
     pub fn set_pat(&self, ast: &mut crate::Ast, pat: Pat) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8170,14 +6238,7 @@ impl Class {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> TypedSubRange<ClassMember> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8189,14 +6250,7 @@ impl Class {
     }
     #[inline]
     pub fn super_class(&self, ast: &crate::Ast) -> Option<Expr> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8208,14 +6262,7 @@ impl Class {
     }
     #[inline]
     pub fn is_abstract(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8231,14 +6278,7 @@ impl Class {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: TypedSubRange<ClassMember>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8249,14 +6289,7 @@ impl Class {
     }
     #[inline]
     pub fn set_super_class(&self, ast: &mut crate::Ast, super_class: Option<Expr>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8267,14 +6300,7 @@ impl Class {
     }
     #[inline]
     pub fn set_is_abstract(&self, ast: &mut crate::Ast, is_abstract: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8423,14 +6449,7 @@ impl ClassProp {
     }
     #[inline]
     pub fn key(&self, ast: &crate::Ast) -> PropName {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8442,14 +6461,7 @@ impl ClassProp {
     }
     #[inline]
     pub fn value(&self, ast: &crate::Ast) -> Option<Expr> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8461,14 +6473,7 @@ impl ClassProp {
     }
     #[inline]
     pub fn is_static(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8484,14 +6489,7 @@ impl ClassProp {
     }
     #[inline]
     pub fn set_key(&self, ast: &mut crate::Ast, key: PropName) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8502,14 +6500,7 @@ impl ClassProp {
     }
     #[inline]
     pub fn set_value(&self, ast: &mut crate::Ast, value: Option<Expr>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8520,14 +6511,7 @@ impl ClassProp {
     }
     #[inline]
     pub fn set_is_static(&self, ast: &mut crate::Ast, is_static: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8552,14 +6536,7 @@ impl PrivateProp {
     }
     #[inline]
     pub fn key(&self, ast: &crate::Ast) -> PrivateName {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8571,14 +6548,7 @@ impl PrivateProp {
     }
     #[inline]
     pub fn value(&self, ast: &crate::Ast) -> Option<Expr> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8590,14 +6560,7 @@ impl PrivateProp {
     }
     #[inline]
     pub fn is_static(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8613,14 +6576,7 @@ impl PrivateProp {
     }
     #[inline]
     pub fn set_key(&self, ast: &mut crate::Ast, key: PrivateName) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8631,14 +6587,7 @@ impl PrivateProp {
     }
     #[inline]
     pub fn set_value(&self, ast: &mut crate::Ast, value: Option<Expr>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8649,14 +6598,7 @@ impl PrivateProp {
     }
     #[inline]
     pub fn set_is_static(&self, ast: &mut crate::Ast, is_static: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8681,14 +6623,7 @@ impl ClassMethod {
     }
     #[inline]
     pub fn key(&self, ast: &crate::Ast) -> PropName {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8700,14 +6635,7 @@ impl ClassMethod {
     }
     #[inline]
     pub fn function(&self, ast: &crate::Ast) -> Function {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8719,14 +6647,7 @@ impl ClassMethod {
     }
     #[inline]
     pub fn kind(&self, ast: &crate::Ast) -> MethodKind {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8738,14 +6659,7 @@ impl ClassMethod {
     }
     #[inline]
     pub fn is_static(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8761,14 +6675,7 @@ impl ClassMethod {
     }
     #[inline]
     pub fn set_key(&self, ast: &mut crate::Ast, key: PropName) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8779,14 +6686,7 @@ impl ClassMethod {
     }
     #[inline]
     pub fn set_function(&self, ast: &mut crate::Ast, function: Function) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8797,14 +6697,7 @@ impl ClassMethod {
     }
     #[inline]
     pub fn set_kind(&self, ast: &mut crate::Ast, kind: MethodKind) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8815,14 +6708,7 @@ impl ClassMethod {
     }
     #[inline]
     pub fn set_is_static(&self, ast: &mut crate::Ast, is_static: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8847,14 +6733,7 @@ impl PrivateMethod {
     }
     #[inline]
     pub fn key(&self, ast: &crate::Ast) -> PrivateName {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8866,14 +6745,7 @@ impl PrivateMethod {
     }
     #[inline]
     pub fn function(&self, ast: &crate::Ast) -> Function {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8885,14 +6757,7 @@ impl PrivateMethod {
     }
     #[inline]
     pub fn kind(&self, ast: &crate::Ast) -> MethodKind {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8904,14 +6769,7 @@ impl PrivateMethod {
     }
     #[inline]
     pub fn is_static(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -8927,14 +6785,7 @@ impl PrivateMethod {
     }
     #[inline]
     pub fn set_key(&self, ast: &mut crate::Ast, key: PrivateName) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8945,14 +6796,7 @@ impl PrivateMethod {
     }
     #[inline]
     pub fn set_function(&self, ast: &mut crate::Ast, function: Function) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8963,14 +6807,7 @@ impl PrivateMethod {
     }
     #[inline]
     pub fn set_kind(&self, ast: &mut crate::Ast, kind: MethodKind) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -8981,14 +6818,7 @@ impl PrivateMethod {
     }
     #[inline]
     pub fn set_is_static(&self, ast: &mut crate::Ast, is_static: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9013,14 +6843,7 @@ impl Constructor {
     }
     #[inline]
     pub fn key(&self, ast: &crate::Ast) -> PropName {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9032,14 +6855,7 @@ impl Constructor {
     }
     #[inline]
     pub fn params(&self, ast: &crate::Ast) -> TypedSubRange<ParamOrTsParamProp> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9051,14 +6867,7 @@ impl Constructor {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> Option<BlockStmt> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9074,14 +6883,7 @@ impl Constructor {
     }
     #[inline]
     pub fn set_key(&self, ast: &mut crate::Ast, key: PropName) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9092,14 +6894,7 @@ impl Constructor {
     }
     #[inline]
     pub fn set_params(&self, ast: &mut crate::Ast, params: TypedSubRange<ParamOrTsParamProp>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9110,14 +6905,7 @@ impl Constructor {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: Option<BlockStmt>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9142,14 +6930,7 @@ impl Decorator {
     }
     #[inline]
     pub fn expr(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9165,14 +6946,7 @@ impl Decorator {
     }
     #[inline]
     pub fn set_expr(&self, ast: &mut crate::Ast, expr: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9197,14 +6971,7 @@ impl StaticBlock {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> BlockStmt {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9220,14 +6987,7 @@ impl StaticBlock {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: BlockStmt) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9298,14 +7058,7 @@ impl AutoAccessor {
     }
     #[inline]
     pub fn key(&self, ast: &crate::Ast) -> Key {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9317,14 +7070,7 @@ impl AutoAccessor {
     }
     #[inline]
     pub fn value(&self, ast: &crate::Ast) -> Option<Expr> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9336,14 +7082,7 @@ impl AutoAccessor {
     }
     #[inline]
     pub fn is_static(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9359,14 +7098,7 @@ impl AutoAccessor {
     }
     #[inline]
     pub fn set_key(&self, ast: &mut crate::Ast, key: Key) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9377,14 +7109,7 @@ impl AutoAccessor {
     }
     #[inline]
     pub fn set_value(&self, ast: &mut crate::Ast, value: Option<Expr>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9395,14 +7120,7 @@ impl AutoAccessor {
     }
     #[inline]
     pub fn set_is_static(&self, ast: &mut crate::Ast, is_static: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9525,14 +7243,7 @@ impl KeyValueProp {
     }
     #[inline]
     pub fn key(&self, ast: &crate::Ast) -> PropName {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9544,14 +7255,7 @@ impl KeyValueProp {
     }
     #[inline]
     pub fn value(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9567,14 +7271,7 @@ impl KeyValueProp {
     }
     #[inline]
     pub fn set_key(&self, ast: &mut crate::Ast, key: PropName) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9585,14 +7282,7 @@ impl KeyValueProp {
     }
     #[inline]
     pub fn set_value(&self, ast: &mut crate::Ast, value: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9617,14 +7307,7 @@ impl AssignProp {
     }
     #[inline]
     pub fn key(&self, ast: &crate::Ast) -> Ident {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9636,14 +7319,7 @@ impl AssignProp {
     }
     #[inline]
     pub fn value(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9659,14 +7335,7 @@ impl AssignProp {
     }
     #[inline]
     pub fn set_key(&self, ast: &mut crate::Ast, key: Ident) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9677,14 +7346,7 @@ impl AssignProp {
     }
     #[inline]
     pub fn set_value(&self, ast: &mut crate::Ast, value: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9709,14 +7371,7 @@ impl GetterProp {
     }
     #[inline]
     pub fn key(&self, ast: &crate::Ast) -> PropName {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9728,14 +7383,7 @@ impl GetterProp {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> Option<BlockStmt> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9751,14 +7399,7 @@ impl GetterProp {
     }
     #[inline]
     pub fn set_key(&self, ast: &mut crate::Ast, key: PropName) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9769,14 +7410,7 @@ impl GetterProp {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: Option<BlockStmt>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9801,14 +7435,7 @@ impl SetterProp {
     }
     #[inline]
     pub fn key(&self, ast: &crate::Ast) -> PropName {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9820,14 +7447,7 @@ impl SetterProp {
     }
     #[inline]
     pub fn this_param(&self, ast: &crate::Ast) -> Option<Pat> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9839,14 +7459,7 @@ impl SetterProp {
     }
     #[inline]
     pub fn param(&self, ast: &crate::Ast) -> Pat {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9858,14 +7471,7 @@ impl SetterProp {
     }
     #[inline]
     pub fn body(&self, ast: &crate::Ast) -> Option<BlockStmt> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9881,14 +7487,7 @@ impl SetterProp {
     }
     #[inline]
     pub fn set_key(&self, ast: &mut crate::Ast, key: PropName) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9899,14 +7498,7 @@ impl SetterProp {
     }
     #[inline]
     pub fn set_this_param(&self, ast: &mut crate::Ast, this_param: Option<Pat>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9917,14 +7509,7 @@ impl SetterProp {
     }
     #[inline]
     pub fn set_param(&self, ast: &mut crate::Ast, param: Pat) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9935,14 +7520,7 @@ impl SetterProp {
     }
     #[inline]
     pub fn set_body(&self, ast: &mut crate::Ast, body: Option<BlockStmt>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -9967,14 +7545,7 @@ impl MethodProp {
     }
     #[inline]
     pub fn key(&self, ast: &crate::Ast) -> PropName {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -9986,14 +7557,7 @@ impl MethodProp {
     }
     #[inline]
     pub fn function(&self, ast: &crate::Ast) -> Function {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -10009,14 +7573,7 @@ impl MethodProp {
     }
     #[inline]
     pub fn set_key(&self, ast: &mut crate::Ast, key: PropName) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -10027,14 +7584,7 @@ impl MethodProp {
     }
     #[inline]
     pub fn set_function(&self, ast: &mut crate::Ast, function: Function) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -10144,14 +7694,7 @@ impl ComputedPropName {
     }
     #[inline]
     pub fn expr(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -10167,14 +7710,7 @@ impl ComputedPropName {
     }
     #[inline]
     pub fn set_expr(&self, ast: &mut crate::Ast, expr: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -10310,14 +7846,7 @@ impl ArrayPat {
     }
     #[inline]
     pub fn elems(&self, ast: &crate::Ast) -> TypedSubRange<Option<Pat>> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -10329,14 +7858,7 @@ impl ArrayPat {
     }
     #[inline]
     pub fn optional(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -10352,14 +7874,7 @@ impl ArrayPat {
     }
     #[inline]
     pub fn set_elems(&self, ast: &mut crate::Ast, elems: TypedSubRange<Option<Pat>>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -10370,14 +7885,7 @@ impl ArrayPat {
     }
     #[inline]
     pub fn set_optional(&self, ast: &mut crate::Ast, optional: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -10402,14 +7910,7 @@ impl ObjectPat {
     }
     #[inline]
     pub fn props(&self, ast: &crate::Ast) -> TypedSubRange<ObjectPatProp> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -10421,14 +7922,7 @@ impl ObjectPat {
     }
     #[inline]
     pub fn optional(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -10444,14 +7938,7 @@ impl ObjectPat {
     }
     #[inline]
     pub fn set_props(&self, ast: &mut crate::Ast, props: TypedSubRange<ObjectPatProp>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -10462,14 +7949,7 @@ impl ObjectPat {
     }
     #[inline]
     pub fn set_optional(&self, ast: &mut crate::Ast, optional: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -10494,14 +7974,7 @@ impl AssignPat {
     }
     #[inline]
     pub fn left(&self, ast: &crate::Ast) -> Pat {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -10513,14 +7986,7 @@ impl AssignPat {
     }
     #[inline]
     pub fn right(&self, ast: &crate::Ast) -> Expr {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -10536,14 +8002,7 @@ impl AssignPat {
     }
     #[inline]
     pub fn set_left(&self, ast: &mut crate::Ast, left: Pat) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -10554,14 +8013,7 @@ impl AssignPat {
     }
     #[inline]
     pub fn set_right(&self, ast: &mut crate::Ast, right: Expr) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -10586,14 +8038,7 @@ impl RestPat {
     }
     #[inline]
     pub fn dot_3_token(&self, ast: &crate::Ast) -> Span {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -10605,14 +8050,7 @@ impl RestPat {
     }
     #[inline]
     pub fn arg(&self, ast: &crate::Ast) -> Pat {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -10628,14 +8066,7 @@ impl RestPat {
     }
     #[inline]
     pub fn set_dot3_token(&self, ast: &mut crate::Ast, dot3_token: Span) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -10646,14 +8077,7 @@ impl RestPat {
     }
     #[inline]
     pub fn set_arg(&self, ast: &mut crate::Ast, arg: Pat) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -10737,14 +8161,7 @@ impl KeyValuePatProp {
     }
     #[inline]
     pub fn key(&self, ast: &crate::Ast) -> PropName {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -10756,14 +8173,7 @@ impl KeyValuePatProp {
     }
     #[inline]
     pub fn value(&self, ast: &crate::Ast) -> Pat {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -10779,14 +8189,7 @@ impl KeyValuePatProp {
     }
     #[inline]
     pub fn set_key(&self, ast: &mut crate::Ast, key: PropName) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -10797,14 +8200,7 @@ impl KeyValuePatProp {
     }
     #[inline]
     pub fn set_value(&self, ast: &mut crate::Ast, value: Pat) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -10829,14 +8225,7 @@ impl AssignPatProp {
     }
     #[inline]
     pub fn key(&self, ast: &crate::Ast) -> BindingIdent {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -10848,14 +8237,7 @@ impl AssignPatProp {
     }
     #[inline]
     pub fn value(&self, ast: &crate::Ast) -> Option<Expr> {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -10871,14 +8253,7 @@ impl AssignPatProp {
     }
     #[inline]
     pub fn set_key(&self, ast: &mut crate::Ast, key: BindingIdent) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -10889,14 +8264,7 @@ impl AssignPatProp {
     }
     #[inline]
     pub fn set_value(&self, ast: &mut crate::Ast, value: Option<Expr>) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -10921,14 +8289,7 @@ impl Ident {
     }
     #[inline]
     pub fn sym(&self, ast: &crate::Ast) -> AtomRef {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -10940,14 +8301,7 @@ impl Ident {
     }
     #[inline]
     pub fn optional(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -10963,14 +8317,7 @@ impl Ident {
     }
     #[inline]
     pub fn set_sym(&self, ast: &mut crate::Ast, sym: AtomRef) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -10981,14 +8328,7 @@ impl Ident {
     }
     #[inline]
     pub fn set_optional(&self, ast: &mut crate::Ast, optional: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -11013,14 +8353,7 @@ impl IdentName {
     }
     #[inline]
     pub fn sym(&self, ast: &crate::Ast) -> AtomRef {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -11036,14 +8369,7 @@ impl IdentName {
     }
     #[inline]
     pub fn set_sym(&self, ast: &mut crate::Ast, sym: AtomRef) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -11068,14 +8394,7 @@ impl PrivateName {
     }
     #[inline]
     pub fn name(&self, ast: &crate::Ast) -> AtomRef {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -11091,14 +8410,7 @@ impl PrivateName {
     }
     #[inline]
     pub fn set_name(&self, ast: &mut crate::Ast, name: AtomRef) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -11123,14 +8435,7 @@ impl BindingIdent {
     }
     #[inline]
     pub fn id(&self, ast: &crate::Ast) -> Ident {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -11146,14 +8451,7 @@ impl BindingIdent {
     }
     #[inline]
     pub fn set_id(&self, ast: &mut crate::Ast, id: Ident) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -11276,14 +8574,7 @@ impl Str {
     }
     #[inline]
     pub fn value(&self, ast: &crate::Ast) -> Wtf8AtomId {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -11295,14 +8586,7 @@ impl Str {
     }
     #[inline]
     pub fn raw(&self, ast: &crate::Ast) -> OptionalAtomRef {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -11318,14 +8602,7 @@ impl Str {
     }
     #[inline]
     pub fn set_value(&self, ast: &mut crate::Ast, value: Wtf8AtomId) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -11336,14 +8613,7 @@ impl Str {
     }
     #[inline]
     pub fn set_raw(&self, ast: &mut crate::Ast, raw: OptionalAtomRef) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -11368,14 +8638,7 @@ impl Bool {
     }
     #[inline]
     pub fn value(&self, ast: &crate::Ast) -> bool {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -11391,14 +8654,7 @@ impl Bool {
     }
     #[inline]
     pub fn set_value(&self, ast: &mut crate::Ast, value: bool) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -11441,14 +8697,7 @@ impl Number {
     }
     #[inline]
     pub fn value(&self, ast: &crate::Ast) -> f64 {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -11460,14 +8709,7 @@ impl Number {
     }
     #[inline]
     pub fn raw(&self, ast: &crate::Ast) -> OptionalAtomRef {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -11483,14 +8725,7 @@ impl Number {
     }
     #[inline]
     pub fn set_value(&self, ast: &mut crate::Ast, value: f64) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -11501,14 +8736,7 @@ impl Number {
     }
     #[inline]
     pub fn set_raw(&self, ast: &mut crate::Ast, raw: OptionalAtomRef) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -11533,14 +8761,7 @@ impl BigInt {
     }
     #[inline]
     pub fn value(&self, ast: &crate::Ast) -> BigIntId {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -11552,14 +8773,7 @@ impl BigInt {
     }
     #[inline]
     pub fn raw(&self, ast: &crate::Ast) -> OptionalAtomRef {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -11575,14 +8789,7 @@ impl BigInt {
     }
     #[inline]
     pub fn set_value(&self, ast: &mut crate::Ast, value: BigIntId) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -11593,14 +8800,7 @@ impl BigInt {
     }
     #[inline]
     pub fn set_raw(&self, ast: &mut crate::Ast, raw: OptionalAtomRef) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -11625,14 +8825,7 @@ impl Regex {
     }
     #[inline]
     pub fn exp(&self, ast: &crate::Ast) -> AtomRef {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -11644,14 +8837,7 @@ impl Regex {
     }
     #[inline]
     pub fn flags(&self, ast: &crate::Ast) -> AtomRef {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -11667,14 +8853,7 @@ impl Regex {
     }
     #[inline]
     pub fn set_exp(&self, ast: &mut crate::Ast, exp: AtomRef) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 0usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -11685,14 +8864,7 @@ impl Regex {
     }
     #[inline]
     pub fn set_flags(&self, ast: &mut crate::Ast, flags: AtomRef) {
-        debug_assert!(self.0 < ast.nodes.len());
-        let offset = unsafe {
-            ast.nodes
-                .as_raw_slice()
-                .get_unchecked(self.0.index())
-                .data
-                .extra_data_start
-        } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data

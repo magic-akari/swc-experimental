@@ -1,8 +1,8 @@
-use swc_common::Span;
-use swc_experimental_ecma_ast::{
+use crate::{
     AssignOp, AtomRef, BigIntId, BinaryOp, ImportPhase, MetaPropKind, MethodKind, OptionalAtomRef,
     OptionalWtf8AtomId, UnaryOp, UpdateOp, VarDeclKind, Wtf8AtomId,
 };
+use swc_common::Span;
 
 use crate::{Visit, VisitMut, VisitMutWith, VisitWith};
 
@@ -10,23 +10,18 @@ macro_rules! dummy_visit_mut_impl {
     ($ident:ident) => {
         impl<V: ?Sized + Visit> VisitWith<V> for $ident {
             #[inline]
-            fn visit_with(self, _visitor: &mut V, _ast: &swc_experimental_ecma_ast::Ast) {}
+            fn visit_with(self, _visitor: &mut V, _ast: &crate::Ast) {}
 
             #[inline]
-            fn visit_children_with(self, _visitor: &mut V, _ast: &swc_experimental_ecma_ast::Ast) {}
+            fn visit_children_with(self, _visitor: &mut V, _ast: &crate::Ast) {}
         }
 
         impl<V: ?Sized + VisitMut> VisitMutWith<V> for $ident {
             #[inline]
-            fn visit_mut_with(self, _visitor: &mut V, _ast: &mut swc_experimental_ecma_ast::Ast) {}
+            fn visit_mut_with(self, _visitor: &mut V, _ast: &mut crate::Ast) {}
 
             #[inline]
-            fn visit_mut_children_with(
-                self,
-                _visitor: &mut V,
-                _ast: &mut swc_experimental_ecma_ast::Ast,
-            ) {
-            }
+            fn visit_mut_children_with(self, _visitor: &mut V, _ast: &mut crate::Ast) {}
         }
     };
 }

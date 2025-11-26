@@ -194,11 +194,12 @@ impl<I: Tokens> Parser<I> {
                 }
 
                 let left = match assign_expr.left(&self.ast) {
-                    AssignTarget::Simple(left) => self.reparse_expr_as_pat(
-                        pat_ty,
-                        match left {
+                    AssignTarget::Simple(left) => {
+                        let left = match left {
                             SimpleAssignTarget::Ident(binding_ident) => {
-                                Expr::Ident(binding_ident.id(&self.ast))
+                                let sym = binding_ident.id(&self.ast);
+                                self.ast.free_node(binding_ident.node_id());
+                                Expr::Ident(sym)
                             }
                             SimpleAssignTarget::Member(member_expr) => Expr::Member(member_expr),
                             SimpleAssignTarget::SuperProp(super_prop_expr) => {
@@ -209,8 +210,9 @@ impl<I: Tokens> Parser<I> {
                                 Expr::OptChain(opt_chain_expr)
                             }
                             SimpleAssignTarget::Invalid(invalid) => Expr::Invalid(invalid),
-                        },
-                    )?,
+                        };
+                        self.reparse_expr_as_pat(pat_ty, left)?
+                    }
                     AssignTarget::Pat(pat) => match pat {
                         AssignTargetPat::Array(array_pat) => Pat::Array(array_pat),
                         AssignTargetPat::Object(object_pat) => Pat::Object(object_pat),
@@ -220,6 +222,7 @@ impl<I: Tokens> Parser<I> {
                     _ => unreachable!(),
                 };
                 let right = assign_expr.right(&self.ast);
+                self.ast.free_node(assign_expr.node_id());
                 Ok(self.ast.pat_assign_pat(span, left, right))
             }
             Expr::Object(object) => {
@@ -247,18 +250,25 @@ impl<I: Tokens> Parser<I> {
                                     pat_ty.element(),
                                     kv_prop.value(&self.ast),
                                 )?;
-                                self.ast.object_pat_prop_key_value_pat_prop(
+                                let ret = self.ast.object_pat_prop_key_value_pat_prop(
                                     span,
                                     kv_prop.key(&self.ast),
                                     pat,
-                                )
+                                );
+                                self.ast.free_node(kv_prop.node_id());
+                                ret
                             }
                             Prop::Assign(assign_prop) => {
                                 let id = assign_prop.key(&self.ast);
                                 let key = self.ast.binding_ident(id.span(&self.ast), id);
                                 let value = assign_prop.value(&self.ast);
-                                self.ast
-                                    .object_pat_prop_assign_pat_prop(span, key, Some(value))
+                                let ret = self.ast.object_pat_prop_assign_pat_prop(
+                                    span,
+                                    key,
+                                    Some(value),
+                                );
+                                self.ast.free_node(assign_prop.node_id());
+                                ret
                             }
                             _ => syntax_error!(self, prop.span(&self.ast), SyntaxError::InvalidPat),
                         },
@@ -288,7 +298,9 @@ impl<I: Tokens> Parser<I> {
                             if let Pat::Assign(_) = pat {
                                 self.emit_err(span, SyntaxError::TS1048)
                             };
-                            self.ast.object_pat_prop_rest_pat(span, dot_3_token, pat)
+                            let ret = self.ast.object_pat_prop_rest_pat(span, dot_3_token, pat);
+                            self.ast.free_node(spread.node_id());
+                            ret
                         }
                         #[cfg(swc_ast_unknown)]
                         _ => unreachable!(),
@@ -297,6 +309,7 @@ impl<I: Tokens> Parser<I> {
                     obj_props.push(self, prop);
                 }
 
+                self.ast.free_node(object.node_id());
                 let props = obj_props.end(self);
                 Ok(self.ast.pat_object_pat(object_span, props, false))
             }
@@ -306,6 +319,7 @@ impl<I: Tokens> Parser<I> {
             Expr::Array(array) => {
                 let mut exprs = array.elems(&self.ast);
                 if exprs.is_empty() {
+                    self.ast.free_node(array.node_id());
                     return Ok(self.ast.pat_array_pat(span, TypedSubRange::empty(), false));
                 }
                 // Trailing comma may exist. We should remove those commas.
@@ -333,13 +347,14 @@ impl<I: Tokens> Parser<I> {
                                 expr_or_spread.expr(&self.ast).span(&self.ast),
                                 SyntaxError::NonLastRestParam,
                             ),
-                            None => params.push(
-                                self.reparse_expr_as_pat(
-                                    pat_ty.element(),
-                                    expr_or_spread.expr(&self.ast),
-                                )?
-                                .optional_node_id(),
-                            ),
+                            None => {
+                                let expr = expr_or_spread.expr(&self.ast);
+                                self.ast.free_node(expr_or_spread.node_id());
+                                params.push(
+                                    self.reparse_expr_as_pat(pat_ty.element(), expr)?
+                                        .optional_node_id(),
+                                )
+                            }
                         },
                         None => params.push(OptionalNodeId::none()),
                     }
@@ -353,6 +368,7 @@ impl<I: Tokens> Parser<I> {
                         Some(expr_or_spread) => {
                             let spread = expr_or_spread.spread(&self.ast);
                             let expr = expr_or_spread.expr(&self.ast);
+                            self.ast.free_node(expr_or_spread.node_id());
                             match spread {
                                 Some(spread) => {
                                     // TODO: is BindingPat correct?
@@ -368,13 +384,12 @@ impl<I: Tokens> Parser<I> {
                                         );
                                     }
                                     let expr_span = expr.span(&self.ast);
+                                    let spread_span = spread.span(&self.ast);
+
+                                    self.ast.free_node(spread.node_id());
                                     self.reparse_expr_as_pat(pat_ty.element(), expr)
                                         .map(|pat| {
-                                            self.ast.pat_rest_pat(
-                                                expr_span,
-                                                spread.span(&self.ast),
-                                                pat,
-                                            )
+                                            self.ast.pat_rest_pat(expr_span, spread_span, pat)
                                         })?
                                         .optional_node_id()
                                 }
@@ -391,6 +406,7 @@ impl<I: Tokens> Parser<I> {
                     params.push(last);
                 }
 
+                self.ast.free_node(array.node_id());
                 let params = self.ast.add_typed_opt_sub_range(&params);
                 Ok(self.ast.pat_array_pat(span, params, false))
             }
@@ -439,7 +455,10 @@ impl<I: Tokens> Parser<I> {
 
         let cur = self.input().cur();
         if cur.is_word() {
-            self.parse_binding_ident(disallow_let).map(Pat::Ident)
+            let ident = self.parse_binding_ident(disallow_let)?;
+            Ok(Pat::Ident(
+                self.ast.binding_ident(ident.span(&self.ast), ident),
+            ))
         } else if cur == Token::LBracket {
             self.parse_array_binding_pat()
         } else if cur == Token::LBrace {
@@ -795,6 +814,7 @@ impl<I: Tokens> Parser<I> {
                         None => {
                             let param =
                                 self.reparse_expr_as_pat(pat_ty, expr_or_spread.expr(&self.ast))?;
+                            self.ast.free_node(expr_or_spread.node_id());
                             params.push(self, param);
                         }
                     }
@@ -812,7 +832,7 @@ impl<I: Tokens> Parser<I> {
         let last = match expr {
             // Rest
             AssignTargetOrSpread::ExprOrSpread(expr_or_spread) => {
-                match expr_or_spread.spread(&self.ast) {
+                let ret = match expr_or_spread.spread(&self.ast) {
                     Some(dot3_token) => {
                         let expr = expr_or_spread.expr(&self.ast);
                         if let Expr::Assign(_) = expr {
@@ -821,14 +841,17 @@ impl<I: Tokens> Parser<I> {
                         if let Some(trailing_comma) = trailing_comma {
                             self.emit_err(trailing_comma, SyntaxError::CommaAfterRestElement);
                         }
+
                         let expr_span = expr.span(&self.ast);
-                        self.reparse_expr_as_pat(pat_ty, expr).map(|pat| {
-                            self.ast
-                                .pat_rest_pat(expr_span, dot3_token.span(&self.ast), pat)
-                        })?
+                        let dot3_span = dot3_token.span(&self.ast);
+                        self.ast.free_node(dot3_token.node_id());
+                        self.reparse_expr_as_pat(pat_ty, expr)
+                            .map(|pat| self.ast.pat_rest_pat(expr_span, dot3_span, pat))?
                     }
                     None => self.reparse_expr_as_pat(pat_ty, expr_or_spread.expr(&self.ast))?,
-                }
+                };
+                self.ast.free_node(expr_or_spread.node_id());
+                ret
             }
             AssignTargetOrSpread::Pat(pat) => {
                 if let Some(trailing_comma) = trailing_comma {

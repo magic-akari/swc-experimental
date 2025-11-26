@@ -61,10 +61,9 @@ impl<I: Tokens> Parser<I> {
                     && self.ast.get_atom(orig_ident.sym(&self.ast)) == "type"
                     && self.input().cur().is_word()
                 {
-                    let possibly_orig = self.parse_ident_name().map(|ident_name| {
-                        self.ast
-                            .ident(ident_name.span(&self.ast), ident_name.sym(&self.ast), false)
-                    })?;
+                    let possibly_orig = self
+                        .parse_ident_name()
+                        .map(|(span, sym)| self.ast.ident(span, sym, false))?;
                     if self.ast.get_atom(possibly_orig.sym(&self.ast)) == "as" {
                         // `export { type as }`
                         if !self.input().cur().is_word() {
@@ -80,24 +79,16 @@ impl<I: Tokens> Parser<I> {
                             ));
                         }
 
-                        let maybe_as = self.parse_ident_name().map(|ident_name| {
-                            self.ast.ident(
-                                ident_name.span(&self.ast),
-                                ident_name.sym(&self.ast),
-                                false,
-                            )
-                        })?;
+                        let maybe_as = self
+                            .parse_ident_name()
+                            .map(|(span, sym)| self.ast.ident(span, sym, false))?;
                         if self.ast.get_atom(maybe_as.sym(&self.ast)) == "as" {
                             if self.input().cur().is_word() {
                                 // `export { type as as as }`
                                 // `export { type as as foo }`
-                                let exported = self.parse_ident_name().map(|ident_name| {
-                                    self.ast.ident(
-                                        ident_name.span(&self.ast),
-                                        ident_name.sym(&self.ast),
-                                        false,
-                                    )
-                                })?;
+                                let exported = self
+                                    .parse_ident_name()
+                                    .map(|(span, sym)| self.ast.ident(span, sym, false))?;
 
                                 if type_only {
                                     self.emit_err(orig_ident.span(&self.ast), SyntaxError::TS2207);
@@ -161,7 +152,7 @@ impl<I: Tokens> Parser<I> {
             .do_outside_of_context(Context::InAsync.union(Context::InGenerator), |p| {
                 p.parse_binding_ident(false)
             })?;
-        Ok(ident.id(&self.ast))
+        Ok(ident)
     }
 
     fn parse_imported_default_binding(&mut self) -> PResult<Ident> {
@@ -184,10 +175,9 @@ impl<I: Tokens> Parser<I> {
                     && self.ast.get_atom(orig_name.sym(&self.ast)) == "type"
                     && self.input().cur().is_word()
                 {
-                    let possibly_orig_name = self.parse_ident_name().map(|ident_name| {
-                        self.ast
-                            .ident(ident_name.span(&self.ast), ident_name.sym(&self.ast), false)
-                    })?;
+                    let possibly_orig_name = self
+                        .parse_ident_name()
+                        .map(|(span, sym)| self.ast.ident(span, sym, false))?;
 
                     let possibly_orig_name_str =
                         self.ast.get_atom(possibly_orig_name.sym(&self.ast));
@@ -214,12 +204,12 @@ impl<I: Tokens> Parser<I> {
                             ));
                         }
 
-                        let maybe_as: Ident = self.parse_binding_ident(false)?.id(&self.ast);
+                        let maybe_as: Ident = self.parse_binding_ident(false)?;
                         if self.ast.get_atom(maybe_as.sym(&self.ast)) == "as" {
                             if self.input().cur().is_word() {
                                 // `import { type as as as } from 'mod'`
                                 // `import { type as as foo } from 'mod'`
-                                let local: Ident = self.parse_binding_ident(false)?.id(&self.ast);
+                                let local: Ident = self.parse_binding_ident(false)?;
 
                                 if type_only {
                                     self.emit_err(orig_name.span(&self.ast), SyntaxError::TS2206);
@@ -262,7 +252,7 @@ impl<I: Tokens> Parser<I> {
                 }
 
                 if self.input_mut().eat(Token::As) {
-                    let local: Ident = self.parse_binding_ident(false)?.id(&self.ast);
+                    let local: Ident = self.parse_binding_ident(false)?;
                     return Ok(self.ast.import_specifier_import_named_specifier(
                         Span::new_with_checked(start, local.span_hi(&self.ast)),
                         local,
@@ -296,7 +286,7 @@ impl<I: Tokens> Parser<I> {
             }
             ModuleExportName::Str(orig_str) => {
                 if self.input_mut().eat(Token::As) {
-                    let local: Ident = self.parse_binding_ident(false)?.id(&self.ast);
+                    let local: Ident = self.parse_binding_ident(false)?;
                     Ok(self.ast.import_specifier_import_named_specifier(
                         Span::new_with_checked(start, local.span_hi(&self.ast)),
                         local,
@@ -823,13 +813,9 @@ impl<I: Tokens> Parser<I> {
                             local = self.parse_imported_default_binding()?;
                         } else if peek!(self).is_some_and(|cur| cur == Token::Eq) {
                             type_only = true;
-                            local = self.parse_ident_name().map(|ident_name| {
-                                self.ast.ident(
-                                    ident_name.span(&self.ast),
-                                    ident_name.sym(&self.ast),
-                                    false,
-                                )
-                            })?;
+                            local = self
+                                .parse_ident_name()
+                                .map(|(span, sym)| self.ast.ident(span, sym, false))?;
                         }
                     }
                 }

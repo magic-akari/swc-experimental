@@ -1247,7 +1247,7 @@ impl<I: Tokens> Parser<I> {
         if question_dot || self.input_mut().eat(Token::Dot) {
             let prop = self.parse_maybe_private_name().map(|e| match e {
                 Either::Left(p) => MemberProp::PrivateName(p),
-                Either::Right(i) => MemberProp::Ident(i),
+                Either::Right((span, sym)) => MemberProp::Ident(self.ast.ident_name(span, sym)),
             })?;
             let span = self.span(callee.span_lo(&self.ast));
             debug_assert_eq!(callee.span_lo(&self.ast), span.lo());
@@ -1353,7 +1353,7 @@ impl<I: Tokens> Parser<I> {
                 self.bump();
                 let prop = self.parse_maybe_private_name().map(|e| match e {
                     Either::Left(p) => MemberProp::PrivateName(p),
-                    Either::Right(i) => MemberProp::Ident(i),
+                    Either::Right((span, sym)) => MemberProp::Ident(self.ast.ident_name(span, sym)),
                 })?;
                 let span = self.span(lhs.span_lo(&self.ast));
                 debug_assert_eq!(lhs.span_lo(&self.ast), span.lo());
@@ -1417,9 +1417,8 @@ impl<I: Tokens> Parser<I> {
         if self.input_mut().eat(Token::Dot) {
             self.mark_found_module_item();
 
-            let ident = self.parse_ident_name()?;
-
-            match self.ast.get_atom(ident.sym(&self.ast)).as_str() {
+            let (_, sym) = self.parse_ident_name()?;
+            match self.ast.get_atom(sym).as_str() {
                 "meta" => {
                     let span = self.span(start);
                     if !self.ctx().contains(Context::CanBeModule) {
@@ -2315,26 +2314,36 @@ impl<I: Tokens> Parser<I> {
 
         // ParenthesizedExpression cannot contain spread.
         if expr_or_spreads.len() == 1 {
-            let expr = self.ast.get_node(expr_or_spreads.iter().next().unwrap());
-            let expr = match expr.spread(&self.ast) {
+            let expr_or_spread = self.ast.get_node(expr_or_spreads.iter().next().unwrap());
+            let expr = match expr_or_spread.spread(&self.ast) {
                 Some(_) => {
-                    syntax_error!(self, expr.span(&self.ast), SyntaxError::SpreadInParenExpr)
+                    syntax_error!(
+                        self,
+                        expr_or_spread.span(&self.ast),
+                        SyntaxError::SpreadInParenExpr
+                    )
                 }
-                None => expr.expr(&self.ast),
+                None => expr_or_spread.expr(&self.ast),
             };
+            self.ast.free_node(expr_or_spread.node_id());
             Ok(self.ast.expr_paren_expr(self.span(expr_start), expr))
         } else {
             debug_assert!(expr_or_spreads.len() >= 2);
 
             let mut exprs = self.scratch_start();
             for expr in expr_or_spreads.iter() {
-                let expr = self.ast.get_node(expr);
-                match expr.spread(&self.ast) {
+                let expr_or_spread = self.ast.get_node(expr);
+                match expr_or_spread.spread(&self.ast) {
                     Some(_) => {
-                        syntax_error!(self, expr.span(&self.ast), SyntaxError::SpreadInParenExpr)
+                        syntax_error!(
+                            self,
+                            expr_or_spread.span(&self.ast),
+                            SyntaxError::SpreadInParenExpr
+                        )
                     }
-                    None => exprs.push(self, expr.expr(&self.ast)),
+                    None => exprs.push(self, expr_or_spread.expr(&self.ast)),
                 }
+                self.ast.free_node(expr_or_spread.node_id());
             }
             let exprs = exprs.end(self);
             debug_assert!(exprs.len() >= 2);
@@ -2410,7 +2419,7 @@ impl<I: Tokens> Parser<I> {
                     // }
 
                     // async a => body
-                    let arg = Pat::Ident(ident);
+                    let arg = Pat::Ident(p.ast.binding_ident(id.span(&p.ast), ident));
                     let mut params = p.scratch_start();
                     params.push(p, arg);
 
@@ -2465,10 +2474,8 @@ impl<I: Tokens> Parser<I> {
             try_parse_arrow_expr(self, id, false)
         } else if cur == Token::Hash {
             self.bump(); // consume `#`
-            let id = self.parse_ident_name()?;
-            Ok(self
-                .ast
-                .expr_private_name(self.span(start), id.sym(&self.ast)))
+            let (_, sym) = self.parse_ident_name()?;
+            Ok(self.ast.expr_private_name(self.span(start), sym))
         } else if cur == Token::Ident {
             let word = self.input_mut().expect_word_token_and_bump();
             if self.ctx().contains(Context::InClassField) && word == atom!("arguments") {

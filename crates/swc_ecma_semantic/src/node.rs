@@ -1,5 +1,6 @@
 use crate::scope::ScopeId;
 
+#[derive(Clone)]
 pub struct NodeInfo {
     scope_id: ScopeId,
 }
