@@ -1,21 +1,7 @@
 use std::{
     fmt::{Display, Formatter},
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
-
-use crate::util::crate_root;
-
-pub struct Case {
-    pub path: PathBuf,
-    pub code: String,
-    pub should_fail: bool,
-}
-
-impl Case {
-    pub fn relative_path(&self) -> &Path {
-        self.path.strip_prefix(crate_root()).unwrap()
-    }
-}
 
 pub enum TestResult {
     Passed { path: PathBuf },

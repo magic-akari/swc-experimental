@@ -1,0 +1,90 @@
+use std::{
+    fs::read_dir,
+    path::{Path, PathBuf},
+};
+
+use swc_experimental_ecma_parser::{EsSyntax, Syntax};
+
+use crate::{cases::Case, util::crate_root};
+
+const TEST_PATH: &str = "fixtures/parser-misc";
+
+pub struct MiscCase {
+    path: PathBuf,
+    code: String,
+    should_fail: bool,
+}
+
+impl MiscCase {
+    pub fn read() -> Vec<Self> {
+        let test_path = crate_root().join(TEST_PATH);
+        let pass_cases = read_dir(test_path.join("pass")).unwrap();
+        let fail_cases = read_dir(test_path.join("fail")).unwrap();
+
+        let mut cases = Vec::new();
+        for pass_case in pass_cases {
+            let pass_case = pass_case.unwrap();
+            let path = pass_case.path();
+            let code = std::fs::read_to_string(&path).unwrap();
+            cases.push(MiscCase {
+                path,
+                code,
+                should_fail: false,
+            });
+        }
+
+        for fail_case in fail_cases {
+            let fail_case = fail_case.unwrap();
+            let path = fail_case.path();
+            let code = std::fs::read_to_string(&path).unwrap();
+            cases.push(MiscCase {
+                path,
+                code,
+                should_fail: true,
+            });
+        }
+
+        cases
+    }
+}
+
+impl Case for MiscCase {
+    fn path(&self) -> &Path {
+        &self.path
+    }
+
+    fn code(&self) -> &str {
+        &self.code
+    }
+
+    fn should_fail(&self) -> bool {
+        self.should_fail
+    }
+
+    fn syntax(&self) -> Syntax {
+        let ext = self.ext();
+        match ext.as_str() {
+            "js" | "cjs" | "mjs" | "jsx" => {
+                let mut es = EsSyntax::default();
+                if ext == "jsx" {
+                    es.jsx = true;
+                }
+                if self.code.contains("// @decorators") {
+                    es.decorators = true;
+                }
+                if self.code.contains("// @decorators_before_export") {
+                    es.decorators_before_export = true;
+                }
+                if self.code.contains("// @export_default_from") {
+                    es.export_default_from = true;
+                }
+                if self.code.contains("// @allow_super_outside_method") {
+                    es.allow_super_outside_method = true;
+                }
+                Syntax::Es(es)
+            }
+            "ts" | "cts" | "mts" | "tsx" => Syntax::Es(EsSyntax::default()),
+            _ => unreachable!(),
+        }
+    }
+}

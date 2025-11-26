@@ -1,70 +1,28 @@
-use std::fs::read_dir;
-
 use colored::Colorize;
 use swc_common::{BytePos, comments::SingleThreadedComments};
 use swc_experimental_ecma_ast::Program;
 use swc_experimental_ecma_parser::{Lexer, Parser, StringInput};
 
-use crate::{
-    AppArgs,
-    suite::{Case, TestResult},
-    util::crate_root,
-};
+use crate::{AppArgs, cases::Case, suite::TestResult};
 
-const TEST_PATH: &str = "fixtures/test262-parser-tests";
+pub struct Test262ParserRunner;
 
-pub struct Test262ParserSuite {
-    cases: Vec<Case>,
-}
-
-impl Test262ParserSuite {
-    pub fn new() -> Self {
-        let test_path = crate_root().join(TEST_PATH);
-        let pass_cases = read_dir(test_path.join("pass")).unwrap();
-        let pass_explicit_cases = read_dir(test_path.join("pass-explicit")).unwrap();
-        let fail_cases = read_dir(test_path.join("fail")).unwrap();
-
-        let mut cases = Vec::new();
-        for pass_case in pass_cases.chain(pass_explicit_cases) {
-            let pass_case = pass_case.unwrap();
-            let path = pass_case.path();
-            let code = std::fs::read_to_string(&path).unwrap();
-            cases.push(Case {
-                path,
-                code,
-                should_fail: false,
-            });
-        }
-
-        for fail_case in fail_cases {
-            let fail_case = fail_case.unwrap();
-            let path = fail_case.path();
-            let code = std::fs::read_to_string(&path).unwrap();
-            cases.push(Case {
-                path,
-                code,
-                should_fail: true,
-            });
-        }
-
-        Self { cases }
-    }
-
-    pub fn run(&mut self, args: &AppArgs) -> Vec<TestResult> {
-        let mut results = Vec::with_capacity(self.cases.len());
-        for case in self.cases.iter_mut() {
+impl Test262ParserRunner {
+    pub fn run<C: Case>(args: &AppArgs, cases: &[C]) -> Vec<TestResult> {
+        let mut results = Vec::with_capacity(cases.len());
+        for case in cases.iter() {
             if args.debug {
                 println!("[{}] {:?}", "Debug".green(), case.relative_path());
             }
 
             let filename = case
-                .path
+                .path()
                 .file_name()
                 .unwrap()
                 .to_string_lossy()
                 .into_owned();
-            if (!case.should_fail && IGNORED_PASS_TESTS.contains(&filename.as_str()))
-                || (case.should_fail && IGNORED_ERROR_TESTS.contains(&filename.as_str()))
+            if (!case.should_fail() && IGNORED_PASS_TESTS.contains(&filename.as_str()))
+                || (case.should_fail() && IGNORED_ERROR_TESTS.contains(&filename.as_str()))
             {
                 results.push(TestResult::Ignored {
                     path: case.relative_path().to_path_buf(),
@@ -72,14 +30,10 @@ impl Test262ParserSuite {
                 continue;
             }
 
-            let input = StringInput::new(&case.code, BytePos(0), BytePos(case.code.len() as u32));
+            let input =
+                StringInput::new(&case.code(), BytePos(0), BytePos(case.code().len() as u32));
             let comments = SingleThreadedComments::default();
-            let lexer = Lexer::new(
-                Default::default(),
-                Default::default(),
-                input,
-                Some(&comments),
-            );
+            let lexer = Lexer::new(case.syntax(), Default::default(), input, Some(&comments));
             let mut parser = Parser::new_from(lexer);
             let ret = if filename.ends_with(".module.js") {
                 parser.parse_module().map(Program::Module)
@@ -93,7 +47,7 @@ impl Test262ParserSuite {
             }
 
             let failed = !errors.is_empty();
-            match (case.should_fail, failed) {
+            match (case.should_fail(), failed) {
                 (true, false) => results.push(TestResult::Failed {
                     path: case.relative_path().to_path_buf(),
                     error: "Expected failure, but parsed successfully".to_string(),

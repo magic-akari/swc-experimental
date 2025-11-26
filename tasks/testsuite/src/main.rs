@@ -1,10 +1,18 @@
-use crate::{misc::parser::MiscParserSuite, suite::TestResult, test262_parser::Test262ParserSuite};
 use colored::*;
 use pico_args::Arguments;
 
-mod misc;
+use crate::{
+    cases::{
+        misc::MiscCase,
+        test262_parser::{self},
+    },
+    runner::{misc_parser::MiscParserRunner, test262_parser::Test262ParserRunner},
+    suite::TestResult,
+};
+
+mod cases;
+mod runner;
 mod suite;
-mod test262_parser;
 mod util;
 
 pub struct AppArgs {
@@ -12,19 +20,23 @@ pub struct AppArgs {
 }
 
 pub fn main() {
+    // Initialize args
     let mut args = Arguments::from_env();
     let args = AppArgs {
         debug: args.contains("--debug"),
     };
 
+    // Run tests
     let mut results = Vec::new();
-    results.extend(MiscParserSuite::new().run(&args));
-    results.extend(Test262ParserSuite::new().run(&args));
+    let misc_cases = MiscCase::read();
+    let test262_parser_cases = test262_parser::Test262ParserCase::read();
+    results.extend(MiscParserRunner::run(&args, &misc_cases));
+    results.extend(Test262ParserRunner::run(&args, &test262_parser_cases));
 
+    // Collect results
     let mut passed = 0;
     let mut failed = 0;
     let mut ignored = 0;
-
     for result in results {
         match result {
             TestResult::Passed { .. } => {

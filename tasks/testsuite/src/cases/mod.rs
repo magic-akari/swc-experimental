@@ -1,0 +1,30 @@
+use std::path::Path;
+
+use swc_experimental_ecma_parser::Syntax;
+
+use crate::util::crate_root;
+
+pub mod misc;
+pub mod test262_parser;
+
+pub trait Case {
+    fn path(&self) -> &Path;
+    fn code(&self) -> &str;
+    fn should_fail(&self) -> bool;
+
+    fn syntax(&self) -> Syntax {
+        Syntax::default()
+    }
+
+    fn ext(&self) -> String {
+        self.path()
+            .extension()
+            .unwrap()
+            .to_string_lossy()
+            .to_string()
+    }
+
+    fn relative_path(&self) -> &Path {
+        self.path().strip_prefix(crate_root()).unwrap()
+    }
+}
