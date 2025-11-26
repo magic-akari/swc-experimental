@@ -232,21 +232,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cranelift-bitset"
-version = "0.126.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0325aecbafec053d3d3f082edfdca7937e2945e7f09c5ff9672e05198312282"
-
-[[package]]
-name = "cranelift-entity"
-version = "0.126.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5aae980b4a1678b601eab2f52e372ed0b3c9565a31c17f380008cb97b3a699c5"
-dependencies = [
- "cranelift-bitset",
-]
-
-[[package]]
 name = "criterion"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1175,7 +1160,6 @@ dependencies = [
 name = "swc_experimental_ecma_ast"
 version = "0.1.0"
 dependencies = [
- "cranelift-entity",
  "num-bigint",
  "oxc_index",
  "swc_atoms",
@@ -1206,7 +1190,6 @@ name = "swc_experimental_ecma_semantic"
 version = "0.1.0"
 dependencies = [
  "bitflags",
- "cranelift-entity",
  "oxc_index",
  "rustc-hash",
  "swc_atoms",

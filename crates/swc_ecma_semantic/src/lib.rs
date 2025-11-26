@@ -1,6 +1,5 @@
 #![allow(unused)]
 
-use cranelift_entity::SecondaryMap;
 /// crates/swc_ecma_transforms_base/src/resolver/mod.rs
 use oxc_index::IndexVec;
 use rustc_hash::FxHashMap;
@@ -23,7 +22,7 @@ mod symbol;
 pub use legacy::resolver;
 
 pub struct Semantic {
-    nodes: SecondaryMap<NodeId, NodeInfo>,
+    nodes: IndexVec<NodeId, NodeInfo>,
 }
 
 impl Semantic {

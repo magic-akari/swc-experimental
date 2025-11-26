@@ -1,10 +1,11 @@
 use std::ops::{Index, IndexMut};
 
+use oxc_index::IndexVec;
+
 use crate::{AstNode, NodeId, NodeKind, OptionalNodeId};
-use cranelift_entity::PrimaryMap;
 
 pub(crate) struct NodeList {
-    inner: PrimaryMap<NodeId, AstNode>,
+    inner: IndexVec<NodeId, AstNode>,
     free_head: OptionalNodeId,
     num_elems: u32,
 }
@@ -46,7 +47,7 @@ impl NodeList {
 
     #[inline]
     pub fn iter(&self) -> impl Iterator<Item = (NodeId, &AstNode)> {
-        self.inner.iter()
+        self.inner.iter_enumerated()
     }
 
     #[inline]

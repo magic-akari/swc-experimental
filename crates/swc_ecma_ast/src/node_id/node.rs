@@ -1,5 +1,3 @@
-use cranelift_entity::entity_impl;
-
 use crate::Ast;
 
 pub trait GetNodeId {
@@ -21,9 +19,9 @@ pub trait FromNodeId {
     fn from_node_id(id: NodeId, ast: &Ast) -> Self;
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct NodeId(u32);
-entity_impl!(NodeId, "node");
+oxc_index::define_index_type! {
+    pub struct NodeId = u32;
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct OptionalNodeId(u32);
