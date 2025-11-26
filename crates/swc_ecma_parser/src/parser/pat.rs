@@ -634,7 +634,7 @@ impl<I: Tokens> Parser<I> {
     fn parse_constructor_param(
         &mut self,
         param_start: BytePos,
-        _decorators: TypedSubRange<Decorator>,
+        decorators: TypedSubRange<Decorator>,
     ) -> PResult<ParamOrTsParamProp> {
         // let (accessibility, is_override, readonly) = if self.input().syntax().typescript() {
         //     let accessibility = self.parse_access_modifier()?;
@@ -671,7 +671,7 @@ impl<I: Tokens> Parser<I> {
         let pat = self.parse_formal_param_pat()?;
         Ok(self
             .ast
-            .param_or_ts_param_prop_param(self.span(param_start), pat))
+            .param_or_ts_param_prop_param(self.span(param_start), decorators, pat))
     }
 
     pub(crate) fn parse_constructor_params(
@@ -705,9 +705,9 @@ impl<I: Tokens> Parser<I> {
 
                 rest_span = self.span(pat_start);
                 let pat = self.ast.pat_rest_pat(rest_span, dot3_token, pat);
-                let param = self
-                    .ast
-                    .param_or_ts_param_prop_param(self.span(param_start), pat);
+                let param =
+                    self.ast
+                        .param_or_ts_param_prop_param(self.span(param_start), decorators, pat);
                 params.push(self, param);
             } else {
                 let param = self.parse_constructor_param(param_start, decorators)?;
@@ -736,7 +736,7 @@ impl<I: Tokens> Parser<I> {
             }
 
             let param_start = self.cur_pos();
-            // let decorators = self.parse_decorators(false)?;
+            let decorators = self.parse_decorators(false)?;
             let pat_start = self.cur_pos();
 
             let pat = if self.input_mut().eat(Token::DotDotDot) {
@@ -773,7 +773,7 @@ impl<I: Tokens> Parser<I> {
             };
             let is_rest = matches!(pat, Pat::Rest(_));
 
-            let param = self.ast.param(self.span(param_start), pat);
+            let param = self.ast.param(self.span(param_start), decorators, pat);
             params.push(self, param);
 
             if !self.input().is(Token::RParen) {

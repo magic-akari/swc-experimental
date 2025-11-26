@@ -200,7 +200,7 @@ impl<I: Tokens> Parser<I> {
     /// `parse_args` closure should not eat '(' or ')'.
     pub(crate) fn parse_fn_args_body<F>(
         &mut self,
-        _decorators: TypedSubRange<Decorator>,
+        decorators: TypedSubRange<Decorator>,
         start: BytePos,
         parse_args: F,
         is_async: bool,
@@ -281,8 +281,14 @@ impl<I: Tokens> Parser<I> {
                 }
             }
 
-            Ok(p.ast
-                .function(p.span(start), params, body, is_generator, is_async))
+            Ok(p.ast.function(
+                p.span(start),
+                params,
+                decorators,
+                body,
+                is_generator,
+                is_async,
+            ))
         };
 
         let f_with_generator_ctx = |p: &mut Self| {
@@ -646,7 +652,7 @@ impl<I: Tokens> Parser<I> {
     fn make_property(
         &mut self,
         start: BytePos,
-        _decorators: TypedSubRange<Decorator>,
+        decorators: TypedSubRange<Decorator>,
         // accessibility: Option<Accessibility>,
         key: Key,
         is_static: bool,
@@ -696,9 +702,13 @@ impl<I: Tokens> Parser<I> {
             }
 
             if accessor_token.is_some() {
-                return Ok(p
-                    .ast
-                    .class_member_auto_accessor(p.span(start), key, value, is_static));
+                return Ok(p.ast.class_member_auto_accessor(
+                    p.span(start),
+                    key,
+                    value,
+                    is_static,
+                    decorators,
+                ));
             }
 
             Ok(match key {
@@ -708,8 +718,13 @@ impl<I: Tokens> Parser<I> {
                     //     p.emit_err(span.with_hi(key.span_hi()), SyntaxError::TS18010);
                     // }
 
-                    p.ast
-                        .class_member_private_prop(p.span(start), key, value, is_static)
+                    p.ast.class_member_private_prop(
+                        p.span(start),
+                        key,
+                        value,
+                        is_static,
+                        decorators,
+                    )
                 }
                 Key::Public(key) => {
                     let span = p.span(start);
@@ -717,7 +732,8 @@ impl<I: Tokens> Parser<I> {
                         p.emit_err(span, SyntaxError::TS1267)
                     }
 
-                    p.ast.class_member_class_prop(span, key, value, is_static)
+                    p.ast
+                        .class_member_class_prop(span, key, value, is_static, decorators)
                 }
                 #[cfg(swc_ast_unknown)]
                 _ => unreachable!(),
@@ -1473,7 +1489,7 @@ impl<I: Tokens> Parser<I> {
         &mut self,
         _start: BytePos,
         class_start: BytePos,
-        _decorators: TypedSubRange<Decorator>,
+        decorators: TypedSubRange<Decorator>,
         is_ident_required: bool,
     ) -> PResult<(Option<Ident>, Class)> {
         self.strict_mode(|p| {
@@ -1568,7 +1584,7 @@ impl<I: Tokens> Parser<I> {
             }
 
             let span = p.span(class_start);
-            let class = p.ast.class(span, body, super_class, false);
+            let class = p.ast.class(span, decorators, body, super_class, false);
             Ok((ident, class))
         })
     }

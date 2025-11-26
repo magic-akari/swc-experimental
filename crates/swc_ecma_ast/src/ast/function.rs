@@ -3,7 +3,7 @@ use swc_experimental_ast_macros::ast;
 #[ast]
 pub struct Function {
     params: Vec<Param>,
-    // decorators: Vec<Decorator>,
+    decorators: Vec<Decorator>,
     body: Option<BlockStmt>,
     is_generator: bool,
     is_async: bool,
@@ -13,7 +13,7 @@ pub struct Function {
 
 #[ast]
 pub struct Param {
-    // decorators: Vec<Decorator>,
+    decorators: Vec<Decorator>,
     pat: Pat,
 }
 

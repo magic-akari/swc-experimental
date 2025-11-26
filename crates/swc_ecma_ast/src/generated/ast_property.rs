@@ -6065,8 +6065,20 @@ impl Function {
         unsafe { ret.cast_to_typed() }
     }
     #[inline]
-    pub fn body(&self, ast: &crate::Ast) -> Option<BlockStmt> {
+    pub fn decorators(&self, ast: &crate::Ast) -> TypedSubRange<Decorator> {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
+        debug_assert!(offset < ast.extra_data.len());
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked(offset.index())
+                .sub_range
+        };
+        unsafe { ret.cast_to_typed() }
+    }
+    #[inline]
+    pub fn body(&self, ast: &crate::Ast) -> Option<BlockStmt> {
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6078,7 +6090,7 @@ impl Function {
     }
     #[inline]
     pub fn is_generator(&self, ast: &crate::Ast) -> bool {
-        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6090,7 +6102,7 @@ impl Function {
     }
     #[inline]
     pub fn is_async(&self, ast: &crate::Ast) -> bool {
-        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 4usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6116,8 +6128,19 @@ impl Function {
         };
     }
     #[inline]
-    pub fn set_body(&self, ast: &mut crate::Ast, body: Option<BlockStmt>) {
+    pub fn set_decorators(&self, ast: &mut crate::Ast, decorators: TypedSubRange<Decorator>) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
+        debug_assert!(offset < ast.extra_data.len());
+        unsafe {
+            ast.extra_data
+                .as_raw_slice_mut()
+                .get_unchecked_mut(offset.index())
+                .sub_range = decorators.into()
+        };
+    }
+    #[inline]
+    pub fn set_body(&self, ast: &mut crate::Ast, body: Option<BlockStmt>) {
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6128,7 +6151,7 @@ impl Function {
     }
     #[inline]
     pub fn set_is_generator(&self, ast: &mut crate::Ast, is_generator: bool) {
-        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6139,7 +6162,7 @@ impl Function {
     }
     #[inline]
     pub fn set_is_async(&self, ast: &mut crate::Ast, is_async: bool) {
-        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 4usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6163,8 +6186,20 @@ impl Param {
         self.span(ast).hi
     }
     #[inline]
-    pub fn pat(&self, ast: &crate::Ast) -> Pat {
+    pub fn decorators(&self, ast: &crate::Ast) -> TypedSubRange<Decorator> {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
+        debug_assert!(offset < ast.extra_data.len());
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked(offset.index())
+                .sub_range
+        };
+        unsafe { ret.cast_to_typed() }
+    }
+    #[inline]
+    pub fn pat(&self, ast: &crate::Ast) -> Pat {
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6179,8 +6214,19 @@ impl Param {
         ast.nodes[self.0].span = span;
     }
     #[inline]
-    pub fn set_pat(&self, ast: &mut crate::Ast, pat: Pat) {
+    pub fn set_decorators(&self, ast: &mut crate::Ast, decorators: TypedSubRange<Decorator>) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
+        debug_assert!(offset < ast.extra_data.len());
+        unsafe {
+            ast.extra_data
+                .as_raw_slice_mut()
+                .get_unchecked_mut(offset.index())
+                .sub_range = decorators.into()
+        };
+    }
+    #[inline]
+    pub fn set_pat(&self, ast: &mut crate::Ast, pat: Pat) {
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6237,7 +6283,7 @@ impl Class {
         self.span(ast).hi
     }
     #[inline]
-    pub fn body(&self, ast: &crate::Ast) -> TypedSubRange<ClassMember> {
+    pub fn decorators(&self, ast: &crate::Ast) -> TypedSubRange<Decorator> {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
@@ -6249,8 +6295,20 @@ impl Class {
         unsafe { ret.cast_to_typed() }
     }
     #[inline]
-    pub fn super_class(&self, ast: &crate::Ast) -> Option<Expr> {
+    pub fn body(&self, ast: &crate::Ast) -> TypedSubRange<ClassMember> {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
+        debug_assert!(offset < ast.extra_data.len());
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked(offset.index())
+                .sub_range
+        };
+        unsafe { ret.cast_to_typed() }
+    }
+    #[inline]
+    pub fn super_class(&self, ast: &crate::Ast) -> Option<Expr> {
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6262,7 +6320,7 @@ impl Class {
     }
     #[inline]
     pub fn is_abstract(&self, ast: &crate::Ast) -> bool {
-        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
@@ -6277,8 +6335,19 @@ impl Class {
         ast.nodes[self.0].span = span;
     }
     #[inline]
-    pub fn set_body(&self, ast: &mut crate::Ast, body: TypedSubRange<ClassMember>) {
+    pub fn set_decorators(&self, ast: &mut crate::Ast, decorators: TypedSubRange<Decorator>) {
         let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 0usize;
+        debug_assert!(offset < ast.extra_data.len());
+        unsafe {
+            ast.extra_data
+                .as_raw_slice_mut()
+                .get_unchecked_mut(offset.index())
+                .sub_range = decorators.into()
+        };
+    }
+    #[inline]
+    pub fn set_body(&self, ast: &mut crate::Ast, body: TypedSubRange<ClassMember>) {
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6289,7 +6358,7 @@ impl Class {
     }
     #[inline]
     pub fn set_super_class(&self, ast: &mut crate::Ast, super_class: Option<Expr>) {
-        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 1usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6300,7 +6369,7 @@ impl Class {
     }
     #[inline]
     pub fn set_is_abstract(&self, ast: &mut crate::Ast, is_abstract: bool) {
-        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 2usize;
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
@@ -6484,6 +6553,18 @@ impl ClassProp {
         ret.into()
     }
     #[inline]
+    pub fn decorators(&self, ast: &crate::Ast) -> TypedSubRange<Decorator> {
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
+        debug_assert!(offset < ast.extra_data.len());
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked(offset.index())
+                .sub_range
+        };
+        unsafe { ret.cast_to_typed() }
+    }
+    #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
         ast.nodes[self.0].span = span;
     }
@@ -6518,6 +6599,17 @@ impl ClassProp {
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
                 .bool = is_static.into()
+        };
+    }
+    #[inline]
+    pub fn set_decorators(&self, ast: &mut crate::Ast, decorators: TypedSubRange<Decorator>) {
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
+        debug_assert!(offset < ast.extra_data.len());
+        unsafe {
+            ast.extra_data
+                .as_raw_slice_mut()
+                .get_unchecked_mut(offset.index())
+                .sub_range = decorators.into()
         };
     }
 }
@@ -6571,6 +6663,18 @@ impl PrivateProp {
         ret.into()
     }
     #[inline]
+    pub fn decorators(&self, ast: &crate::Ast) -> TypedSubRange<Decorator> {
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
+        debug_assert!(offset < ast.extra_data.len());
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked(offset.index())
+                .sub_range
+        };
+        unsafe { ret.cast_to_typed() }
+    }
+    #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
         ast.nodes[self.0].span = span;
     }
@@ -6605,6 +6709,17 @@ impl PrivateProp {
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
                 .bool = is_static.into()
+        };
+    }
+    #[inline]
+    pub fn set_decorators(&self, ast: &mut crate::Ast, decorators: TypedSubRange<Decorator>) {
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
+        debug_assert!(offset < ast.extra_data.len());
+        unsafe {
+            ast.extra_data
+                .as_raw_slice_mut()
+                .get_unchecked_mut(offset.index())
+                .sub_range = decorators.into()
         };
     }
 }
@@ -7093,6 +7208,18 @@ impl AutoAccessor {
         ret.into()
     }
     #[inline]
+    pub fn decorators(&self, ast: &crate::Ast) -> TypedSubRange<Decorator> {
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
+        debug_assert!(offset < ast.extra_data.len());
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked(offset.index())
+                .sub_range
+        };
+        unsafe { ret.cast_to_typed() }
+    }
+    #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
         ast.nodes[self.0].span = span;
     }
@@ -7127,6 +7254,17 @@ impl AutoAccessor {
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
                 .bool = is_static.into()
+        };
+    }
+    #[inline]
+    pub fn set_decorators(&self, ast: &mut crate::Ast, decorators: TypedSubRange<Decorator>) {
+        let offset = unsafe { ast.nodes[self.0].data.extra_data_start } + 3usize;
+        debug_assert!(offset < ast.extra_data.len());
+        unsafe {
+            ast.extra_data
+                .as_raw_slice_mut()
+                .get_unchecked_mut(offset.index())
+                .sub_range = decorators.into()
         };
     }
 }

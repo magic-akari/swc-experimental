@@ -1,5 +1,5 @@
 #![allow(unused)]
-use crate::{Ast, ast::*, node_id::*};
+use crate::{ast::*, node_id::*, Ast};
 use swc_common::Span;
 pub trait Visit {
     #[inline]
@@ -631,6 +631,10 @@ pub trait Visit {
     #[inline]
     fn visit_params(&mut self, node: TypedSubRange<Param>, ast: &Ast) {
         <TypedSubRange<Param> as VisitWith<Self>>::visit_children_with(node, self, ast)
+    }
+    #[inline]
+    fn visit_decorators(&mut self, node: TypedSubRange<Decorator>, ast: &Ast) {
+        <TypedSubRange<Decorator> as VisitWith<Self>>::visit_children_with(node, self, ast)
     }
     #[inline]
     fn visit_class_members(&mut self, node: TypedSubRange<ClassMember>, ast: &Ast) {
@@ -2660,6 +2664,17 @@ impl<V: ?Sized + Visit> VisitWith<V> for Function {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
+                .sub_range
+        };
+        <TypedSubRange<Decorator> as VisitWith<V>>::visit_with(
+            unsafe { ret.cast_to_typed() },
+            visitor,
+            ast,
+        );
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked((offset + 2usize).index())
                 .optional_node
         };
         <Option<BlockStmt> as VisitWith<V>>::visit_with(
@@ -2670,14 +2685,14 @@ impl<V: ?Sized + Visit> VisitWith<V> for Function {
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
-                .get_unchecked((offset + 2usize).index())
+                .get_unchecked((offset + 3usize).index())
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
-                .get_unchecked((offset + 3usize).index())
+                .get_unchecked((offset + 4usize).index())
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
@@ -2693,6 +2708,17 @@ impl<V: ?Sized + Visit> VisitWith<V> for Param {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 0usize).index())
+                .sub_range
+        };
+        <TypedSubRange<Decorator> as VisitWith<V>>::visit_with(
+            unsafe { ret.cast_to_typed() },
+            visitor,
+            ast,
+        );
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked((offset + 1usize).index())
                 .node
         };
         <Pat as VisitWith<V>>::visit_with(Pat::from_node_id(ret, ast), visitor, ast);
@@ -2720,7 +2746,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for Class {
                 .get_unchecked((offset + 0usize).index())
                 .sub_range
         };
-        <TypedSubRange<ClassMember> as VisitWith<V>>::visit_with(
+        <TypedSubRange<Decorator> as VisitWith<V>>::visit_with(
             unsafe { ret.cast_to_typed() },
             visitor,
             ast,
@@ -2729,6 +2755,17 @@ impl<V: ?Sized + Visit> VisitWith<V> for Class {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
+                .sub_range
+        };
+        <TypedSubRange<ClassMember> as VisitWith<V>>::visit_with(
+            unsafe { ret.cast_to_typed() },
+            visitor,
+            ast,
+        );
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked((offset + 2usize).index())
                 .optional_node
         };
         <Option<Expr> as VisitWith<V>>::visit_with(
@@ -2739,7 +2776,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for Class {
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
-                .get_unchecked((offset + 2usize).index())
+                .get_unchecked((offset + 3usize).index())
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
@@ -2795,6 +2832,17 @@ impl<V: ?Sized + Visit> VisitWith<V> for ClassProp {
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked((offset + 3usize).index())
+                .sub_range
+        };
+        <TypedSubRange<Decorator> as VisitWith<V>>::visit_with(
+            unsafe { ret.cast_to_typed() },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for PrivateProp {
@@ -2832,6 +2880,17 @@ impl<V: ?Sized + Visit> VisitWith<V> for PrivateProp {
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked((offset + 3usize).index())
+                .sub_range
+        };
+        <TypedSubRange<Decorator> as VisitWith<V>>::visit_with(
+            unsafe { ret.cast_to_typed() },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ClassMethod {
@@ -3019,6 +3078,17 @@ impl<V: ?Sized + Visit> VisitWith<V> for AutoAccessor {
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked((offset + 3usize).index())
+                .sub_range
+        };
+        <TypedSubRange<Decorator> as VisitWith<V>>::visit_with(
+            unsafe { ret.cast_to_typed() },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Prop {
@@ -3845,6 +3915,17 @@ impl<V: ?Sized + Visit> VisitWith<V> for TypedSubRange<Param> {
         }
     }
 }
+impl<V: ?Sized + Visit> VisitWith<V> for TypedSubRange<Decorator> {
+    fn visit_with(self, visitor: &mut V, ast: &Ast) {
+        <V as Visit>::visit_decorators(visitor, self, ast)
+    }
+    fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
+        for child in self.iter() {
+            let child = ast.get_node(child);
+            child.visit_with(visitor, ast);
+        }
+    }
+}
 impl<V: ?Sized + Visit> VisitWith<V> for TypedSubRange<ClassMember> {
     fn visit_with(self, visitor: &mut V, ast: &Ast) {
         <V as Visit>::visit_class_members(visitor, self, ast)
@@ -4537,6 +4618,10 @@ pub trait VisitMut {
     #[inline]
     fn visit_mut_params(&mut self, node: TypedSubRange<Param>, ast: &mut Ast) {
         <TypedSubRange<Param> as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+    }
+    #[inline]
+    fn visit_mut_decorators(&mut self, node: TypedSubRange<Decorator>, ast: &mut Ast) {
+        <TypedSubRange<Decorator> as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
     }
     #[inline]
     fn visit_mut_class_members(&mut self, node: TypedSubRange<ClassMember>, ast: &mut Ast) {
@@ -6640,6 +6725,17 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Function {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
+                .sub_range
+        };
+        <TypedSubRange<Decorator> as VisitMutWith<V>>::visit_mut_with(
+            unsafe { ret.cast_to_typed() },
+            visitor,
+            ast,
+        );
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked((offset + 2usize).index())
                 .optional_node
         };
         <Option<BlockStmt> as VisitMutWith<V>>::visit_mut_with(
@@ -6650,14 +6746,14 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Function {
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
-                .get_unchecked((offset + 2usize).index())
+                .get_unchecked((offset + 3usize).index())
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
-                .get_unchecked((offset + 3usize).index())
+                .get_unchecked((offset + 4usize).index())
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
@@ -6673,6 +6769,17 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Param {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 0usize).index())
+                .sub_range
+        };
+        <TypedSubRange<Decorator> as VisitMutWith<V>>::visit_mut_with(
+            unsafe { ret.cast_to_typed() },
+            visitor,
+            ast,
+        );
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked((offset + 1usize).index())
                 .node
         };
         <Pat as VisitMutWith<V>>::visit_mut_with(Pat::from_node_id(ret, ast), visitor, ast);
@@ -6700,7 +6807,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Class {
                 .get_unchecked((offset + 0usize).index())
                 .sub_range
         };
-        <TypedSubRange<ClassMember> as VisitMutWith<V>>::visit_mut_with(
+        <TypedSubRange<Decorator> as VisitMutWith<V>>::visit_mut_with(
             unsafe { ret.cast_to_typed() },
             visitor,
             ast,
@@ -6709,6 +6816,17 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Class {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
+                .sub_range
+        };
+        <TypedSubRange<ClassMember> as VisitMutWith<V>>::visit_mut_with(
+            unsafe { ret.cast_to_typed() },
+            visitor,
+            ast,
+        );
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked((offset + 2usize).index())
                 .optional_node
         };
         <Option<Expr> as VisitMutWith<V>>::visit_mut_with(
@@ -6719,7 +6837,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Class {
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
-                .get_unchecked((offset + 2usize).index())
+                .get_unchecked((offset + 3usize).index())
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
@@ -6787,6 +6905,17 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassProp {
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked((offset + 3usize).index())
+                .sub_range
+        };
+        <TypedSubRange<Decorator> as VisitMutWith<V>>::visit_mut_with(
+            unsafe { ret.cast_to_typed() },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateProp {
@@ -6824,6 +6953,17 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateProp {
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked((offset + 3usize).index())
+                .sub_range
+        };
+        <TypedSubRange<Decorator> as VisitMutWith<V>>::visit_mut_with(
+            unsafe { ret.cast_to_typed() },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassMethod {
@@ -7039,6 +7179,17 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AutoAccessor {
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
+        let ret = unsafe {
+            ast.extra_data
+                .as_raw_slice()
+                .get_unchecked((offset + 3usize).index())
+                .sub_range
+        };
+        <TypedSubRange<Decorator> as VisitMutWith<V>>::visit_mut_with(
+            unsafe { ret.cast_to_typed() },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Prop {
@@ -7889,6 +8040,17 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Option<SpreadDot3Token> {
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for TypedSubRange<Param> {
     fn visit_mut_with(self, visitor: &mut V, ast: &mut Ast) {
         <V as VisitMut>::visit_mut_params(visitor, self, ast)
+    }
+    fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
+        for child in self.iter() {
+            let child = ast.get_node(child);
+            child.visit_mut_with(visitor, ast);
+        }
+    }
+}
+impl<V: ?Sized + VisitMut> VisitMutWith<V> for TypedSubRange<Decorator> {
+    fn visit_mut_with(self, visitor: &mut V, ast: &mut Ast) {
+        <V as VisitMut>::visit_mut_decorators(visitor, self, ast)
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         for child in self.iter() {

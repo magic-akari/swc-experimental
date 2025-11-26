@@ -1,5 +1,5 @@
 #![allow(unused)]
-use crate::{ast::*, node_id::*, Ast, AstNode, ExtraData, NodeData, NodeKind};
+use crate::{Ast, AstNode, ExtraData, NodeData, NodeKind, ast::*, node_id::*};
 use swc_common::Span;
 impl Ast {
     #[inline]
@@ -3396,6 +3396,7 @@ impl Ast {
         &mut self,
         span: Span,
         params: TypedSubRange<Param>,
+        decorators: TypedSubRange<Decorator>,
         body: Option<BlockStmt>,
         is_generator: bool,
         is_async: bool,
@@ -3404,12 +3405,15 @@ impl Ast {
             sub_range: params.into(),
         });
         let _f1 = self.add_extra(ExtraData {
-            optional_node: body.optional_node_id(),
+            sub_range: decorators.into(),
         });
         let _f2 = self.add_extra(ExtraData {
-            bool: is_generator.into(),
+            optional_node: body.optional_node_id(),
         });
         let _f3 = self.add_extra(ExtraData {
+            bool: is_generator.into(),
+        });
+        let _f4 = self.add_extra(ExtraData {
             bool: is_async.into(),
         });
         Function(self.add_node(AstNode {
@@ -3421,8 +3425,11 @@ impl Ast {
         }))
     }
     #[inline]
-    pub fn param(&mut self, span: Span, pat: Pat) -> Param {
+    pub fn param(&mut self, span: Span, decorators: TypedSubRange<Decorator>, pat: Pat) -> Param {
         let _f0 = self.add_extra(ExtraData {
+            sub_range: decorators.into(),
+        });
+        let _f1 = self.add_extra(ExtraData {
             node: pat.node_id(),
         });
         Param(self.add_node(AstNode {
@@ -3434,24 +3441,33 @@ impl Ast {
         }))
     }
     #[inline]
-    pub fn param_or_ts_param_prop_param(&mut self, span: Span, pat: Pat) -> ParamOrTsParamProp {
-        ParamOrTsParamProp::Param(self.param(span, pat).into())
+    pub fn param_or_ts_param_prop_param(
+        &mut self,
+        span: Span,
+        decorators: TypedSubRange<Decorator>,
+        pat: Pat,
+    ) -> ParamOrTsParamProp {
+        ParamOrTsParamProp::Param(self.param(span, decorators, pat).into())
     }
     #[inline]
     pub fn class(
         &mut self,
         span: Span,
+        decorators: TypedSubRange<Decorator>,
         body: TypedSubRange<ClassMember>,
         super_class: Option<Expr>,
         is_abstract: bool,
     ) -> Class {
         let _f0 = self.add_extra(ExtraData {
-            sub_range: body.into(),
+            sub_range: decorators.into(),
         });
         let _f1 = self.add_extra(ExtraData {
-            optional_node: super_class.optional_node_id(),
+            sub_range: body.into(),
         });
         let _f2 = self.add_extra(ExtraData {
+            optional_node: super_class.optional_node_id(),
+        });
+        let _f3 = self.add_extra(ExtraData {
             bool: is_abstract.into(),
         });
         Class(self.add_node(AstNode {
@@ -3507,8 +3523,12 @@ impl Ast {
         key: PropName,
         value: Option<Expr>,
         is_static: bool,
+        decorators: TypedSubRange<Decorator>,
     ) -> ClassMember {
-        ClassMember::ClassProp(self.class_prop(span, key, value, is_static).into())
+        ClassMember::ClassProp(
+            self.class_prop(span, key, value, is_static, decorators)
+                .into(),
+        )
     }
     #[inline]
     pub fn class_member_private_prop(
@@ -3517,8 +3537,12 @@ impl Ast {
         key: PrivateName,
         value: Option<Expr>,
         is_static: bool,
+        decorators: TypedSubRange<Decorator>,
     ) -> ClassMember {
-        ClassMember::PrivateProp(self.private_prop(span, key, value, is_static).into())
+        ClassMember::PrivateProp(
+            self.private_prop(span, key, value, is_static, decorators)
+                .into(),
+        )
     }
     #[inline]
     pub fn class_member_empty_stmt(&mut self, span: Span) -> ClassMember {
@@ -3535,8 +3559,12 @@ impl Ast {
         key: Key,
         value: Option<Expr>,
         is_static: bool,
+        decorators: TypedSubRange<Decorator>,
     ) -> ClassMember {
-        ClassMember::AutoAccessor(self.auto_accessor(span, key, value, is_static).into())
+        ClassMember::AutoAccessor(
+            self.auto_accessor(span, key, value, is_static, decorators)
+                .into(),
+        )
     }
     #[inline]
     pub fn class_prop(
@@ -3545,6 +3573,7 @@ impl Ast {
         key: PropName,
         value: Option<Expr>,
         is_static: bool,
+        decorators: TypedSubRange<Decorator>,
     ) -> ClassProp {
         let _f0 = self.add_extra(ExtraData {
             node: key.node_id(),
@@ -3554,6 +3583,9 @@ impl Ast {
         });
         let _f2 = self.add_extra(ExtraData {
             bool: is_static.into(),
+        });
+        let _f3 = self.add_extra(ExtraData {
+            sub_range: decorators.into(),
         });
         ClassProp(self.add_node(AstNode {
             span,
@@ -3570,6 +3602,7 @@ impl Ast {
         key: PrivateName,
         value: Option<Expr>,
         is_static: bool,
+        decorators: TypedSubRange<Decorator>,
     ) -> PrivateProp {
         let _f0 = self.add_extra(ExtraData {
             node: key.node_id(),
@@ -3579,6 +3612,9 @@ impl Ast {
         });
         let _f2 = self.add_extra(ExtraData {
             bool: is_static.into(),
+        });
+        let _f3 = self.add_extra(ExtraData {
+            sub_range: decorators.into(),
         });
         PrivateProp(self.add_node(AstNode {
             span,
@@ -3740,6 +3776,7 @@ impl Ast {
         key: Key,
         value: Option<Expr>,
         is_static: bool,
+        decorators: TypedSubRange<Decorator>,
     ) -> AutoAccessor {
         let _f0 = self.add_extra(ExtraData {
             node: key.node_id(),
@@ -3749,6 +3786,9 @@ impl Ast {
         });
         let _f2 = self.add_extra(ExtraData {
             bool: is_static.into(),
+        });
+        let _f3 = self.add_extra(ExtraData {
+            sub_range: decorators.into(),
         });
         AutoAccessor(self.add_node(AstNode {
             span,

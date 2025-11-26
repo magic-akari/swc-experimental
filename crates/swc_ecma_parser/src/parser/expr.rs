@@ -185,11 +185,6 @@ impl<I: Tokens> Parser<I> {
         self.finish_assignment_expr(start, cond)
     }
 
-    #[allow(dead_code)]
-    pub(crate) fn parse_member_expr(&mut self) -> PResult<Expr> {
-        self.parse_member_expr_or_new_expr(false)
-    }
-
     pub(super) fn parse_unary_expr(&mut self) -> PResult<Expr> {
         trace_cur!(self, parse_unary_expr);
 
@@ -2432,6 +2427,7 @@ impl<I: Tokens> Parser<I> {
                         params.is_simple_parameter_list(&p.ast),
                     )?;
 
+                    p.ast.free_node(id.node_id());
                     return Ok(p
                         .ast
                         .expr_arrow_expr(p.span(start), params, body, true, false));

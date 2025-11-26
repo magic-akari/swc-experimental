@@ -6,7 +6,7 @@ use crate::{ast::*, node_id::ExtraDataCompact};
 
 #[ast]
 pub struct Class {
-    // decorators: Vec<Decorator>,
+    decorators: Vec<Decorator>,
     body: Vec<ClassMember>,
     super_class: Option<Expr>,
     is_abstract: bool,
@@ -34,7 +34,7 @@ pub struct ClassProp {
     value: Option<Expr>,
     // type_ann: Option<Box<TsTypeAnn>>,
     is_static: bool,
-    // decorators: Vec<Decorator>,
+    decorators: Vec<Decorator>,
     // accessibility: Option<Accessibility>,
     // is_abstract: bool,
     // is_optional: bool,
@@ -50,7 +50,7 @@ pub struct PrivateProp {
     value: Option<Expr>,
     // type_ann: Option<TsTypeAnn>,
     is_static: bool,
-    // decorators: Vec<Decorator>,
+    decorators: Vec<Decorator>,
     // accessibility: Option<Accessibility>,
     // is_optional: bool,
     // is_override: bool,
@@ -130,7 +130,7 @@ pub struct AutoAccessor {
     value: Option<Expr>,
     // type_ann: Option<TsTypeAnn>,
     is_static: bool,
-    // decorators: Vec<Decorator>,
+    decorators: Vec<Decorator>,
     // accessibility: Option<Accessibility>,
     // is_abstract: bool,
     // is_override: bool,
