@@ -6,7 +6,10 @@ use crate::{
         misc::MiscCase,
         test262_parser::{self},
     },
-    runner::{misc_parser::MiscParserRunner, test262_parser::Test262ParserRunner},
+    runner::{
+        misc_parser::MiscParserRunner, no_memory_hole::NoMemoryHoleRunner,
+        test262_parser::Test262ParserRunner,
+    },
     suite::TestResult,
 };
 
@@ -32,6 +35,8 @@ pub fn main() {
     let test262_parser_cases = test262_parser::Test262ParserCase::read();
     results.extend(MiscParserRunner::run(&args, &misc_cases));
     results.extend(Test262ParserRunner::run(&args, &test262_parser_cases));
+    results.extend(NoMemoryHoleRunner::run(&args, &misc_cases));
+    results.extend(NoMemoryHoleRunner::run(&args, &test262_parser_cases));
 
     // Collect results
     let mut passed = 0;
