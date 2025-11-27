@@ -1,9 +1,9 @@
 use std::collections::HashSet;
 
 use colored::Colorize;
-use swc_common::{BytePos, comments::SingleThreadedComments};
+use swc_common::comments::SingleThreadedComments;
 use swc_experimental_ecma_ast::{GetNodeId, NodeId, Program, Visit};
-use swc_experimental_ecma_parser::{Lexer, Parser, StringInput};
+use swc_experimental_ecma_parser::{Lexer, Parser, StringSource};
 
 use crate::{AppArgs, cases::Case, suite::TestResult};
 
@@ -22,8 +22,7 @@ impl NoMemoryHoleRunner {
             }
 
             let syntax = case.syntax();
-            let input =
-                StringInput::new(case.code(), BytePos(0), BytePos(case.code().len() as u32));
+            let input = StringSource::new(case.code());
             let comments = SingleThreadedComments::default();
             let lexer = Lexer::new(syntax, Default::default(), input, Some(&comments));
             let mut parser = Parser::new_from(lexer);

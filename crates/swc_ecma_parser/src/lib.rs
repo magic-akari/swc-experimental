@@ -145,7 +145,7 @@ pub mod unstable {
 }
 
 use error::Error;
-use swc_common::{SourceFile, comments::Comments, input::SourceFileInput};
+use swc_common::comments::Comments;
 use swc_experimental_ecma_ast::*;
 
 mod context;
@@ -156,19 +156,19 @@ mod syntax;
 
 pub use context::Context;
 pub use lexer::Lexer;
+pub use lexer::source::StringSource;
 pub use parser::*;
-pub use swc_common::input::{Input, StringInput};
 pub use syntax::{EsSyntax, Syntax, SyntaxFlags, TsSyntax};
 
 pub fn with_file_parser<T>(
-    fm: &SourceFile,
+    src: &str,
     syntax: Syntax,
     target: EsVersion,
     comments: Option<&dyn Comments>,
     recovered_errors: &mut Vec<Error>,
     op: impl for<'aa> FnOnce(&mut Parser<self::Lexer>) -> PResult<T>,
 ) -> PResult<T> {
-    let lexer = self::Lexer::new(syntax, target, SourceFileInput::from(fm), comments);
+    let lexer = self::Lexer::new(syntax, target, StringSource::new(src), comments);
     let mut p = Parser::new_from(lexer);
     let ret = op(&mut p);
 
@@ -188,13 +188,13 @@ macro_rules! expose {
         /// This is an alias for [Parser], [Lexer] and [SourceFileInput], but
         /// instantiation of generics occur in `swc_ecma_parser` crate.
         pub fn $name(
-            fm: &SourceFile,
+            src: &str,
             syntax: Syntax,
             target: EsVersion,
             comments: Option<&dyn Comments>,
             recovered_errors: &mut Vec<Error>,
         ) -> PResult<$T> {
-            with_file_parser(fm, syntax, target, comments, recovered_errors, $($t)*)
+            with_file_parser(src, syntax, target, comments, recovered_errors, $($t)*)
         }
     };
 }

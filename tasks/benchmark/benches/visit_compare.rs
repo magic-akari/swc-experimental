@@ -38,10 +38,10 @@ fn bench_legacy(b: &mut Bencher, src: &'static str) {
 
 fn bench_new(b: &mut Bencher, src: &'static str) {
     use swc_experimental_ecma_ast::Ast;
-    use swc_experimental_ecma_parser::{Lexer, Parser, StringInput};
+    use swc_experimental_ecma_parser::{Lexer, Parser, StringSource};
     use swc_experimental_ecma_visit::VisitWith;
 
-    let input = StringInput::new(src, BytePos(0), BytePos(src.len() as u32));
+    let input = StringSource::new(src);
     let lexer = Lexer::new(
         swc_experimental_ecma_parser::Syntax::Es(Default::default()),
         Default::default(),
@@ -69,9 +69,9 @@ fn bench_new(b: &mut Bencher, src: &'static str) {
 }
 
 fn bench_post_order(b: &mut Bencher, src: &'static str) {
-    use swc_experimental_ecma_parser::{Lexer, Parser, StringInput};
+    use swc_experimental_ecma_parser::{Lexer, Parser, StringSource};
 
-    let input = StringInput::new(src, BytePos(0), BytePos(src.len() as u32));
+    let input = StringSource::new(src);
     let lexer = Lexer::new(
         swc_experimental_ecma_parser::Syntax::Es(Default::default()),
         Default::default(),

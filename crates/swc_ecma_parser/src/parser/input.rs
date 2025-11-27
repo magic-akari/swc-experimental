@@ -1,6 +1,6 @@
-use swc_experimental_ecma_ast::EsVersion;
 use swc_atoms::{Atom, Wtf8Atom};
 use swc_common::{BytePos, Span};
+use swc_experimental_ecma_ast::EsVersion;
 
 use crate::{
     Context,

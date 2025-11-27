@@ -32,10 +32,10 @@ fn test_legacy(src: &str) -> usize {
 
 fn test_new(src: &str) -> usize {
     use swc_experimental_ecma_ast::Ast;
-    use swc_experimental_ecma_parser::{Lexer, Parser, StringInput};
+    use swc_experimental_ecma_parser::{Lexer, Parser, StringSource};
     use swc_experimental_ecma_visit::VisitWith;
 
-    let input = StringInput::new(src, BytePos(0), BytePos(src.len() as u32));
+    let input = StringSource::new(src);
     let lexer = Lexer::new(
         swc_experimental_ecma_parser::Syntax::Es(Default::default()),
         Default::default(),
@@ -61,9 +61,9 @@ fn test_new(src: &str) -> usize {
 }
 
 fn test_post_order(src: &str) -> usize {
-    use swc_experimental_ecma_parser::{Lexer, Parser, StringInput};
+    use swc_experimental_ecma_parser::{Lexer, Parser, StringSource};
 
-    let input = StringInput::new(src, BytePos(0), BytePos(src.len() as u32));
+    let input = StringSource::new(src);
     let lexer = Lexer::new(
         swc_experimental_ecma_parser::Syntax::Es(Default::default()),
         Default::default(),

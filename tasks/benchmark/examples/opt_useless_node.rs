@@ -1,14 +1,13 @@
 use std::collections::HashSet;
 
-use swc_common::BytePos;
 use swc_experimental_ecma_ast::{GetNodeId, NodeId};
-use swc_experimental_ecma_parser::{EsSyntax, Parser, StringInput, Syntax};
+use swc_experimental_ecma_parser::{EsSyntax, Parser, StringSource, Syntax};
 use swc_experimental_ecma_visit::{Visit, VisitWith};
 
 fn main() {
     let source = include_str!("../files/typescript.js");
     let syntax = Syntax::Es(EsSyntax::default());
-    let input = StringInput::new(source, BytePos(0), BytePos(source.len() as u32));
+    let input = StringSource::new(source);
 
     let mut parser = Parser::new(syntax, input, None);
     let root = parser.parse_program().unwrap();

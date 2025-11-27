@@ -1,14 +1,14 @@
 #![allow(clippy::let_unit_value)]
 #![deny(non_snake_case)]
 
-use swc_common::{BytePos, Span, comments::Comments, input::StringInput};
+use swc_common::{BytePos, Span, comments::Comments};
 use swc_experimental_ecma_ast::*;
 
 use crate::{
     Context, Syntax,
     error::SyntaxError,
     input::Buffer,
-    lexer::{Token, TokenAndSpan},
+    lexer::{Token, TokenAndSpan, source::StringSource},
     parser::{
         input::Tokens,
         state::{State, WithState},
@@ -101,7 +101,11 @@ impl<I: Tokens> Parser<I> {
 }
 
 impl<'a> Parser<crate::lexer::Lexer<'a>> {
-    pub fn new(syntax: Syntax, input: StringInput<'a>, comments: Option<&'a dyn Comments>) -> Self {
+    pub fn new(
+        syntax: Syntax,
+        input: StringSource<'a>,
+        comments: Option<&'a dyn Comments>,
+    ) -> Self {
         let lexer = crate::lexer::Lexer::new(syntax, Default::default(), input, comments);
         Self::new_from(lexer)
     }

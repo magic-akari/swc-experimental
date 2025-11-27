@@ -1,11 +1,11 @@
 use std::mem::take;
 
-use swc_experimental_ecma_ast::EsVersion;
 use swc_atoms::wtf8::CodePoint;
+use swc_experimental_ecma_ast::EsVersion;
 // use swc_atoms::wtf8::CodePoint;
 use swc_common::BytePos;
 
-use super::{Context, Input, Lexer};
+use super::{Context, Lexer};
 use crate::{
     error::{Error, SyntaxError},
     input::Tokens,
@@ -45,7 +45,7 @@ pub struct LexerCheckpoint {
     comments_buffer: CommentsBufferCheckpoint,
     state: State,
     ctx: Context,
-    input_last_pos: BytePos,
+    input_cur_pos: BytePos,
 }
 
 impl crate::input::Tokens for Lexer<'_> {
@@ -55,7 +55,7 @@ impl crate::input::Tokens for Lexer<'_> {
         LexerCheckpoint {
             state: self.state.clone(),
             ctx: self.ctx,
-            input_last_pos: self.input.last_pos(),
+            input_cur_pos: self.input.cur_pos(),
             comments_buffer: self
                 .comments_buffer
                 .as_ref()
@@ -67,7 +67,7 @@ impl crate::input::Tokens for Lexer<'_> {
     fn checkpoint_load(&mut self, checkpoint: LexerCheckpoint) {
         self.state = checkpoint.state;
         self.ctx = checkpoint.ctx;
-        unsafe { self.input.reset_to(checkpoint.input_last_pos) };
+        unsafe { self.input.reset_to(checkpoint.input_cur_pos) };
         if let Some(comments_buffer) = self.comments_buffer.as_mut() {
             comments_buffer.checkpoint_load(checkpoint.comments_buffer);
         }
@@ -239,10 +239,10 @@ impl crate::input::Tokens for Lexer<'_> {
         let token = self.state.token_type.unwrap();
         debug_assert!(token.is_word());
         let mut v = String::with_capacity(16);
-        while let Some(ch) = self.input().cur() {
-            if ch == '-' {
-                v.push(ch);
-                self.bump();
+        while let Some(ch) = self.input().peek() {
+            if ch == b'-' {
+                v.push(ch as char);
+                self.bump(1);
             } else {
                 let old_pos = self.cur_pos();
                 v.push_str(&self.scan_identifier_parts());
@@ -279,7 +279,7 @@ impl crate::input::Tokens for Lexer<'_> {
     }
 
     fn scan_jsx_attribute_value(&mut self) -> TokenAndSpan {
-        let Some(cur) = self.cur() else {
+        let Some(cur) = self.peek() else {
             let start = self.cur_pos();
             return TokenAndSpan {
                 token: Token::Eof,
@@ -290,7 +290,7 @@ impl crate::input::Tokens for Lexer<'_> {
         let start = self.cur_pos();
 
         match cur {
-            '\'' | '"' => {
+            b'\'' | b'"' => {
                 let token = self.read_jsx_str(cur);
                 let token = match token {
                     Ok(token) => token,
@@ -380,7 +380,7 @@ impl Lexer<'_> {
         self.skip_space();
         *start = self.input.cur_pos();
 
-        if self.input.last_pos() == self.input.end_pos() {
+        if self.input.is_end() {
             // End of input.
             self.consume_pending_comments();
             return Ok(Token::Eof);
@@ -411,22 +411,22 @@ impl Lexer<'_> {
         let mut chunk_start = start;
         let mut value = String::new();
 
-        while let Some(ch) = self.input_mut().cur() {
-            if ch == '{' {
+        while let Some(ch) = self.input_mut().peek() {
+            if ch == b'{' {
                 break;
-            } else if ch == '<' {
+            } else if ch == b'<' {
                 // TODO: check git conflict mark
                 break;
             }
 
-            if ch == '>' {
+            if ch == b'>' {
                 self.emit_error(
                     self.input().cur_pos(),
                     SyntaxError::UnexpectedTokenWithSuggestions {
                         candidate_list: vec!["`{'>'}`", "`&gt;`"],
                     },
                 );
-            } else if ch == '}' {
+            } else if ch == b'}' {
                 self.emit_error(
                     self.input().cur_pos(),
                     SyntaxError::UnexpectedTokenWithSuggestions {
@@ -442,11 +442,11 @@ impl Lexer<'_> {
                 && first_non_whitespace > 0
             {
                 break;
-            } else if ch.is_whitespace() {
+            } else if (ch as char).is_whitespace() {
                 first_non_whitespace = self.cur_pos().0 as i32;
             }
 
-            if ch == '&' {
+            if ch == b'&' {
                 let s = unsafe {
                     // Safety: We already checked for the range
                     self.input_slice_to_cur(chunk_start)
@@ -459,7 +459,7 @@ impl Lexer<'_> {
                     chunk_start = self.input.cur_pos();
                 }
             } else {
-                self.bump();
+                self.bump(1);
             }
         }
 
@@ -502,17 +502,17 @@ impl Lexer<'_> {
 
     fn scan_identifier_parts(&mut self) -> String {
         let mut v = String::with_capacity(16);
-        while let Some(ch) = self.input().cur() {
+        while let Some(ch) = self.input().peek() {
             if ch.is_ident_part() {
-                v.push(ch);
-                self.input_mut().bump_bytes(ch.len_utf8());
-            } else if ch == '\\' {
-                self.bump(); // bump '\'
+                v.push(ch as char);
+                self.bump(1);
+            } else if ch == b'\\' {
+                self.bump(1); // bump '\'
                 if !self.is(b'u') {
                     self.emit_error(self.cur_pos(), SyntaxError::InvalidUnicodeEscape);
                     continue;
                 }
-                self.bump(); // bump 'u'
+                self.bump(1); // bump 'u'
                 let Ok(value) = self.read_unicode_escape() else {
                     self.emit_error(self.cur_pos(), SyntaxError::InvalidUnicodeEscape);
                     break;

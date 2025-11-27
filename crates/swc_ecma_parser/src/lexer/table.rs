@@ -5,9 +5,8 @@
 //! https://github.com/ratel-rust/ratel-core/blob/e55a1310ba69a3f5ce2a9a6eef643feced02ac08/ratel/src/lexer/mod.rs#L665
 
 use either::Either;
-use swc_common::input::Input;
 
-use super::{pos_span, LexResult, Lexer};
+use super::{LexResult, Lexer, pos_span};
 use crate::{
     error::SyntaxError,
     lexer::{
@@ -43,15 +42,18 @@ pub(super) static BYTE_HANDLERS: [ByteHandler; 256] = [
 const ERR: ByteHandler = |lexer| {
     let c = unsafe {
         // Safety: Byte handler is only called for non-last chracters
-        lexer.input.cur().unwrap_unchecked()
+        lexer.input.peek().unwrap_unchecked()
     };
 
     let start = lexer.cur_pos();
     unsafe {
         // Safety: Byte handler is only called for non-last chracters
-        lexer.input.bump();
+        lexer.input.bump_bytes(1);
     }
-    lexer.error_span(pos_span(start), SyntaxError::UnexpectedChar { c })?
+    lexer.error_span(
+        pos_span(start),
+        SyntaxError::UnexpectedChar { c: c as char },
+    )?
 };
 
 /// Identifier and we know that this cannot be a keyword or known ident.
@@ -281,7 +283,7 @@ const ZER: ByteHandler = |lexer| lexer.read_token_zero();
 
 /// Numbers
 const DIG: ByteHandler = |lexer| {
-    debug_assert!(lexer.cur().is_some_and(|cur| cur != '0'));
+    debug_assert!(lexer.peek().is_some_and(|cur| cur != b'0'));
     lexer.read_number::<false, false>().map(|v| match v {
         Either::Left((value, raw)) => {
             lexer.state.set_token_value(TokenValue::Num { value, raw });
@@ -303,7 +305,7 @@ const QOT: ByteHandler = |lexer| lexer.read_str_lit();
 const UNI: ByteHandler = |lexer| {
     let c = unsafe {
         // Safety: Byte handler is only called for non-last chracters
-        lexer.input.cur().unwrap_unchecked()
+        lexer.input.peek_char().unwrap_unchecked()
     };
 
     // Identifier or keyword. '\uXXXX' sequences are allowed in
@@ -315,7 +317,7 @@ const UNI: ByteHandler = |lexer| {
     let start = lexer.cur_pos();
     unsafe {
         // Safety: Byte handler is only called for non-last chracters
-        lexer.input.bump();
+        lexer.input.bump_bytes(c.len_utf8());
     }
     lexer.error_span(pos_span(start), SyntaxError::UnexpectedChar { c })?
 };
@@ -341,7 +343,7 @@ const PIP: ByteHandler = |lexer| lexer.read_token_logical::<b'|'>();
 macro_rules! single_char {
     ($name:ident, $c:literal, $token:ident) => {
         const $name: ByteHandler = |lexer| {
-            lexer.input.bump_bytes(1);
+            lexer.bump(1);
             Ok(Token::$token)
         };
     };
@@ -368,9 +370,9 @@ single_char!(BEC, b'}', RBrace);
 /// `^`
 const CRT: ByteHandler = |lexer| {
     // Bitwise xor
-    lexer.input.bump_bytes(1);
-    Ok(if lexer.input.cur_as_ascii() == Some(b'=') {
-        lexer.input.bump_bytes(1);
+    lexer.bump(1);
+    Ok(if lexer.input.peek() == Some(b'=') {
+        lexer.bump(1);
         Token::BitXorEq
     } else {
         Token::Caret

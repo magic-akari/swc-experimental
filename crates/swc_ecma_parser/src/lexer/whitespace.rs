@@ -113,12 +113,12 @@ const SPC: ByteHandler = |lexer| {
     true
 };
 
-const SLH: ByteHandler = |lexer| match lexer.peek() {
-    Some('/') => {
+const SLH: ByteHandler = |lexer| match lexer.peek_2() {
+    Some(b'/') => {
         lexer.skip_line_comment(2);
         true
     }
-    Some('*') => {
+    Some(b'*') => {
         lexer.skip_block_comment();
         true
     }
@@ -127,14 +127,19 @@ const SLH: ByteHandler = |lexer| match lexer.peek() {
 
 /// Unicode
 const UNI: ByteHandler = |lexer| {
-    let c = lexer.cur().unwrap();
+    let Some(c) = lexer.input.peek_char() else {
+        return false;
+    };
+
     match c {
         c if is_irregular_whitespace(c) => {
-            lexer.bump();
+            // Safety: `peek_char` returns `Some`
+            unsafe { lexer.input.bump_bytes(c.len_utf8()) };
             true
         }
         c if is_irregular_line_terminator(c) => {
-            lexer.bump();
+            // Safety: `peek_char` returns `Some`
+            unsafe { lexer.input.bump_bytes(c.len_utf8()) };
             lexer.state.mark_had_line_break();
             true
         }
@@ -148,8 +153,8 @@ impl<'a> Lexer<'a> {
     /// See https://tc39.github.io/ecma262/#sec-white-space
     pub fn skip_space(&mut self) {
         loop {
-            let byte = match self.input.as_str().as_bytes().first() {
-                Some(&v) => v,
+            let byte = match self.input.peek() {
+                Some(v) => v,
                 None => return,
             };
 
