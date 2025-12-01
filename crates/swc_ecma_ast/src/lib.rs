@@ -25,8 +25,8 @@ pub use common::*;
 pub use derive::*;
 pub use generated::ast_visitor::*;
 pub use node_id::{
-    BigIntId, ExtraDataId, GetNodeId, GetOptionalNodeId, NodeId, OptionalNodeId, OptionalUtf8Ref,
-    OptionalWtf8Ref, SubRange, TypedSubRange, Utf8Ref, Wtf8Ref,
+    BigIntId, ExtraDataId, FromNodeId, GetNodeId, GetOptionalNodeId, NodeId, OptionalNodeId,
+    OptionalUtf8Ref, OptionalWtf8Ref, SubRange, TypedSubRange, Utf8Ref, Wtf8Ref,
 };
 
 use crate::ast_list::NodeList;
@@ -394,11 +394,23 @@ impl Ast {
         self.nodes.free_node(node_id);
     }
 
+    #[inline]
+    pub fn get_node(&self, node_id: NodeId) -> &AstNode {
+        &self.nodes[node_id]
+    }
+
+    #[inline]
     pub fn nodes(&self) -> impl Iterator<Item = (NodeId, &AstNode)> {
         self.nodes.iter()
     }
 
+    #[inline]
     pub fn nodes_len(&self) -> u32 {
         self.nodes.len()
+    }
+
+    #[inline]
+    pub fn nodes_capacity(&self) -> usize {
+        self.nodes.capacity()
     }
 }
