@@ -108,6 +108,7 @@ dependencies = [
  "swc_ecma_visit",
  "swc_experimental_ecma_ast",
  "swc_experimental_ecma_parser",
+ "swc_experimental_ecma_semantic",
  "swc_experimental_ecma_visit",
 ]
 
@@ -1315,7 +1316,6 @@ dependencies = [
  "bitflags",
  "oxc_index",
  "rustc-hash",
- "swc_atoms",
  "swc_common",
  "swc_experimental_ecma_ast",
  "swc_experimental_ecma_visit",
