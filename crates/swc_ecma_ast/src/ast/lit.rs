@@ -13,8 +13,8 @@ pub enum Lit {
 
 #[ast]
 pub struct Str {
-    value: Wtf8AtomRef,
-    raw: OptionalAtomRef,
+    value: Wtf8Ref,
+    raw: OptionalUtf8Ref,
 }
 
 #[ast]
@@ -28,23 +28,23 @@ pub struct Null {}
 #[ast]
 pub struct Number {
     value: f64,
-    raw: OptionalAtomRef,
+    raw: OptionalUtf8Ref,
 }
 
 #[ast]
 pub struct BigInt {
     value: BigIntId,
-    raw: OptionalAtomRef,
+    raw: OptionalUtf8Ref,
 }
 
 #[ast]
 pub struct Regex {
-    exp: AtomRef,
-    flags: AtomRef,
+    exp: Utf8Ref,
+    flags: Utf8Ref,
 }
 
 // #[ast]
 // pub struct JSXText {
-//     value: AtomRef,
-//     raw: AtomRef,
+//     value: Utf8Ref,
+//     raw: Utf8Ref,
 // }

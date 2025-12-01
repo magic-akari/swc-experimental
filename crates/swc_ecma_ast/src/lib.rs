@@ -54,12 +54,12 @@ pub union NodeData {
 pub union ExtraData {
     span: Span,
     node: NodeId,
-    atom: Utf8Ref,
-    wtf8_atom: Wtf8Ref,
     bigint: BigIntId,
+    utf8: Utf8Ref,
+    wtf8: Wtf8Ref,
     optional_node: OptionalNodeId,
-    optional_atom: OptionalUtf8Ref,
-    optional_wtf8_atom: OptionalWtf8Ref,
+    optional_utf8: OptionalUtf8Ref,
+    optional_wtf8: OptionalWtf8Ref,
 
     bool: bool,
     number: f64,

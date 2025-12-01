@@ -72,14 +72,14 @@ impl Module {
         unsafe { ret.cast_to_typed() }
     }
     #[inline]
-    pub fn shebang(&self, ast: &crate::Ast) -> OptionalAtomRef {
+    pub fn shebang(&self, ast: &crate::Ast) -> OptionalUtf8Ref {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked(offset.index())
-                .optional_atom
+                .optional_utf8
         };
         ret.into()
     }
@@ -101,14 +101,14 @@ impl Module {
         };
     }
     #[inline]
-    pub fn set_shebang(&self, ast: &mut crate::Ast, shebang: OptionalAtomRef) {
+    pub fn set_shebang(&self, ast: &mut crate::Ast, shebang: OptionalUtf8Ref) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_atom = shebang.into()
+                .optional_utf8 = shebang.into()
         };
     }
 }
@@ -138,14 +138,14 @@ impl Script {
         unsafe { ret.cast_to_typed() }
     }
     #[inline]
-    pub fn shebang(&self, ast: &crate::Ast) -> OptionalAtomRef {
+    pub fn shebang(&self, ast: &crate::Ast) -> OptionalUtf8Ref {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked(offset.index())
-                .optional_atom
+                .optional_utf8
         };
         ret.into()
     }
@@ -167,14 +167,14 @@ impl Script {
         };
     }
     #[inline]
-    pub fn set_shebang(&self, ast: &mut crate::Ast, shebang: OptionalAtomRef) {
+    pub fn set_shebang(&self, ast: &mut crate::Ast, shebang: OptionalUtf8Ref) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_atom = shebang.into()
+                .optional_utf8 = shebang.into()
         };
     }
 }
@@ -5418,26 +5418,26 @@ impl TplElement {
         ret.into()
     }
     #[inline]
-    pub fn cooked(&self, ast: &crate::Ast) -> OptionalWtf8AtomRef {
+    pub fn cooked(&self, ast: &crate::Ast) -> OptionalWtf8Ref {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked(offset.index())
-                .optional_wtf8_atom
+                .optional_wtf8
         };
         ret.into()
     }
     #[inline]
-    pub fn raw(&self, ast: &crate::Ast) -> AtomRef {
+    pub fn raw(&self, ast: &crate::Ast) -> Utf8Ref {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked(offset.index())
-                .atom
+                .utf8
         };
         ret.into()
     }
@@ -5459,25 +5459,25 @@ impl TplElement {
         };
     }
     #[inline]
-    pub fn set_cooked(&self, ast: &mut crate::Ast, cooked: OptionalWtf8AtomRef) {
+    pub fn set_cooked(&self, ast: &mut crate::Ast, cooked: OptionalWtf8Ref) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_wtf8_atom = cooked.into()
+                .optional_wtf8 = cooked.into()
         };
     }
     #[inline]
-    pub fn set_raw(&self, ast: &mut crate::Ast, raw: AtomRef) {
+    pub fn set_raw(&self, ast: &mut crate::Ast, raw: Utf8Ref) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 2usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .atom = raw.into()
+                .utf8 = raw.into()
         };
     }
 }
@@ -8612,14 +8612,14 @@ impl Ident {
         self.span(ast).hi
     }
     #[inline]
-    pub fn sym(&self, ast: &crate::Ast) -> AtomRef {
+    pub fn sym(&self, ast: &crate::Ast) -> Utf8Ref {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked(offset.index())
-                .atom
+                .utf8
         };
         ret.into()
     }
@@ -8642,14 +8642,14 @@ impl Ident {
         }
     }
     #[inline]
-    pub fn set_sym(&self, ast: &mut crate::Ast, sym: AtomRef) {
+    pub fn set_sym(&self, ast: &mut crate::Ast, sym: Utf8Ref) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .atom = sym.into()
+                .utf8 = sym.into()
         };
     }
     #[inline]
@@ -8678,14 +8678,14 @@ impl IdentName {
         self.span(ast).hi
     }
     #[inline]
-    pub fn sym(&self, ast: &crate::Ast) -> AtomRef {
+    pub fn sym(&self, ast: &crate::Ast) -> Utf8Ref {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked(offset.index())
-                .atom
+                .utf8
         };
         ret.into()
     }
@@ -8696,14 +8696,14 @@ impl IdentName {
         }
     }
     #[inline]
-    pub fn set_sym(&self, ast: &mut crate::Ast, sym: AtomRef) {
+    pub fn set_sym(&self, ast: &mut crate::Ast, sym: Utf8Ref) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .atom = sym.into()
+                .utf8 = sym.into()
         };
     }
 }
@@ -8721,14 +8721,14 @@ impl PrivateName {
         self.span(ast).hi
     }
     #[inline]
-    pub fn name(&self, ast: &crate::Ast) -> AtomRef {
+    pub fn name(&self, ast: &crate::Ast) -> Utf8Ref {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked(offset.index())
-                .atom
+                .utf8
         };
         ret.into()
     }
@@ -8739,14 +8739,14 @@ impl PrivateName {
         }
     }
     #[inline]
-    pub fn set_name(&self, ast: &mut crate::Ast, name: AtomRef) {
+    pub fn set_name(&self, ast: &mut crate::Ast, name: Utf8Ref) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .atom = name.into()
+                .utf8 = name.into()
         };
     }
 }
@@ -8905,26 +8905,26 @@ impl Str {
         self.span(ast).hi
     }
     #[inline]
-    pub fn value(&self, ast: &crate::Ast) -> Wtf8AtomRef {
+    pub fn value(&self, ast: &crate::Ast) -> Wtf8Ref {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked(offset.index())
-                .wtf8_atom
+                .wtf8
         };
         ret.into()
     }
     #[inline]
-    pub fn raw(&self, ast: &crate::Ast) -> OptionalAtomRef {
+    pub fn raw(&self, ast: &crate::Ast) -> OptionalUtf8Ref {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked(offset.index())
-                .optional_atom
+                .optional_utf8
         };
         ret.into()
     }
@@ -8935,25 +8935,25 @@ impl Str {
         }
     }
     #[inline]
-    pub fn set_value(&self, ast: &mut crate::Ast, value: Wtf8AtomRef) {
+    pub fn set_value(&self, ast: &mut crate::Ast, value: Wtf8Ref) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .wtf8_atom = value.into()
+                .wtf8 = value.into()
         };
     }
     #[inline]
-    pub fn set_raw(&self, ast: &mut crate::Ast, raw: OptionalAtomRef) {
+    pub fn set_raw(&self, ast: &mut crate::Ast, raw: OptionalUtf8Ref) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_atom = raw.into()
+                .optional_utf8 = raw.into()
         };
     }
 }
@@ -9046,14 +9046,14 @@ impl Number {
         ret.into()
     }
     #[inline]
-    pub fn raw(&self, ast: &crate::Ast) -> OptionalAtomRef {
+    pub fn raw(&self, ast: &crate::Ast) -> OptionalUtf8Ref {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked(offset.index())
-                .optional_atom
+                .optional_utf8
         };
         ret.into()
     }
@@ -9075,14 +9075,14 @@ impl Number {
         };
     }
     #[inline]
-    pub fn set_raw(&self, ast: &mut crate::Ast, raw: OptionalAtomRef) {
+    pub fn set_raw(&self, ast: &mut crate::Ast, raw: OptionalUtf8Ref) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_atom = raw.into()
+                .optional_utf8 = raw.into()
         };
     }
 }
@@ -9112,14 +9112,14 @@ impl BigInt {
         ret.into()
     }
     #[inline]
-    pub fn raw(&self, ast: &crate::Ast) -> OptionalAtomRef {
+    pub fn raw(&self, ast: &crate::Ast) -> OptionalUtf8Ref {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked(offset.index())
-                .optional_atom
+                .optional_utf8
         };
         ret.into()
     }
@@ -9141,14 +9141,14 @@ impl BigInt {
         };
     }
     #[inline]
-    pub fn set_raw(&self, ast: &mut crate::Ast, raw: OptionalAtomRef) {
+    pub fn set_raw(&self, ast: &mut crate::Ast, raw: OptionalUtf8Ref) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_atom = raw.into()
+                .optional_utf8 = raw.into()
         };
     }
 }
@@ -9166,26 +9166,26 @@ impl Regex {
         self.span(ast).hi
     }
     #[inline]
-    pub fn exp(&self, ast: &crate::Ast) -> AtomRef {
+    pub fn exp(&self, ast: &crate::Ast) -> Utf8Ref {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked(offset.index())
-                .atom
+                .utf8
         };
         ret.into()
     }
     #[inline]
-    pub fn flags(&self, ast: &crate::Ast) -> AtomRef {
+    pub fn flags(&self, ast: &crate::Ast) -> Utf8Ref {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked(offset.index())
-                .atom
+                .utf8
         };
         ret.into()
     }
@@ -9196,25 +9196,25 @@ impl Regex {
         }
     }
     #[inline]
-    pub fn set_exp(&self, ast: &mut crate::Ast, exp: AtomRef) {
+    pub fn set_exp(&self, ast: &mut crate::Ast, exp: Utf8Ref) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 0usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .atom = exp.into()
+                .utf8 = exp.into()
         };
     }
     #[inline]
-    pub fn set_flags(&self, ast: &mut crate::Ast, flags: AtomRef) {
+    pub fn set_flags(&self, ast: &mut crate::Ast, flags: Utf8Ref) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .atom = flags.into()
+                .utf8 = flags.into()
         };
     }
 }

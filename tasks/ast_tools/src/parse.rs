@@ -162,9 +162,10 @@ impl Parser {
             // Custom enum
             "Span" => primitive("Span"),
             "AtomRef" => primitive("AtomRef"),
-            "OptionalAtomRef" => primitive("OptionalAtomRef"),
-            "Wtf8AtomRef" => primitive("Wtf8AtomRef"),
-            "OptionalWtf8AtomRef" => primitive("OptionalWtf8AtomRef"),
+            "Utf8Ref" => primitive("Utf8Ref"),
+            "Wtf8Ref" => primitive("Wtf8Ref"),
+            "OptionalUtf8Ref" => primitive("OptionalUtf8Ref"),
+            "OptionalWtf8Ref" => primitive("OptionalWtf8Ref"),
             "BigIntId" => primitive("BigIntId"),
             "ImportPhase" => primitive("ImportPhase"),
             "VarDeclKind" => primitive("VarDeclKind"),

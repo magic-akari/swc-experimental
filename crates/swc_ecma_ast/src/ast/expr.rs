@@ -222,8 +222,8 @@ pub struct TaggedTpl {
 #[ast]
 pub struct TplElement {
     tail: bool,
-    cooked: OptionalWtf8AtomRef,
-    raw: AtomRef,
+    cooked: OptionalWtf8Ref,
+    raw: Utf8Ref,
 }
 
 #[ast]

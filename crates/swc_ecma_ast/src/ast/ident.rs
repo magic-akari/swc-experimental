@@ -1,22 +1,22 @@
-use swc_experimental_ast_macros::ast;
 use swc_atoms::Atom;
+use swc_experimental_ast_macros::ast;
 
 use crate::Ast;
 
 #[ast]
 pub struct Ident {
-    sym: AtomRef,
+    sym: Utf8Ref,
     optional: bool,
 }
 
 #[ast]
 pub struct IdentName {
-    sym: AtomRef,
+    sym: Utf8Ref,
 }
 
 #[ast]
 pub struct PrivateName {
-    name: AtomRef,
+    name: Utf8Ref,
 }
 
 #[ast]
