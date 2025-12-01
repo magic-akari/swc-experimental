@@ -78,14 +78,14 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
                 let field_inner_ident = schema.types[ast.inner_type_id].repr_ident(schema);
                 (
                     option_field_ident,
-                    quote!( ret.map(|id| #field_inner_ident::from_node_id(id, ast)) ),
+                    quote!( ret.map(|id| unsafe { #field_inner_ident::from_node_id_unchecked(id, ast) }) ),
                 )
             }
             AstType::Struct(_) | AstType::Enum(_) => {
                 let field_inner_ty = field_ty.repr_ident(schema);
                 (
                     field_inner_ty.clone(),
-                    quote!( #field_inner_ty::from_node_id(ret, ast) ),
+                    quote!( unsafe { #field_inner_ty::from_node_id_unchecked(ret, ast) }),
                 )
             }
             _ if extra_data_name == "other" => {

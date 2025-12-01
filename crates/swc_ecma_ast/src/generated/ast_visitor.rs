@@ -1,5 +1,5 @@
 #![allow(unused)]
-use crate::{Ast, ast::*, node_id::*};
+use crate::{ast::*, node_id::*, Ast};
 use swc_common::Span;
 pub trait Visit {
     #[inline]
@@ -695,7 +695,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for Module {
                 .get_unchecked((offset + 1usize).index())
                 .optional_atom
         };
-        <OptionalUtf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
+        <OptionalAtomRef as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Script {
@@ -721,7 +721,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for Script {
                 .get_unchecked((offset + 1usize).index())
                 .optional_atom
         };
-        <OptionalUtf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
+        <OptionalAtomRef as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ModuleItem {
@@ -777,7 +777,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ImportDecl {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Str as VisitWith<V>>::visit_with(Str::from_node_id(ret, ast), visitor, ast);
+        <Str as VisitWith<V>>::visit_with(
+            unsafe { Str::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -792,7 +796,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for ImportDecl {
                 .optional_node
         };
         <Option<ObjectLit> as VisitWith<V>>::visit_with(
-            ret.map(|id| ObjectLit::from_node_id(id, ast)),
+            ret.map(|id| unsafe { ObjectLit::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -833,7 +837,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ImportNamedSpecifier {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitWith<V>>::visit_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitWith<V>>::visit_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -841,7 +849,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for ImportNamedSpecifier {
                 .optional_node
         };
         <Option<ModuleExportName> as VisitWith<V>>::visit_with(
-            ret.map(|id| ModuleExportName::from_node_id(id, ast)),
+            ret.map(|id| unsafe { ModuleExportName::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -866,7 +874,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ImportDefaultSpecifier {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitWith<V>>::visit_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitWith<V>>::visit_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ImportStarAsSpecifier {
@@ -881,7 +893,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ImportStarAsSpecifier {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitWith<V>>::visit_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitWith<V>>::visit_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ExportDecl {
@@ -896,7 +912,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportDecl {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Decl as VisitWith<V>>::visit_with(Decl::from_node_id(ret, ast), visitor, ast);
+        <Decl as VisitWith<V>>::visit_with(
+            unsafe { Decl::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for NamedExport {
@@ -923,7 +943,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for NamedExport {
                 .optional_node
         };
         <Option<Str> as VisitWith<V>>::visit_with(
-            ret.map(|id| Str::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Str::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -941,7 +961,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for NamedExport {
                 .optional_node
         };
         <Option<ObjectLit> as VisitWith<V>>::visit_with(
-            ret.map(|id| ObjectLit::from_node_id(id, ast)),
+            ret.map(|id| unsafe { ObjectLit::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -976,7 +996,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportNamespaceSpecifier {
                 .node
         };
         <ModuleExportName as VisitWith<V>>::visit_with(
-            ModuleExportName::from_node_id(ret, ast),
+            unsafe { ModuleExportName::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -1005,7 +1025,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportDefaultSpecifier {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitWith<V>>::visit_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitWith<V>>::visit_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ExportNamedSpecifier {
@@ -1021,7 +1045,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportNamedSpecifier {
                 .node
         };
         <ModuleExportName as VisitWith<V>>::visit_with(
-            ModuleExportName::from_node_id(ret, ast),
+            unsafe { ModuleExportName::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -1032,7 +1056,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportNamedSpecifier {
                 .optional_node
         };
         <Option<ModuleExportName> as VisitWith<V>>::visit_with(
-            ret.map(|id| ModuleExportName::from_node_id(id, ast)),
+            ret.map(|id| unsafe { ModuleExportName::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -1058,7 +1082,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportDefaultDecl {
                 .node
         };
         <DefaultDecl as VisitWith<V>>::visit_with(
-            DefaultDecl::from_node_id(ret, ast),
+            unsafe { DefaultDecl::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -1087,7 +1111,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportDefaultExpr {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ExportAll {
@@ -1102,7 +1130,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportAll {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Str as VisitWith<V>>::visit_with(Str::from_node_id(ret, ast), visitor, ast);
+        <Str as VisitWith<V>>::visit_with(
+            unsafe { Str::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1117,7 +1149,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportAll {
                 .optional_node
         };
         <Option<ObjectLit> as VisitWith<V>>::visit_with(
-            ret.map(|id| ObjectLit::from_node_id(id, ast)),
+            ret.map(|id| unsafe { ObjectLit::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -1182,7 +1214,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExprStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for EmptyStmt {
@@ -1213,14 +1249,22 @@ impl<V: ?Sized + Visit> VisitWith<V> for WithStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Stmt as VisitWith<V>>::visit_with(Stmt::from_node_id(ret, ast), visitor, ast);
+        <Stmt as VisitWith<V>>::visit_with(
+            unsafe { Stmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ReturnStmt {
@@ -1236,7 +1280,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for ReturnStmt {
                 .optional_node
         };
         <Option<Expr> as VisitWith<V>>::visit_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -1254,14 +1298,22 @@ impl<V: ?Sized + Visit> VisitWith<V> for LabeledStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitWith<V>>::visit_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitWith<V>>::visit_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Stmt as VisitWith<V>>::visit_with(Stmt::from_node_id(ret, ast), visitor, ast);
+        <Stmt as VisitWith<V>>::visit_with(
+            unsafe { Stmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for BreakStmt {
@@ -1277,7 +1329,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for BreakStmt {
                 .optional_node
         };
         <Option<Ident> as VisitWith<V>>::visit_with(
-            ret.map(|id| Ident::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Ident::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -1296,7 +1348,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for ContinueStmt {
                 .optional_node
         };
         <Option<Ident> as VisitWith<V>>::visit_with(
-            ret.map(|id| Ident::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Ident::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -1314,14 +1366,22 @@ impl<V: ?Sized + Visit> VisitWith<V> for IfStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Stmt as VisitWith<V>>::visit_with(Stmt::from_node_id(ret, ast), visitor, ast);
+        <Stmt as VisitWith<V>>::visit_with(
+            unsafe { Stmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1329,7 +1389,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for IfStmt {
                 .optional_node
         };
         <Option<Stmt> as VisitWith<V>>::visit_with(
-            ret.map(|id| Stmt::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Stmt::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -1347,7 +1407,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for SwitchStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1373,7 +1437,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ThrowStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for TryStmt {
@@ -1388,7 +1456,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for TryStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <BlockStmt as VisitWith<V>>::visit_with(BlockStmt::from_node_id(ret, ast), visitor, ast);
+        <BlockStmt as VisitWith<V>>::visit_with(
+            unsafe { BlockStmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1396,7 +1468,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for TryStmt {
                 .optional_node
         };
         <Option<CatchClause> as VisitWith<V>>::visit_with(
-            ret.map(|id| CatchClause::from_node_id(id, ast)),
+            ret.map(|id| unsafe { CatchClause::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -1407,7 +1479,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for TryStmt {
                 .optional_node
         };
         <Option<BlockStmt> as VisitWith<V>>::visit_with(
-            ret.map(|id| BlockStmt::from_node_id(id, ast)),
+            ret.map(|id| unsafe { BlockStmt::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -1425,14 +1497,22 @@ impl<V: ?Sized + Visit> VisitWith<V> for WhileStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Stmt as VisitWith<V>>::visit_with(Stmt::from_node_id(ret, ast), visitor, ast);
+        <Stmt as VisitWith<V>>::visit_with(
+            unsafe { Stmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for DoWhileStmt {
@@ -1447,14 +1527,22 @@ impl<V: ?Sized + Visit> VisitWith<V> for DoWhileStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Stmt as VisitWith<V>>::visit_with(Stmt::from_node_id(ret, ast), visitor, ast);
+        <Stmt as VisitWith<V>>::visit_with(
+            unsafe { Stmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ForStmt {
@@ -1470,7 +1558,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for ForStmt {
                 .optional_node
         };
         <Option<VarDeclOrExpr> as VisitWith<V>>::visit_with(
-            ret.map(|id| VarDeclOrExpr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { VarDeclOrExpr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -1481,7 +1569,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for ForStmt {
                 .optional_node
         };
         <Option<Expr> as VisitWith<V>>::visit_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -1492,7 +1580,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for ForStmt {
                 .optional_node
         };
         <Option<Expr> as VisitWith<V>>::visit_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -1502,7 +1590,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ForStmt {
                 .get_unchecked((offset + 3usize).index())
                 .node
         };
-        <Stmt as VisitWith<V>>::visit_with(Stmt::from_node_id(ret, ast), visitor, ast);
+        <Stmt as VisitWith<V>>::visit_with(
+            unsafe { Stmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ForInStmt {
@@ -1517,21 +1609,33 @@ impl<V: ?Sized + Visit> VisitWith<V> for ForInStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <ForHead as VisitWith<V>>::visit_with(ForHead::from_node_id(ret, ast), visitor, ast);
+        <ForHead as VisitWith<V>>::visit_with(
+            unsafe { ForHead::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Stmt as VisitWith<V>>::visit_with(Stmt::from_node_id(ret, ast), visitor, ast);
+        <Stmt as VisitWith<V>>::visit_with(
+            unsafe { Stmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ForOfStmt {
@@ -1553,21 +1657,33 @@ impl<V: ?Sized + Visit> VisitWith<V> for ForOfStmt {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <ForHead as VisitWith<V>>::visit_with(ForHead::from_node_id(ret, ast), visitor, ast);
+        <ForHead as VisitWith<V>>::visit_with(
+            unsafe { ForHead::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 3usize).index())
                 .node
         };
-        <Stmt as VisitWith<V>>::visit_with(Stmt::from_node_id(ret, ast), visitor, ast);
+        <Stmt as VisitWith<V>>::visit_with(
+            unsafe { Stmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for SwitchCase {
@@ -1583,7 +1699,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for SwitchCase {
                 .optional_node
         };
         <Option<Expr> as VisitWith<V>>::visit_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -1613,7 +1729,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for CatchClause {
                 .optional_node
         };
         <Option<Pat> as VisitWith<V>>::visit_with(
-            ret.map(|id| Pat::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Pat::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -1623,7 +1739,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for CatchClause {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <BlockStmt as VisitWith<V>>::visit_with(BlockStmt::from_node_id(ret, ast), visitor, ast);
+        <BlockStmt as VisitWith<V>>::visit_with(
+            unsafe { BlockStmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ForHead {
@@ -1674,7 +1794,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for FnDecl {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitWith<V>>::visit_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitWith<V>>::visit_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1688,7 +1812,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for FnDecl {
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Function as VisitWith<V>>::visit_with(Function::from_node_id(ret, ast), visitor, ast);
+        <Function as VisitWith<V>>::visit_with(
+            unsafe { Function::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ClassDecl {
@@ -1703,7 +1831,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ClassDecl {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitWith<V>>::visit_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitWith<V>>::visit_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1717,7 +1849,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ClassDecl {
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Class as VisitWith<V>>::visit_with(Class::from_node_id(ret, ast), visitor, ast);
+        <Class as VisitWith<V>>::visit_with(
+            unsafe { Class::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for VarDecl {
@@ -1765,7 +1901,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for VarDeclarator {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Pat as VisitWith<V>>::visit_with(Pat::from_node_id(ret, ast), visitor, ast);
+        <Pat as VisitWith<V>>::visit_with(
+            unsafe { Pat::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1773,7 +1913,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for VarDeclarator {
                 .optional_node
         };
         <Option<Expr> as VisitWith<V>>::visit_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -1919,7 +2059,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for SpreadElement {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for UnaryExpr {
@@ -1941,7 +2085,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for UnaryExpr {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for UpdateExpr {
@@ -1970,7 +2118,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for UpdateExpr {
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for BinExpr {
@@ -1992,14 +2144,22 @@ impl<V: ?Sized + Visit> VisitWith<V> for BinExpr {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for FnExpr {
@@ -2015,7 +2175,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for FnExpr {
                 .optional_node
         };
         <Option<Ident> as VisitWith<V>>::visit_with(
-            ret.map(|id| Ident::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Ident::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -2025,7 +2185,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for FnExpr {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Function as VisitWith<V>>::visit_with(Function::from_node_id(ret, ast), visitor, ast);
+        <Function as VisitWith<V>>::visit_with(
+            unsafe { Function::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ClassExpr {
@@ -2041,7 +2205,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for ClassExpr {
                 .optional_node
         };
         <Option<Ident> as VisitWith<V>>::visit_with(
-            ret.map(|id| Ident::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Ident::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -2051,7 +2215,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ClassExpr {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Class as VisitWith<V>>::visit_with(Class::from_node_id(ret, ast), visitor, ast);
+        <Class as VisitWith<V>>::visit_with(
+            unsafe { Class::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for AssignExpr {
@@ -2074,7 +2242,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for AssignExpr {
                 .node
         };
         <AssignTarget as VisitWith<V>>::visit_with(
-            AssignTarget::from_node_id(ret, ast),
+            unsafe { AssignTarget::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -2084,7 +2252,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for AssignExpr {
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for MemberExpr {
@@ -2099,14 +2271,22 @@ impl<V: ?Sized + Visit> VisitWith<V> for MemberExpr {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <MemberProp as VisitWith<V>>::visit_with(MemberProp::from_node_id(ret, ast), visitor, ast);
+        <MemberProp as VisitWith<V>>::visit_with(
+            unsafe { MemberProp::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for MemberProp {
@@ -2133,14 +2313,22 @@ impl<V: ?Sized + Visit> VisitWith<V> for SuperPropExpr {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Super as VisitWith<V>>::visit_with(Super::from_node_id(ret, ast), visitor, ast);
+        <Super as VisitWith<V>>::visit_with(
+            unsafe { Super::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <SuperProp as VisitWith<V>>::visit_with(SuperProp::from_node_id(ret, ast), visitor, ast);
+        <SuperProp as VisitWith<V>>::visit_with(
+            unsafe { SuperProp::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for SuperProp {
@@ -2166,21 +2354,33 @@ impl<V: ?Sized + Visit> VisitWith<V> for CondExpr {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for CallExpr {
@@ -2195,7 +2395,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for CallExpr {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Callee as VisitWith<V>>::visit_with(Callee::from_node_id(ret, ast), visitor, ast);
+        <Callee as VisitWith<V>>::visit_with(
+            unsafe { Callee::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2221,7 +2425,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for NewExpr {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2278,7 +2486,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for ArrowExpr {
                 .node
         };
         <BlockStmtOrExpr as VisitWith<V>>::visit_with(
-            BlockStmtOrExpr::from_node_id(ret, ast),
+            unsafe { BlockStmtOrExpr::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -2311,7 +2519,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for YieldExpr {
                 .optional_node
         };
         <Option<Expr> as VisitWith<V>>::visit_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -2355,7 +2563,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for AwaitExpr {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Tpl {
@@ -2400,14 +2612,22 @@ impl<V: ?Sized + Visit> VisitWith<V> for TaggedTpl {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Tpl as VisitWith<V>>::visit_with(Tpl::from_node_id(ret, ast), visitor, ast);
+        <Tpl as VisitWith<V>>::visit_with(
+            unsafe { Tpl::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for TplElement {
@@ -2429,14 +2649,14 @@ impl<V: ?Sized + Visit> VisitWith<V> for TplElement {
                 .get_unchecked((offset + 1usize).index())
                 .optional_wtf8_atom
         };
-        <OptionalWtf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
+        <OptionalWtf8AtomRef as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 2usize).index())
                 .atom
         };
-        <Utf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
+        <AtomRef as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ParenExpr {
@@ -2451,7 +2671,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ParenExpr {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Callee {
@@ -2502,7 +2726,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExprOrSpread {
                 .optional_node
         };
         <Option<SpreadDot3Token> as VisitWith<V>>::visit_with(
-            ret.map(|id| SpreadDot3Token::from_node_id(id, ast)),
+            ret.map(|id| unsafe { SpreadDot3Token::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -2512,7 +2736,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExprOrSpread {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for SpreadDot3Token {
@@ -2592,7 +2820,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for OptChainExpr {
                 .node
         };
         <OptChainBase as VisitWith<V>>::visit_with(
-            OptChainBase::from_node_id(ret, ast),
+            unsafe { OptChainBase::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -2621,7 +2849,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for OptCall {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2678,7 +2910,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for Function {
                 .optional_node
         };
         <Option<BlockStmt> as VisitWith<V>>::visit_with(
-            ret.map(|id| BlockStmt::from_node_id(id, ast)),
+            ret.map(|id| unsafe { BlockStmt::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -2721,7 +2953,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for Param {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Pat as VisitWith<V>>::visit_with(Pat::from_node_id(ret, ast), visitor, ast);
+        <Pat as VisitWith<V>>::visit_with(
+            unsafe { Pat::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ParamOrTsParamProp {
@@ -2769,7 +3005,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for Class {
                 .optional_node
         };
         <Option<Expr> as VisitWith<V>>::visit_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -2813,7 +3049,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ClassProp {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <PropName as VisitWith<V>>::visit_with(PropName::from_node_id(ret, ast), visitor, ast);
+        <PropName as VisitWith<V>>::visit_with(
+            unsafe { PropName::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2821,7 +3061,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for ClassProp {
                 .optional_node
         };
         <Option<Expr> as VisitWith<V>>::visit_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -2858,7 +3098,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for PrivateProp {
                 .node
         };
         <PrivateName as VisitWith<V>>::visit_with(
-            PrivateName::from_node_id(ret, ast),
+            unsafe { PrivateName::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -2869,7 +3109,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for PrivateProp {
                 .optional_node
         };
         <Option<Expr> as VisitWith<V>>::visit_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -2905,14 +3145,22 @@ impl<V: ?Sized + Visit> VisitWith<V> for ClassMethod {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <PropName as VisitWith<V>>::visit_with(PropName::from_node_id(ret, ast), visitor, ast);
+        <PropName as VisitWith<V>>::visit_with(
+            unsafe { PropName::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Function as VisitWith<V>>::visit_with(Function::from_node_id(ret, ast), visitor, ast);
+        <Function as VisitWith<V>>::visit_with(
+            unsafe { Function::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2942,7 +3190,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for PrivateMethod {
                 .node
         };
         <PrivateName as VisitWith<V>>::visit_with(
-            PrivateName::from_node_id(ret, ast),
+            unsafe { PrivateName::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -2952,7 +3200,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for PrivateMethod {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Function as VisitWith<V>>::visit_with(Function::from_node_id(ret, ast), visitor, ast);
+        <Function as VisitWith<V>>::visit_with(
+            unsafe { Function::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2981,7 +3233,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for Constructor {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <PropName as VisitWith<V>>::visit_with(PropName::from_node_id(ret, ast), visitor, ast);
+        <PropName as VisitWith<V>>::visit_with(
+            unsafe { PropName::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3000,7 +3256,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for Constructor {
                 .optional_node
         };
         <Option<BlockStmt> as VisitWith<V>>::visit_with(
-            ret.map(|id| BlockStmt::from_node_id(id, ast)),
+            ret.map(|id| unsafe { BlockStmt::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -3018,7 +3274,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for Decorator {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for StaticBlock {
@@ -3033,7 +3293,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for StaticBlock {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <BlockStmt as VisitWith<V>>::visit_with(BlockStmt::from_node_id(ret, ast), visitor, ast);
+        <BlockStmt as VisitWith<V>>::visit_with(
+            unsafe { BlockStmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Key {
@@ -3059,7 +3323,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for AutoAccessor {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Key as VisitWith<V>>::visit_with(Key::from_node_id(ret, ast), visitor, ast);
+        <Key as VisitWith<V>>::visit_with(
+            unsafe { Key::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3067,7 +3335,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for AutoAccessor {
                 .optional_node
         };
         <Option<Expr> as VisitWith<V>>::visit_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -3118,14 +3386,22 @@ impl<V: ?Sized + Visit> VisitWith<V> for KeyValueProp {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <PropName as VisitWith<V>>::visit_with(PropName::from_node_id(ret, ast), visitor, ast);
+        <PropName as VisitWith<V>>::visit_with(
+            unsafe { PropName::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for AssignProp {
@@ -3140,14 +3416,22 @@ impl<V: ?Sized + Visit> VisitWith<V> for AssignProp {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitWith<V>>::visit_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitWith<V>>::visit_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for GetterProp {
@@ -3162,7 +3446,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for GetterProp {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <PropName as VisitWith<V>>::visit_with(PropName::from_node_id(ret, ast), visitor, ast);
+        <PropName as VisitWith<V>>::visit_with(
+            unsafe { PropName::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3170,7 +3458,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for GetterProp {
                 .optional_node
         };
         <Option<BlockStmt> as VisitWith<V>>::visit_with(
-            ret.map(|id| BlockStmt::from_node_id(id, ast)),
+            ret.map(|id| unsafe { BlockStmt::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -3188,7 +3476,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for SetterProp {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <PropName as VisitWith<V>>::visit_with(PropName::from_node_id(ret, ast), visitor, ast);
+        <PropName as VisitWith<V>>::visit_with(
+            unsafe { PropName::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3196,7 +3488,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for SetterProp {
                 .optional_node
         };
         <Option<Pat> as VisitWith<V>>::visit_with(
-            ret.map(|id| Pat::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Pat::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -3206,7 +3498,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for SetterProp {
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Pat as VisitWith<V>>::visit_with(Pat::from_node_id(ret, ast), visitor, ast);
+        <Pat as VisitWith<V>>::visit_with(
+            unsafe { Pat::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3214,7 +3510,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for SetterProp {
                 .optional_node
         };
         <Option<BlockStmt> as VisitWith<V>>::visit_with(
-            ret.map(|id| BlockStmt::from_node_id(id, ast)),
+            ret.map(|id| unsafe { BlockStmt::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -3232,14 +3528,22 @@ impl<V: ?Sized + Visit> VisitWith<V> for MethodProp {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <PropName as VisitWith<V>>::visit_with(PropName::from_node_id(ret, ast), visitor, ast);
+        <PropName as VisitWith<V>>::visit_with(
+            unsafe { PropName::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Function as VisitWith<V>>::visit_with(Function::from_node_id(ret, ast), visitor, ast);
+        <Function as VisitWith<V>>::visit_with(
+            unsafe { Function::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for PropName {
@@ -3268,7 +3572,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for ComputedPropName {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Pat {
@@ -3351,14 +3659,22 @@ impl<V: ?Sized + Visit> VisitWith<V> for AssignPat {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Pat as VisitWith<V>>::visit_with(Pat::from_node_id(ret, ast), visitor, ast);
+        <Pat as VisitWith<V>>::visit_with(
+            unsafe { Pat::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitWith<V>>::visit_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitWith<V>>::visit_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for RestPat {
@@ -3380,7 +3696,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for RestPat {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Pat as VisitWith<V>>::visit_with(Pat::from_node_id(ret, ast), visitor, ast);
+        <Pat as VisitWith<V>>::visit_with(
+            unsafe { Pat::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ObjectPatProp {
@@ -3407,14 +3727,22 @@ impl<V: ?Sized + Visit> VisitWith<V> for KeyValuePatProp {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <PropName as VisitWith<V>>::visit_with(PropName::from_node_id(ret, ast), visitor, ast);
+        <PropName as VisitWith<V>>::visit_with(
+            unsafe { PropName::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Pat as VisitWith<V>>::visit_with(Pat::from_node_id(ret, ast), visitor, ast);
+        <Pat as VisitWith<V>>::visit_with(
+            unsafe { Pat::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for AssignPatProp {
@@ -3430,7 +3758,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for AssignPatProp {
                 .node
         };
         <BindingIdent as VisitWith<V>>::visit_with(
-            BindingIdent::from_node_id(ret, ast),
+            unsafe { BindingIdent::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -3441,7 +3769,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for AssignPatProp {
                 .optional_node
         };
         <Option<Expr> as VisitWith<V>>::visit_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -3459,7 +3787,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for Ident {
                 .get_unchecked((offset + 0usize).index())
                 .atom
         };
-        <Utf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
+        <AtomRef as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3481,7 +3809,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for IdentName {
                 .get_unchecked((offset + 0usize).index())
                 .atom
         };
-        <Utf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
+        <AtomRef as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for PrivateName {
@@ -3496,7 +3824,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for PrivateName {
                 .get_unchecked((offset + 0usize).index())
                 .atom
         };
-        <Utf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
+        <AtomRef as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for BindingIdent {
@@ -3511,7 +3839,11 @@ impl<V: ?Sized + Visit> VisitWith<V> for BindingIdent {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitWith<V>>::visit_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitWith<V>>::visit_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Lit {
@@ -3541,14 +3873,14 @@ impl<V: ?Sized + Visit> VisitWith<V> for Str {
                 .get_unchecked((offset + 0usize).index())
                 .wtf8_atom
         };
-        <Wtf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
+        <Wtf8AtomRef as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .optional_atom
         };
-        <OptionalUtf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
+        <OptionalAtomRef as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Bool {
@@ -3593,7 +3925,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for Number {
                 .get_unchecked((offset + 1usize).index())
                 .optional_atom
         };
-        <OptionalUtf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
+        <OptionalAtomRef as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for BigInt {
@@ -3615,7 +3947,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for BigInt {
                 .get_unchecked((offset + 1usize).index())
                 .optional_atom
         };
-        <OptionalUtf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
+        <OptionalAtomRef as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Regex {
@@ -3630,14 +3962,14 @@ impl<V: ?Sized + Visit> VisitWith<V> for Regex {
                 .get_unchecked((offset + 0usize).index())
                 .atom
         };
-        <Utf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
+        <AtomRef as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .atom
         };
-        <Utf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
+        <AtomRef as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for TypedSubRange<ModuleItem> {
@@ -4686,7 +5018,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Module {
                 .get_unchecked((offset + 1usize).index())
                 .optional_atom
         };
-        <OptionalUtf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
+        <OptionalAtomRef as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Script {
@@ -4712,7 +5044,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Script {
                 .get_unchecked((offset + 1usize).index())
                 .optional_atom
         };
-        <OptionalUtf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
+        <OptionalAtomRef as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ModuleItem {
@@ -4774,7 +5106,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportDecl {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Str as VisitMutWith<V>>::visit_mut_with(Str::from_node_id(ret, ast), visitor, ast);
+        <Str as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Str::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -4789,7 +5125,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportDecl {
                 .optional_node
         };
         <Option<ObjectLit> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| ObjectLit::from_node_id(id, ast)),
+            ret.map(|id| unsafe { ObjectLit::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -4836,7 +5172,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportNamedSpecifier {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitMutWith<V>>::visit_mut_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -4844,7 +5184,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportNamedSpecifier {
                 .optional_node
         };
         <Option<ModuleExportName> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| ModuleExportName::from_node_id(id, ast)),
+            ret.map(|id| unsafe { ModuleExportName::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -4869,7 +5209,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportDefaultSpecifier {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitMutWith<V>>::visit_mut_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportStarAsSpecifier {
@@ -4884,7 +5228,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportStarAsSpecifier {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitMutWith<V>>::visit_mut_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportDecl {
@@ -4899,7 +5247,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportDecl {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Decl as VisitMutWith<V>>::visit_mut_with(Decl::from_node_id(ret, ast), visitor, ast);
+        <Decl as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Decl::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for NamedExport {
@@ -4926,7 +5278,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for NamedExport {
                 .optional_node
         };
         <Option<Str> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Str::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Str::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -4944,7 +5296,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for NamedExport {
                 .optional_node
         };
         <Option<ObjectLit> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| ObjectLit::from_node_id(id, ast)),
+            ret.map(|id| unsafe { ObjectLit::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -4981,7 +5333,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportNamespaceSpecifier {
                 .node
         };
         <ModuleExportName as VisitMutWith<V>>::visit_mut_with(
-            ModuleExportName::from_node_id(ret, ast),
+            unsafe { ModuleExportName::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -5010,7 +5362,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportDefaultSpecifier {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitMutWith<V>>::visit_mut_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportNamedSpecifier {
@@ -5026,7 +5382,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportNamedSpecifier {
                 .node
         };
         <ModuleExportName as VisitMutWith<V>>::visit_mut_with(
-            ModuleExportName::from_node_id(ret, ast),
+            unsafe { ModuleExportName::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -5037,7 +5393,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportNamedSpecifier {
                 .optional_node
         };
         <Option<ModuleExportName> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| ModuleExportName::from_node_id(id, ast)),
+            ret.map(|id| unsafe { ModuleExportName::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -5063,7 +5419,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportDefaultDecl {
                 .node
         };
         <DefaultDecl as VisitMutWith<V>>::visit_mut_with(
-            DefaultDecl::from_node_id(ret, ast),
+            unsafe { DefaultDecl::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -5092,7 +5448,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportDefaultExpr {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportAll {
@@ -5107,7 +5467,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportAll {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Str as VisitMutWith<V>>::visit_mut_with(Str::from_node_id(ret, ast), visitor, ast);
+        <Str as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Str::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5122,7 +5486,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportAll {
                 .optional_node
         };
         <Option<ObjectLit> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| ObjectLit::from_node_id(id, ast)),
+            ret.map(|id| unsafe { ObjectLit::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -5191,7 +5555,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExprStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for EmptyStmt {
@@ -5222,14 +5590,22 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for WithStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Stmt as VisitMutWith<V>>::visit_mut_with(Stmt::from_node_id(ret, ast), visitor, ast);
+        <Stmt as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Stmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ReturnStmt {
@@ -5245,7 +5621,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ReturnStmt {
                 .optional_node
         };
         <Option<Expr> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -5263,14 +5639,22 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for LabeledStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitMutWith<V>>::visit_mut_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Stmt as VisitMutWith<V>>::visit_mut_with(Stmt::from_node_id(ret, ast), visitor, ast);
+        <Stmt as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Stmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for BreakStmt {
@@ -5286,7 +5670,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for BreakStmt {
                 .optional_node
         };
         <Option<Ident> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Ident::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Ident::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -5305,7 +5689,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ContinueStmt {
                 .optional_node
         };
         <Option<Ident> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Ident::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Ident::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -5323,14 +5707,22 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for IfStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Stmt as VisitMutWith<V>>::visit_mut_with(Stmt::from_node_id(ret, ast), visitor, ast);
+        <Stmt as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Stmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5338,7 +5730,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for IfStmt {
                 .optional_node
         };
         <Option<Stmt> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Stmt::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Stmt::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -5356,7 +5748,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SwitchStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5382,7 +5778,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ThrowStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for TryStmt {
@@ -5398,7 +5798,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for TryStmt {
                 .node
         };
         <BlockStmt as VisitMutWith<V>>::visit_mut_with(
-            BlockStmt::from_node_id(ret, ast),
+            unsafe { BlockStmt::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -5409,7 +5809,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for TryStmt {
                 .optional_node
         };
         <Option<CatchClause> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| CatchClause::from_node_id(id, ast)),
+            ret.map(|id| unsafe { CatchClause::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -5420,7 +5820,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for TryStmt {
                 .optional_node
         };
         <Option<BlockStmt> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| BlockStmt::from_node_id(id, ast)),
+            ret.map(|id| unsafe { BlockStmt::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -5438,14 +5838,22 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for WhileStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Stmt as VisitMutWith<V>>::visit_mut_with(Stmt::from_node_id(ret, ast), visitor, ast);
+        <Stmt as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Stmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for DoWhileStmt {
@@ -5460,14 +5868,22 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for DoWhileStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Stmt as VisitMutWith<V>>::visit_mut_with(Stmt::from_node_id(ret, ast), visitor, ast);
+        <Stmt as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Stmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForStmt {
@@ -5483,7 +5899,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForStmt {
                 .optional_node
         };
         <Option<VarDeclOrExpr> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| VarDeclOrExpr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { VarDeclOrExpr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -5494,7 +5910,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForStmt {
                 .optional_node
         };
         <Option<Expr> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -5505,7 +5921,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForStmt {
                 .optional_node
         };
         <Option<Expr> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -5515,7 +5931,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForStmt {
                 .get_unchecked((offset + 3usize).index())
                 .node
         };
-        <Stmt as VisitMutWith<V>>::visit_mut_with(Stmt::from_node_id(ret, ast), visitor, ast);
+        <Stmt as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Stmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForInStmt {
@@ -5530,21 +5950,33 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForInStmt {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <ForHead as VisitMutWith<V>>::visit_mut_with(ForHead::from_node_id(ret, ast), visitor, ast);
+        <ForHead as VisitMutWith<V>>::visit_mut_with(
+            unsafe { ForHead::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Stmt as VisitMutWith<V>>::visit_mut_with(Stmt::from_node_id(ret, ast), visitor, ast);
+        <Stmt as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Stmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForOfStmt {
@@ -5566,21 +5998,33 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForOfStmt {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <ForHead as VisitMutWith<V>>::visit_mut_with(ForHead::from_node_id(ret, ast), visitor, ast);
+        <ForHead as VisitMutWith<V>>::visit_mut_with(
+            unsafe { ForHead::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 3usize).index())
                 .node
         };
-        <Stmt as VisitMutWith<V>>::visit_mut_with(Stmt::from_node_id(ret, ast), visitor, ast);
+        <Stmt as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Stmt::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for SwitchCase {
@@ -5596,7 +6040,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SwitchCase {
                 .optional_node
         };
         <Option<Expr> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -5626,7 +6070,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for CatchClause {
                 .optional_node
         };
         <Option<Pat> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Pat::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Pat::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -5637,7 +6081,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for CatchClause {
                 .node
         };
         <BlockStmt as VisitMutWith<V>>::visit_mut_with(
-            BlockStmt::from_node_id(ret, ast),
+            unsafe { BlockStmt::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -5691,7 +6135,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for FnDecl {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitMutWith<V>>::visit_mut_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5706,7 +6154,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for FnDecl {
                 .node
         };
         <Function as VisitMutWith<V>>::visit_mut_with(
-            Function::from_node_id(ret, ast),
+            unsafe { Function::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -5724,7 +6172,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassDecl {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitMutWith<V>>::visit_mut_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5738,7 +6190,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassDecl {
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Class as VisitMutWith<V>>::visit_mut_with(Class::from_node_id(ret, ast), visitor, ast);
+        <Class as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Class::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for VarDecl {
@@ -5790,7 +6246,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for VarDeclarator {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Pat as VisitMutWith<V>>::visit_mut_with(Pat::from_node_id(ret, ast), visitor, ast);
+        <Pat as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Pat::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5798,7 +6258,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for VarDeclarator {
                 .optional_node
         };
         <Option<Expr> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -5952,7 +6412,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SpreadElement {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for UnaryExpr {
@@ -5974,7 +6438,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for UnaryExpr {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for UpdateExpr {
@@ -6003,7 +6471,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for UpdateExpr {
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for BinExpr {
@@ -6025,14 +6497,22 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for BinExpr {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for FnExpr {
@@ -6048,7 +6528,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for FnExpr {
                 .optional_node
         };
         <Option<Ident> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Ident::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Ident::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -6059,7 +6539,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for FnExpr {
                 .node
         };
         <Function as VisitMutWith<V>>::visit_mut_with(
-            Function::from_node_id(ret, ast),
+            unsafe { Function::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -6078,7 +6558,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassExpr {
                 .optional_node
         };
         <Option<Ident> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Ident::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Ident::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -6088,7 +6568,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassExpr {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Class as VisitMutWith<V>>::visit_mut_with(Class::from_node_id(ret, ast), visitor, ast);
+        <Class as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Class::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignExpr {
@@ -6111,7 +6595,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignExpr {
                 .node
         };
         <AssignTarget as VisitMutWith<V>>::visit_mut_with(
-            AssignTarget::from_node_id(ret, ast),
+            unsafe { AssignTarget::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -6121,7 +6605,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignExpr {
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for MemberExpr {
@@ -6136,7 +6624,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for MemberExpr {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6144,7 +6636,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for MemberExpr {
                 .node
         };
         <MemberProp as VisitMutWith<V>>::visit_mut_with(
-            MemberProp::from_node_id(ret, ast),
+            unsafe { MemberProp::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -6178,7 +6670,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SuperPropExpr {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Super as VisitMutWith<V>>::visit_mut_with(Super::from_node_id(ret, ast), visitor, ast);
+        <Super as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Super::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6186,7 +6682,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SuperPropExpr {
                 .node
         };
         <SuperProp as VisitMutWith<V>>::visit_mut_with(
-            SuperProp::from_node_id(ret, ast),
+            unsafe { SuperProp::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -6217,21 +6713,33 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for CondExpr {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for CallExpr {
@@ -6246,7 +6754,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for CallExpr {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Callee as VisitMutWith<V>>::visit_mut_with(Callee::from_node_id(ret, ast), visitor, ast);
+        <Callee as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Callee::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6272,7 +6784,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for NewExpr {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6329,7 +6845,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ArrowExpr {
                 .node
         };
         <BlockStmtOrExpr as VisitMutWith<V>>::visit_mut_with(
-            BlockStmtOrExpr::from_node_id(ret, ast),
+            unsafe { BlockStmtOrExpr::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -6362,7 +6878,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for YieldExpr {
                 .optional_node
         };
         <Option<Expr> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -6406,7 +6922,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AwaitExpr {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Tpl {
@@ -6451,14 +6971,22 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for TaggedTpl {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Tpl as VisitMutWith<V>>::visit_mut_with(Tpl::from_node_id(ret, ast), visitor, ast);
+        <Tpl as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Tpl::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for TplElement {
@@ -6480,14 +7008,14 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for TplElement {
                 .get_unchecked((offset + 1usize).index())
                 .optional_wtf8_atom
         };
-        <OptionalWtf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
+        <OptionalWtf8AtomRef as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 2usize).index())
                 .atom
         };
-        <Utf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
+        <AtomRef as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ParenExpr {
@@ -6502,7 +7030,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ParenExpr {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Callee {
@@ -6557,7 +7089,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExprOrSpread {
                 .optional_node
         };
         <Option<SpreadDot3Token> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| SpreadDot3Token::from_node_id(id, ast)),
+            ret.map(|id| unsafe { SpreadDot3Token::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -6567,7 +7099,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExprOrSpread {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for SpreadDot3Token {
@@ -6653,7 +7189,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for OptChainExpr {
                 .node
         };
         <OptChainBase as VisitMutWith<V>>::visit_mut_with(
-            OptChainBase::from_node_id(ret, ast),
+            unsafe { OptChainBase::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -6682,7 +7218,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for OptCall {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6739,7 +7279,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Function {
                 .optional_node
         };
         <Option<BlockStmt> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| BlockStmt::from_node_id(id, ast)),
+            ret.map(|id| unsafe { BlockStmt::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -6782,7 +7322,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Param {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Pat as VisitMutWith<V>>::visit_mut_with(Pat::from_node_id(ret, ast), visitor, ast);
+        <Pat as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Pat::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ParamOrTsParamProp {
@@ -6830,7 +7374,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Class {
                 .optional_node
         };
         <Option<Expr> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -6883,7 +7427,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassProp {
                 .node
         };
         <PropName as VisitMutWith<V>>::visit_mut_with(
-            PropName::from_node_id(ret, ast),
+            unsafe { PropName::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -6894,7 +7438,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassProp {
                 .optional_node
         };
         <Option<Expr> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -6931,7 +7475,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateProp {
                 .node
         };
         <PrivateName as VisitMutWith<V>>::visit_mut_with(
-            PrivateName::from_node_id(ret, ast),
+            unsafe { PrivateName::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -6942,7 +7486,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateProp {
                 .optional_node
         };
         <Option<Expr> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -6979,7 +7523,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassMethod {
                 .node
         };
         <PropName as VisitMutWith<V>>::visit_mut_with(
-            PropName::from_node_id(ret, ast),
+            unsafe { PropName::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -6990,7 +7534,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassMethod {
                 .node
         };
         <Function as VisitMutWith<V>>::visit_mut_with(
-            Function::from_node_id(ret, ast),
+            unsafe { Function::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -7027,7 +7571,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateMethod {
                 .node
         };
         <PrivateName as VisitMutWith<V>>::visit_mut_with(
-            PrivateName::from_node_id(ret, ast),
+            unsafe { PrivateName::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -7038,7 +7582,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateMethod {
                 .node
         };
         <Function as VisitMutWith<V>>::visit_mut_with(
-            Function::from_node_id(ret, ast),
+            unsafe { Function::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -7075,7 +7619,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Constructor {
                 .node
         };
         <PropName as VisitMutWith<V>>::visit_mut_with(
-            PropName::from_node_id(ret, ast),
+            unsafe { PropName::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -7097,7 +7641,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Constructor {
                 .optional_node
         };
         <Option<BlockStmt> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| BlockStmt::from_node_id(id, ast)),
+            ret.map(|id| unsafe { BlockStmt::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -7115,7 +7659,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Decorator {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for StaticBlock {
@@ -7131,7 +7679,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for StaticBlock {
                 .node
         };
         <BlockStmt as VisitMutWith<V>>::visit_mut_with(
-            BlockStmt::from_node_id(ret, ast),
+            unsafe { BlockStmt::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -7160,7 +7708,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AutoAccessor {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Key as VisitMutWith<V>>::visit_mut_with(Key::from_node_id(ret, ast), visitor, ast);
+        <Key as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Key::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7168,7 +7720,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AutoAccessor {
                 .optional_node
         };
         <Option<Expr> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -7222,7 +7774,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for KeyValueProp {
                 .node
         };
         <PropName as VisitMutWith<V>>::visit_mut_with(
-            PropName::from_node_id(ret, ast),
+            unsafe { PropName::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -7232,7 +7784,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for KeyValueProp {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignProp {
@@ -7247,14 +7803,22 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignProp {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitMutWith<V>>::visit_mut_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for GetterProp {
@@ -7270,7 +7834,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for GetterProp {
                 .node
         };
         <PropName as VisitMutWith<V>>::visit_mut_with(
-            PropName::from_node_id(ret, ast),
+            unsafe { PropName::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -7281,7 +7845,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for GetterProp {
                 .optional_node
         };
         <Option<BlockStmt> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| BlockStmt::from_node_id(id, ast)),
+            ret.map(|id| unsafe { BlockStmt::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -7300,7 +7864,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SetterProp {
                 .node
         };
         <PropName as VisitMutWith<V>>::visit_mut_with(
-            PropName::from_node_id(ret, ast),
+            unsafe { PropName::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -7311,7 +7875,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SetterProp {
                 .optional_node
         };
         <Option<Pat> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Pat::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Pat::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -7321,7 +7885,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SetterProp {
                 .get_unchecked((offset + 2usize).index())
                 .node
         };
-        <Pat as VisitMutWith<V>>::visit_mut_with(Pat::from_node_id(ret, ast), visitor, ast);
+        <Pat as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Pat::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7329,7 +7897,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SetterProp {
                 .optional_node
         };
         <Option<BlockStmt> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| BlockStmt::from_node_id(id, ast)),
+            ret.map(|id| unsafe { BlockStmt::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -7348,7 +7916,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for MethodProp {
                 .node
         };
         <PropName as VisitMutWith<V>>::visit_mut_with(
-            PropName::from_node_id(ret, ast),
+            unsafe { PropName::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -7359,7 +7927,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for MethodProp {
                 .node
         };
         <Function as VisitMutWith<V>>::visit_mut_with(
-            Function::from_node_id(ret, ast),
+            unsafe { Function::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -7393,7 +7961,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ComputedPropName {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Pat {
@@ -7476,14 +8048,22 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignPat {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Pat as VisitMutWith<V>>::visit_mut_with(Pat::from_node_id(ret, ast), visitor, ast);
+        <Pat as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Pat::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Expr as VisitMutWith<V>>::visit_mut_with(Expr::from_node_id(ret, ast), visitor, ast);
+        <Expr as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Expr::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for RestPat {
@@ -7505,7 +8085,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for RestPat {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Pat as VisitMutWith<V>>::visit_mut_with(Pat::from_node_id(ret, ast), visitor, ast);
+        <Pat as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Pat::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ObjectPatProp {
@@ -7537,7 +8121,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for KeyValuePatProp {
                 .node
         };
         <PropName as VisitMutWith<V>>::visit_mut_with(
-            PropName::from_node_id(ret, ast),
+            unsafe { PropName::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -7547,7 +8131,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for KeyValuePatProp {
                 .get_unchecked((offset + 1usize).index())
                 .node
         };
-        <Pat as VisitMutWith<V>>::visit_mut_with(Pat::from_node_id(ret, ast), visitor, ast);
+        <Pat as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Pat::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignPatProp {
@@ -7563,7 +8151,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignPatProp {
                 .node
         };
         <BindingIdent as VisitMutWith<V>>::visit_mut_with(
-            BindingIdent::from_node_id(ret, ast),
+            unsafe { BindingIdent::from_node_id_unchecked(ret, ast) },
             visitor,
             ast,
         );
@@ -7574,7 +8162,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignPatProp {
                 .optional_node
         };
         <Option<Expr> as VisitMutWith<V>>::visit_mut_with(
-            ret.map(|id| Expr::from_node_id(id, ast)),
+            ret.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) }),
             visitor,
             ast,
         );
@@ -7592,7 +8180,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Ident {
                 .get_unchecked((offset + 0usize).index())
                 .atom
         };
-        <Utf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
+        <AtomRef as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7614,7 +8202,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for IdentName {
                 .get_unchecked((offset + 0usize).index())
                 .atom
         };
-        <Utf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
+        <AtomRef as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateName {
@@ -7629,7 +8217,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateName {
                 .get_unchecked((offset + 0usize).index())
                 .atom
         };
-        <Utf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
+        <AtomRef as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for BindingIdent {
@@ -7644,7 +8232,11 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for BindingIdent {
                 .get_unchecked((offset + 0usize).index())
                 .node
         };
-        <Ident as VisitMutWith<V>>::visit_mut_with(Ident::from_node_id(ret, ast), visitor, ast);
+        <Ident as VisitMutWith<V>>::visit_mut_with(
+            unsafe { Ident::from_node_id_unchecked(ret, ast) },
+            visitor,
+            ast,
+        );
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Lit {
@@ -7674,14 +8266,14 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Str {
                 .get_unchecked((offset + 0usize).index())
                 .wtf8_atom
         };
-        <Wtf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
+        <Wtf8AtomRef as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .optional_atom
         };
-        <OptionalUtf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
+        <OptionalAtomRef as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Bool {
@@ -7726,7 +8318,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Number {
                 .get_unchecked((offset + 1usize).index())
                 .optional_atom
         };
-        <OptionalUtf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
+        <OptionalAtomRef as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for BigInt {
@@ -7748,7 +8340,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for BigInt {
                 .get_unchecked((offset + 1usize).index())
                 .optional_atom
         };
-        <OptionalUtf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
+        <OptionalAtomRef as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Regex {
@@ -7763,14 +8355,14 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Regex {
                 .get_unchecked((offset + 0usize).index())
                 .atom
         };
-        <Utf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
+        <AtomRef as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
                 .atom
         };
-        <Utf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
+        <AtomRef as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for TypedSubRange<ModuleItem> {

@@ -28,6 +28,10 @@ impl FromNodeId for Program {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for Module {
     #[inline]
@@ -46,7 +50,12 @@ impl GetOptionalNodeId for Option<Module> {
 }
 impl FromNodeId for Module {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Module);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -67,7 +76,12 @@ impl GetOptionalNodeId for Option<Script> {
 }
 impl FromNodeId for Script {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Script);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -156,6 +170,10 @@ impl FromNodeId for ModuleItem {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for ModuleDecl {
     #[inline]
@@ -196,6 +214,10 @@ impl FromNodeId for ModuleDecl {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for ImportDecl {
     #[inline]
@@ -214,7 +236,12 @@ impl GetOptionalNodeId for Option<ImportDecl> {
 }
 impl FromNodeId for ImportDecl {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ImportDecl);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -253,6 +280,10 @@ impl FromNodeId for ImportSpecifier {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for ImportNamedSpecifier {
     #[inline]
@@ -271,7 +302,12 @@ impl GetOptionalNodeId for Option<ImportNamedSpecifier> {
 }
 impl FromNodeId for ImportNamedSpecifier {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ImportNamedSpecifier);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -292,7 +328,12 @@ impl GetOptionalNodeId for Option<ImportDefaultSpecifier> {
 }
 impl FromNodeId for ImportDefaultSpecifier {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ImportDefaultSpecifier);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -313,7 +354,12 @@ impl GetOptionalNodeId for Option<ImportStarAsSpecifier> {
 }
 impl FromNodeId for ImportStarAsSpecifier {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ImportStarAsSpecifier);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -334,7 +380,12 @@ impl GetOptionalNodeId for Option<ExportDecl> {
 }
 impl FromNodeId for ExportDecl {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ExportDecl);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -355,7 +406,12 @@ impl GetOptionalNodeId for Option<NamedExport> {
 }
 impl FromNodeId for NamedExport {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::NamedExport);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -394,6 +450,10 @@ impl FromNodeId for ExportSpecifier {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for ExportNamespaceSpecifier {
     #[inline]
@@ -412,7 +472,12 @@ impl GetOptionalNodeId for Option<ExportNamespaceSpecifier> {
 }
 impl FromNodeId for ExportNamespaceSpecifier {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ExportNamespaceSpecifier);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -443,6 +508,10 @@ impl FromNodeId for ModuleExportName {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for ExportDefaultSpecifier {
     #[inline]
@@ -461,7 +530,12 @@ impl GetOptionalNodeId for Option<ExportDefaultSpecifier> {
 }
 impl FromNodeId for ExportDefaultSpecifier {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ExportDefaultSpecifier);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -482,7 +556,12 @@ impl GetOptionalNodeId for Option<ExportNamedSpecifier> {
 }
 impl FromNodeId for ExportNamedSpecifier {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ExportNamedSpecifier);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -503,7 +582,12 @@ impl GetOptionalNodeId for Option<ExportDefaultDecl> {
 }
 impl FromNodeId for ExportDefaultDecl {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ExportDefaultDecl);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -534,6 +618,10 @@ impl FromNodeId for DefaultDecl {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for ExportDefaultExpr {
     #[inline]
@@ -552,7 +640,12 @@ impl GetOptionalNodeId for Option<ExportDefaultExpr> {
 }
 impl FromNodeId for ExportDefaultExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ExportDefaultExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -573,7 +666,12 @@ impl GetOptionalNodeId for Option<ExportAll> {
 }
 impl FromNodeId for ExportAll {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ExportAll);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -594,7 +692,12 @@ impl GetOptionalNodeId for Option<BlockStmt> {
 }
 impl FromNodeId for BlockStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::BlockStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -662,6 +765,10 @@ impl FromNodeId for Stmt {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for ExprStmt {
     #[inline]
@@ -680,7 +787,12 @@ impl GetOptionalNodeId for Option<ExprStmt> {
 }
 impl FromNodeId for ExprStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ExprStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -701,7 +813,12 @@ impl GetOptionalNodeId for Option<EmptyStmt> {
 }
 impl FromNodeId for EmptyStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::EmptyStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -722,7 +839,12 @@ impl GetOptionalNodeId for Option<DebuggerStmt> {
 }
 impl FromNodeId for DebuggerStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::DebuggerStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -743,7 +865,12 @@ impl GetOptionalNodeId for Option<WithStmt> {
 }
 impl FromNodeId for WithStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::WithStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -764,7 +891,12 @@ impl GetOptionalNodeId for Option<ReturnStmt> {
 }
 impl FromNodeId for ReturnStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ReturnStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -785,7 +917,12 @@ impl GetOptionalNodeId for Option<LabeledStmt> {
 }
 impl FromNodeId for LabeledStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::LabeledStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -806,7 +943,12 @@ impl GetOptionalNodeId for Option<BreakStmt> {
 }
 impl FromNodeId for BreakStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::BreakStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -827,7 +969,12 @@ impl GetOptionalNodeId for Option<ContinueStmt> {
 }
 impl FromNodeId for ContinueStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ContinueStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -848,7 +995,12 @@ impl GetOptionalNodeId for Option<IfStmt> {
 }
 impl FromNodeId for IfStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::IfStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -869,7 +1021,12 @@ impl GetOptionalNodeId for Option<SwitchStmt> {
 }
 impl FromNodeId for SwitchStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::SwitchStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -890,7 +1047,12 @@ impl GetOptionalNodeId for Option<ThrowStmt> {
 }
 impl FromNodeId for ThrowStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ThrowStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -911,7 +1073,12 @@ impl GetOptionalNodeId for Option<TryStmt> {
 }
 impl FromNodeId for TryStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::TryStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -932,7 +1099,12 @@ impl GetOptionalNodeId for Option<WhileStmt> {
 }
 impl FromNodeId for WhileStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::WhileStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -953,7 +1125,12 @@ impl GetOptionalNodeId for Option<DoWhileStmt> {
 }
 impl FromNodeId for DoWhileStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::DoWhileStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -974,7 +1151,12 @@ impl GetOptionalNodeId for Option<ForStmt> {
 }
 impl FromNodeId for ForStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ForStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -995,7 +1177,12 @@ impl GetOptionalNodeId for Option<ForInStmt> {
 }
 impl FromNodeId for ForInStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ForInStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1016,7 +1203,12 @@ impl GetOptionalNodeId for Option<ForOfStmt> {
 }
 impl FromNodeId for ForOfStmt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ForOfStmt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1037,7 +1229,12 @@ impl GetOptionalNodeId for Option<SwitchCase> {
 }
 impl FromNodeId for SwitchCase {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::SwitchCase);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1058,7 +1255,12 @@ impl GetOptionalNodeId for Option<CatchClause> {
 }
 impl FromNodeId for CatchClause {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::CatchClause);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1177,6 +1379,10 @@ impl FromNodeId for ForHead {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for VarDeclOrExpr {
     #[inline]
@@ -1276,6 +1482,10 @@ impl FromNodeId for VarDeclOrExpr {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for Decl {
     #[inline]
@@ -1308,6 +1518,10 @@ impl FromNodeId for Decl {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for FnDecl {
     #[inline]
@@ -1326,7 +1540,12 @@ impl GetOptionalNodeId for Option<FnDecl> {
 }
 impl FromNodeId for FnDecl {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::FnDecl);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1347,7 +1566,12 @@ impl GetOptionalNodeId for Option<ClassDecl> {
 }
 impl FromNodeId for ClassDecl {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ClassDecl);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1368,7 +1592,12 @@ impl GetOptionalNodeId for Option<VarDecl> {
 }
 impl FromNodeId for VarDecl {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::VarDecl);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1389,7 +1618,12 @@ impl GetOptionalNodeId for Option<VarDeclarator> {
 }
 impl FromNodeId for VarDeclarator {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::VarDeclarator);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1410,7 +1644,12 @@ impl GetOptionalNodeId for Option<UsingDecl> {
 }
 impl FromNodeId for UsingDecl {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::UsingDecl);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1496,6 +1735,10 @@ impl FromNodeId for Expr {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for ThisExpr {
     #[inline]
@@ -1514,7 +1757,12 @@ impl GetOptionalNodeId for Option<ThisExpr> {
 }
 impl FromNodeId for ThisExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ThisExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1535,7 +1783,12 @@ impl GetOptionalNodeId for Option<ArrayLit> {
 }
 impl FromNodeId for ArrayLit {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ArrayLit);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1556,7 +1809,12 @@ impl GetOptionalNodeId for Option<ObjectLit> {
 }
 impl FromNodeId for ObjectLit {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ObjectLit);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1604,6 +1862,10 @@ impl FromNodeId for PropOrSpread {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for SpreadElement {
     #[inline]
@@ -1622,7 +1884,12 @@ impl GetOptionalNodeId for Option<SpreadElement> {
 }
 impl FromNodeId for SpreadElement {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::SpreadElement);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1643,7 +1910,12 @@ impl GetOptionalNodeId for Option<UnaryExpr> {
 }
 impl FromNodeId for UnaryExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::UnaryExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1664,7 +1936,12 @@ impl GetOptionalNodeId for Option<UpdateExpr> {
 }
 impl FromNodeId for UpdateExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::UpdateExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1685,7 +1962,12 @@ impl GetOptionalNodeId for Option<BinExpr> {
 }
 impl FromNodeId for BinExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::BinExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1706,7 +1988,12 @@ impl GetOptionalNodeId for Option<FnExpr> {
 }
 impl FromNodeId for FnExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::FnExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1727,7 +2014,12 @@ impl GetOptionalNodeId for Option<ClassExpr> {
 }
 impl FromNodeId for ClassExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ClassExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1748,7 +2040,12 @@ impl GetOptionalNodeId for Option<AssignExpr> {
 }
 impl FromNodeId for AssignExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::AssignExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1769,7 +2066,12 @@ impl GetOptionalNodeId for Option<MemberExpr> {
 }
 impl FromNodeId for MemberExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::MemberExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1804,6 +2106,10 @@ impl FromNodeId for MemberProp {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for SuperPropExpr {
     #[inline]
@@ -1822,7 +2128,12 @@ impl GetOptionalNodeId for Option<SuperPropExpr> {
 }
 impl FromNodeId for SuperPropExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::SuperPropExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1855,6 +2166,10 @@ impl FromNodeId for SuperProp {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for CondExpr {
     #[inline]
@@ -1873,7 +2188,12 @@ impl GetOptionalNodeId for Option<CondExpr> {
 }
 impl FromNodeId for CondExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::CondExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1894,7 +2214,12 @@ impl GetOptionalNodeId for Option<CallExpr> {
 }
 impl FromNodeId for CallExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::CallExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1915,7 +2240,12 @@ impl GetOptionalNodeId for Option<NewExpr> {
 }
 impl FromNodeId for NewExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::NewExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1936,7 +2266,12 @@ impl GetOptionalNodeId for Option<SeqExpr> {
 }
 impl FromNodeId for SeqExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::SeqExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1957,7 +2292,12 @@ impl GetOptionalNodeId for Option<ArrowExpr> {
 }
 impl FromNodeId for ArrowExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ArrowExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1978,7 +2318,12 @@ impl GetOptionalNodeId for Option<YieldExpr> {
 }
 impl FromNodeId for YieldExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::YieldExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -1999,7 +2344,12 @@ impl GetOptionalNodeId for Option<MetaPropExpr> {
 }
 impl FromNodeId for MetaPropExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::MetaPropExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2020,7 +2370,12 @@ impl GetOptionalNodeId for Option<AwaitExpr> {
 }
 impl FromNodeId for AwaitExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::AwaitExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2041,7 +2396,12 @@ impl GetOptionalNodeId for Option<Tpl> {
 }
 impl FromNodeId for Tpl {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Tpl);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2062,7 +2422,12 @@ impl GetOptionalNodeId for Option<TaggedTpl> {
 }
 impl FromNodeId for TaggedTpl {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::TaggedTpl);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2083,7 +2448,12 @@ impl GetOptionalNodeId for Option<TplElement> {
 }
 impl FromNodeId for TplElement {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::TplElement);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2104,7 +2474,12 @@ impl GetOptionalNodeId for Option<ParenExpr> {
 }
 impl FromNodeId for ParenExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ParenExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2176,6 +2551,10 @@ impl FromNodeId for Callee {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for Super {
     #[inline]
@@ -2194,7 +2573,12 @@ impl GetOptionalNodeId for Option<Super> {
 }
 impl FromNodeId for Super {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Super);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2215,7 +2599,12 @@ impl GetOptionalNodeId for Option<Import> {
 }
 impl FromNodeId for Import {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Import);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2236,7 +2625,12 @@ impl GetOptionalNodeId for Option<ExprOrSpread> {
 }
 impl FromNodeId for ExprOrSpread {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ExprOrSpread);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2257,7 +2651,12 @@ impl GetOptionalNodeId for Option<SpreadDot3Token> {
 }
 impl FromNodeId for SpreadDot3Token {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::SpreadDot3Token);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2369,6 +2768,10 @@ impl FromNodeId for BlockStmtOrExpr {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for AssignTarget {
     #[inline]
@@ -2419,6 +2822,10 @@ impl FromNodeId for AssignTarget {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for AssignTargetPat {
     #[inline]
@@ -2448,6 +2855,10 @@ impl FromNodeId for AssignTargetPat {
             NodeKind::ObjectPat => AssignTargetPat::Object(ObjectPat::from_node_id(id, ast)),
             _ => unreachable!(),
         }
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
     }
 }
 impl GetNodeId for SimpleAssignTarget {
@@ -2491,6 +2902,10 @@ impl FromNodeId for SimpleAssignTarget {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for OptChainExpr {
     #[inline]
@@ -2509,7 +2924,12 @@ impl GetOptionalNodeId for Option<OptChainExpr> {
 }
 impl FromNodeId for OptChainExpr {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::OptChainExpr);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2540,6 +2960,10 @@ impl FromNodeId for OptChainBase {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for OptCall {
     #[inline]
@@ -2558,7 +2982,12 @@ impl GetOptionalNodeId for Option<OptCall> {
 }
 impl FromNodeId for OptCall {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::OptCall);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2579,7 +3008,12 @@ impl GetOptionalNodeId for Option<Invalid> {
 }
 impl FromNodeId for Invalid {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Invalid);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2600,7 +3034,12 @@ impl GetOptionalNodeId for Option<Function> {
 }
 impl FromNodeId for Function {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Function);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2621,7 +3060,12 @@ impl GetOptionalNodeId for Option<Param> {
 }
 impl FromNodeId for Param {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Param);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2650,6 +3094,10 @@ impl FromNodeId for ParamOrTsParamProp {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for Class {
     #[inline]
@@ -2668,7 +3116,12 @@ impl GetOptionalNodeId for Option<Class> {
 }
 impl FromNodeId for Class {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Class);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2715,6 +3168,10 @@ impl FromNodeId for ClassMember {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for ClassProp {
     #[inline]
@@ -2733,7 +3190,12 @@ impl GetOptionalNodeId for Option<ClassProp> {
 }
 impl FromNodeId for ClassProp {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ClassProp);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2754,7 +3216,12 @@ impl GetOptionalNodeId for Option<PrivateProp> {
 }
 impl FromNodeId for PrivateProp {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::PrivateProp);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2775,7 +3242,12 @@ impl GetOptionalNodeId for Option<ClassMethod> {
 }
 impl FromNodeId for ClassMethod {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ClassMethod);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2796,7 +3268,12 @@ impl GetOptionalNodeId for Option<PrivateMethod> {
 }
 impl FromNodeId for PrivateMethod {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::PrivateMethod);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2817,7 +3294,12 @@ impl GetOptionalNodeId for Option<Constructor> {
 }
 impl FromNodeId for Constructor {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Constructor);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2838,7 +3320,12 @@ impl GetOptionalNodeId for Option<Decorator> {
 }
 impl FromNodeId for Decorator {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Decorator);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2859,7 +3346,12 @@ impl GetOptionalNodeId for Option<StaticBlock> {
 }
 impl FromNodeId for StaticBlock {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::StaticBlock);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2896,6 +3388,10 @@ impl FromNodeId for Key {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for AutoAccessor {
     #[inline]
@@ -2914,7 +3410,12 @@ impl GetOptionalNodeId for Option<AutoAccessor> {
 }
 impl FromNodeId for AutoAccessor {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::AutoAccessor);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2953,6 +3454,10 @@ impl FromNodeId for Prop {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for KeyValueProp {
     #[inline]
@@ -2971,7 +3476,12 @@ impl GetOptionalNodeId for Option<KeyValueProp> {
 }
 impl FromNodeId for KeyValueProp {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::KeyValueProp);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -2992,7 +3502,12 @@ impl GetOptionalNodeId for Option<AssignProp> {
 }
 impl FromNodeId for AssignProp {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::AssignProp);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3013,7 +3528,12 @@ impl GetOptionalNodeId for Option<GetterProp> {
 }
 impl FromNodeId for GetterProp {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::GetterProp);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3034,7 +3554,12 @@ impl GetOptionalNodeId for Option<SetterProp> {
 }
 impl FromNodeId for SetterProp {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::SetterProp);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3055,7 +3580,12 @@ impl GetOptionalNodeId for Option<MethodProp> {
 }
 impl FromNodeId for MethodProp {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::MethodProp);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3094,6 +3624,10 @@ impl FromNodeId for PropName {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for ComputedPropName {
     #[inline]
@@ -3112,7 +3646,12 @@ impl GetOptionalNodeId for Option<ComputedPropName> {
 }
 impl FromNodeId for ComputedPropName {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ComputedPropName);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3191,6 +3730,10 @@ impl FromNodeId for Pat {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for ArrayPat {
     #[inline]
@@ -3209,7 +3752,12 @@ impl GetOptionalNodeId for Option<ArrayPat> {
 }
 impl FromNodeId for ArrayPat {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ArrayPat);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3230,7 +3778,12 @@ impl GetOptionalNodeId for Option<ObjectPat> {
 }
 impl FromNodeId for ObjectPat {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::ObjectPat);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3251,7 +3804,12 @@ impl GetOptionalNodeId for Option<AssignPat> {
 }
 impl FromNodeId for AssignPat {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::AssignPat);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3272,7 +3830,12 @@ impl GetOptionalNodeId for Option<RestPat> {
 }
 impl FromNodeId for RestPat {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::RestPat);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3307,6 +3870,10 @@ impl FromNodeId for ObjectPatProp {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for KeyValuePatProp {
     #[inline]
@@ -3325,7 +3892,12 @@ impl GetOptionalNodeId for Option<KeyValuePatProp> {
 }
 impl FromNodeId for KeyValuePatProp {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::KeyValuePatProp);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3346,7 +3918,12 @@ impl GetOptionalNodeId for Option<AssignPatProp> {
 }
 impl FromNodeId for AssignPatProp {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::AssignPatProp);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3367,7 +3944,12 @@ impl GetOptionalNodeId for Option<Ident> {
 }
 impl FromNodeId for Ident {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Ident);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3388,7 +3970,12 @@ impl GetOptionalNodeId for Option<IdentName> {
 }
 impl FromNodeId for IdentName {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::IdentName);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3409,7 +3996,12 @@ impl GetOptionalNodeId for Option<PrivateName> {
 }
 impl FromNodeId for PrivateName {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::PrivateName);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3430,7 +4022,12 @@ impl GetOptionalNodeId for Option<BindingIdent> {
 }
 impl FromNodeId for BindingIdent {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::BindingIdent);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3469,6 +4066,10 @@ impl FromNodeId for Lit {
             _ => unreachable!(),
         }
     }
+    #[inline]
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self {
+        Self::from_node_id(id, ast)
+    }
 }
 impl GetNodeId for Str {
     #[inline]
@@ -3487,7 +4088,12 @@ impl GetOptionalNodeId for Option<Str> {
 }
 impl FromNodeId for Str {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Str);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3508,7 +4114,12 @@ impl GetOptionalNodeId for Option<Bool> {
 }
 impl FromNodeId for Bool {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Bool);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3529,7 +4140,12 @@ impl GetOptionalNodeId for Option<Null> {
 }
 impl FromNodeId for Null {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Null);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3550,7 +4166,12 @@ impl GetOptionalNodeId for Option<Number> {
 }
 impl FromNodeId for Number {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Number);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3571,7 +4192,12 @@ impl GetOptionalNodeId for Option<BigInt> {
 }
 impl FromNodeId for BigInt {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::BigInt);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }
@@ -3592,7 +4218,12 @@ impl GetOptionalNodeId for Option<Regex> {
 }
 impl FromNodeId for Regex {
     #[inline]
-    fn from_node_id(node_id: NodeId, _ast: &Ast) -> Self {
+    fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
+        assert!(ast.nodes[node_id].kind == NodeKind::Regex);
+        Self(node_id)
+    }
+    #[inline]
+    unsafe fn from_node_id_unchecked(node_id: NodeId, _ast: &Ast) -> Self {
         Self(node_id)
     }
 }

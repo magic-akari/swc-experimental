@@ -14,9 +14,9 @@ impl<T: GetNodeId> GetOptionalNodeId for T {
     }
 }
 
-// TODO: Make it unsafe
 pub trait FromNodeId {
     fn from_node_id(id: NodeId, ast: &Ast) -> Self;
+    unsafe fn from_node_id_unchecked(id: NodeId, ast: &Ast) -> Self;
 }
 
 oxc_index::define_index_type! {

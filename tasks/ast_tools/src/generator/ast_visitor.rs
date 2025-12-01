@@ -51,11 +51,11 @@ pub fn ast_visitor(schema: &Schema) -> RawOutput {
                         AstType::Option(ast) => {
                             let field_inner_ident =
                                 schema.types[ast.inner_type_id].repr_ident(schema);
-                            quote!( ret.map(|id| #field_inner_ident::from_node_id(id, ast)) )
+                            quote!( ret.map(|id| unsafe { #field_inner_ident::from_node_id_unchecked(id, ast) }) )
                         }
                         AstType::Struct(_) | AstType::Enum(_) => {
                             let field_inner_ty = field_ty.repr_ident(schema);
-                            quote!( #field_inner_ty::from_node_id(ret, ast) )
+                            quote!( unsafe { #field_inner_ty::from_node_id_unchecked(ret, ast) })
                         }
                         _ if extra_data_name == "other" => {
                             let field_ty = field_ty.repr_ident(schema);
