@@ -228,12 +228,12 @@ pub struct NodeExtraDataId<T> {
 impl Ast {
     pub fn get_node<T: FromNodeId>(&self, id: NodeExtraDataId<T>) -> T {
         let node_id = unsafe { self.extra_data[id.inner].node };
-        T::from_node_id(node_id, self)
+        unsafe { T::from_node_id_unchecked(node_id, self) }
     }
 
     pub fn get_opt_node<T: FromNodeId>(&self, id: NodeExtraDataId<Option<T>>) -> Option<T> {
         let opt_node_id = unsafe { self.extra_data[id.inner].optional_node };
-        opt_node_id.map(|node_id| T::from_node_id(node_id, self))
+        opt_node_id.map(|node_id| unsafe { T::from_node_id_unchecked(node_id, self) })
     }
 
     pub fn get_raw_node<T>(&self, id: NodeExtraDataId<T>) -> &AstNode {
