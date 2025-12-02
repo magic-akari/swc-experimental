@@ -1,5 +1,5 @@
 #![allow(unused)]
-use crate::{Ast, ast::*, node_id::*};
+use crate::{ast::*, node_id::*, Ast};
 use swc_common::Span;
 pub trait Visit {
     #[inline]
@@ -12,11 +12,15 @@ pub trait Visit {
     }
     #[inline]
     fn visit_module(&mut self, node: Module, ast: &Ast) {
-        <Module as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Module as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_script(&mut self, node: Script, ast: &Ast) {
-        <Script as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Script as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_module_item(&mut self, node: ModuleItem, ast: &Ast) {
@@ -28,7 +32,9 @@ pub trait Visit {
     }
     #[inline]
     fn visit_import_decl(&mut self, node: ImportDecl, ast: &Ast) {
-        <ImportDecl as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ImportDecl as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_import_specifier(&mut self, node: ImportSpecifier, ast: &Ast) {
@@ -36,23 +42,33 @@ pub trait Visit {
     }
     #[inline]
     fn visit_import_named_specifier(&mut self, node: ImportNamedSpecifier, ast: &Ast) {
-        <ImportNamedSpecifier as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ImportNamedSpecifier as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_import_default_specifier(&mut self, node: ImportDefaultSpecifier, ast: &Ast) {
-        <ImportDefaultSpecifier as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ImportDefaultSpecifier as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_import_star_as_specifier(&mut self, node: ImportStarAsSpecifier, ast: &Ast) {
-        <ImportStarAsSpecifier as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ImportStarAsSpecifier as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_export_decl(&mut self, node: ExportDecl, ast: &Ast) {
-        <ExportDecl as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExportDecl as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_named_export(&mut self, node: NamedExport, ast: &Ast) {
-        <NamedExport as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <NamedExport as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_export_specifier(&mut self, node: ExportSpecifier, ast: &Ast) {
@@ -60,7 +76,9 @@ pub trait Visit {
     }
     #[inline]
     fn visit_export_namespace_specifier(&mut self, node: ExportNamespaceSpecifier, ast: &Ast) {
-        <ExportNamespaceSpecifier as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExportNamespaceSpecifier as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_module_export_name(&mut self, node: ModuleExportName, ast: &Ast) {
@@ -68,15 +86,21 @@ pub trait Visit {
     }
     #[inline]
     fn visit_export_default_specifier(&mut self, node: ExportDefaultSpecifier, ast: &Ast) {
-        <ExportDefaultSpecifier as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExportDefaultSpecifier as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_export_named_specifier(&mut self, node: ExportNamedSpecifier, ast: &Ast) {
-        <ExportNamedSpecifier as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExportNamedSpecifier as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_export_default_decl(&mut self, node: ExportDefaultDecl, ast: &Ast) {
-        <ExportDefaultDecl as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExportDefaultDecl as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_default_decl(&mut self, node: DefaultDecl, ast: &Ast) {
@@ -84,15 +108,21 @@ pub trait Visit {
     }
     #[inline]
     fn visit_export_default_expr(&mut self, node: ExportDefaultExpr, ast: &Ast) {
-        <ExportDefaultExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExportDefaultExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_export_all(&mut self, node: ExportAll, ast: &Ast) {
-        <ExportAll as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExportAll as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_block_stmt(&mut self, node: BlockStmt, ast: &Ast) {
-        <BlockStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <BlockStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_stmt(&mut self, node: Stmt, ast: &Ast) {
@@ -100,79 +130,117 @@ pub trait Visit {
     }
     #[inline]
     fn visit_expr_stmt(&mut self, node: ExprStmt, ast: &Ast) {
-        <ExprStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExprStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_empty_stmt(&mut self, node: EmptyStmt, ast: &Ast) {
-        <EmptyStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <EmptyStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_debugger_stmt(&mut self, node: DebuggerStmt, ast: &Ast) {
-        <DebuggerStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <DebuggerStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_with_stmt(&mut self, node: WithStmt, ast: &Ast) {
-        <WithStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <WithStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_return_stmt(&mut self, node: ReturnStmt, ast: &Ast) {
-        <ReturnStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ReturnStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_labeled_stmt(&mut self, node: LabeledStmt, ast: &Ast) {
-        <LabeledStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <LabeledStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_break_stmt(&mut self, node: BreakStmt, ast: &Ast) {
-        <BreakStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <BreakStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_continue_stmt(&mut self, node: ContinueStmt, ast: &Ast) {
-        <ContinueStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ContinueStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_if_stmt(&mut self, node: IfStmt, ast: &Ast) {
-        <IfStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <IfStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_switch_stmt(&mut self, node: SwitchStmt, ast: &Ast) {
-        <SwitchStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <SwitchStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_throw_stmt(&mut self, node: ThrowStmt, ast: &Ast) {
-        <ThrowStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ThrowStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_try_stmt(&mut self, node: TryStmt, ast: &Ast) {
-        <TryStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <TryStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_while_stmt(&mut self, node: WhileStmt, ast: &Ast) {
-        <WhileStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <WhileStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_do_while_stmt(&mut self, node: DoWhileStmt, ast: &Ast) {
-        <DoWhileStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <DoWhileStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_for_stmt(&mut self, node: ForStmt, ast: &Ast) {
-        <ForStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ForStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_for_in_stmt(&mut self, node: ForInStmt, ast: &Ast) {
-        <ForInStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ForInStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_for_of_stmt(&mut self, node: ForOfStmt, ast: &Ast) {
-        <ForOfStmt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ForOfStmt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_switch_case(&mut self, node: SwitchCase, ast: &Ast) {
-        <SwitchCase as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <SwitchCase as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_catch_clause(&mut self, node: CatchClause, ast: &Ast) {
-        <CatchClause as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <CatchClause as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_for_head(&mut self, node: ForHead, ast: &Ast) {
@@ -188,23 +256,33 @@ pub trait Visit {
     }
     #[inline]
     fn visit_fn_decl(&mut self, node: FnDecl, ast: &Ast) {
-        <FnDecl as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <FnDecl as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_class_decl(&mut self, node: ClassDecl, ast: &Ast) {
-        <ClassDecl as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ClassDecl as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_var_decl(&mut self, node: VarDecl, ast: &Ast) {
-        <VarDecl as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <VarDecl as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_var_declarator(&mut self, node: VarDeclarator, ast: &Ast) {
-        <VarDeclarator as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <VarDeclarator as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_using_decl(&mut self, node: UsingDecl, ast: &Ast) {
-        <UsingDecl as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <UsingDecl as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_expr(&mut self, node: Expr, ast: &Ast) {
@@ -212,15 +290,21 @@ pub trait Visit {
     }
     #[inline]
     fn visit_this_expr(&mut self, node: ThisExpr, ast: &Ast) {
-        <ThisExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ThisExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_array_lit(&mut self, node: ArrayLit, ast: &Ast) {
-        <ArrayLit as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ArrayLit as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_object_lit(&mut self, node: ObjectLit, ast: &Ast) {
-        <ObjectLit as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ObjectLit as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_prop_or_spread(&mut self, node: PropOrSpread, ast: &Ast) {
@@ -228,35 +312,51 @@ pub trait Visit {
     }
     #[inline]
     fn visit_spread_element(&mut self, node: SpreadElement, ast: &Ast) {
-        <SpreadElement as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <SpreadElement as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_unary_expr(&mut self, node: UnaryExpr, ast: &Ast) {
-        <UnaryExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <UnaryExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_update_expr(&mut self, node: UpdateExpr, ast: &Ast) {
-        <UpdateExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <UpdateExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_bin_expr(&mut self, node: BinExpr, ast: &Ast) {
-        <BinExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <BinExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_fn_expr(&mut self, node: FnExpr, ast: &Ast) {
-        <FnExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <FnExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_class_expr(&mut self, node: ClassExpr, ast: &Ast) {
-        <ClassExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ClassExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_assign_expr(&mut self, node: AssignExpr, ast: &Ast) {
-        <AssignExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <AssignExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_member_expr(&mut self, node: MemberExpr, ast: &Ast) {
-        <MemberExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <MemberExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_member_prop(&mut self, node: MemberProp, ast: &Ast) {
@@ -264,7 +364,9 @@ pub trait Visit {
     }
     #[inline]
     fn visit_super_prop_expr(&mut self, node: SuperPropExpr, ast: &Ast) {
-        <SuperPropExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <SuperPropExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_super_prop(&mut self, node: SuperProp, ast: &Ast) {
@@ -272,51 +374,75 @@ pub trait Visit {
     }
     #[inline]
     fn visit_cond_expr(&mut self, node: CondExpr, ast: &Ast) {
-        <CondExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <CondExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_call_expr(&mut self, node: CallExpr, ast: &Ast) {
-        <CallExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <CallExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_new_expr(&mut self, node: NewExpr, ast: &Ast) {
-        <NewExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <NewExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_seq_expr(&mut self, node: SeqExpr, ast: &Ast) {
-        <SeqExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <SeqExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_arrow_expr(&mut self, node: ArrowExpr, ast: &Ast) {
-        <ArrowExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ArrowExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_yield_expr(&mut self, node: YieldExpr, ast: &Ast) {
-        <YieldExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <YieldExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_meta_prop_expr(&mut self, node: MetaPropExpr, ast: &Ast) {
-        <MetaPropExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <MetaPropExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_await_expr(&mut self, node: AwaitExpr, ast: &Ast) {
-        <AwaitExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <AwaitExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_tpl(&mut self, node: Tpl, ast: &Ast) {
-        <Tpl as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Tpl as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_tagged_tpl(&mut self, node: TaggedTpl, ast: &Ast) {
-        <TaggedTpl as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <TaggedTpl as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_tpl_element(&mut self, node: TplElement, ast: &Ast) {
-        <TplElement as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <TplElement as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_paren_expr(&mut self, node: ParenExpr, ast: &Ast) {
-        <ParenExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ParenExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_callee(&mut self, node: Callee, ast: &Ast) {
@@ -324,19 +450,27 @@ pub trait Visit {
     }
     #[inline]
     fn visit_super(&mut self, node: Super, ast: &Ast) {
-        <Super as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Super as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_import(&mut self, node: Import, ast: &Ast) {
-        <Import as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Import as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_expr_or_spread(&mut self, node: ExprOrSpread, ast: &Ast) {
-        <ExprOrSpread as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExprOrSpread as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_spread_dot_3_token(&mut self, node: SpreadDot3Token, ast: &Ast) {
-        <SpreadDot3Token as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <SpreadDot3Token as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_block_stmt_or_expr(&mut self, node: BlockStmtOrExpr, ast: &Ast) {
@@ -356,7 +490,9 @@ pub trait Visit {
     }
     #[inline]
     fn visit_opt_chain_expr(&mut self, node: OptChainExpr, ast: &Ast) {
-        <OptChainExpr as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <OptChainExpr as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_opt_chain_base(&mut self, node: OptChainBase, ast: &Ast) {
@@ -364,19 +500,27 @@ pub trait Visit {
     }
     #[inline]
     fn visit_opt_call(&mut self, node: OptCall, ast: &Ast) {
-        <OptCall as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <OptCall as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_invalid(&mut self, node: Invalid, ast: &Ast) {
-        <Invalid as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Invalid as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_function(&mut self, node: Function, ast: &Ast) {
-        <Function as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Function as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_param(&mut self, node: Param, ast: &Ast) {
-        <Param as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Param as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_param_or_ts_param_prop(&mut self, node: ParamOrTsParamProp, ast: &Ast) {
@@ -384,7 +528,9 @@ pub trait Visit {
     }
     #[inline]
     fn visit_class(&mut self, node: Class, ast: &Ast) {
-        <Class as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Class as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_class_member(&mut self, node: ClassMember, ast: &Ast) {
@@ -392,31 +538,45 @@ pub trait Visit {
     }
     #[inline]
     fn visit_class_prop(&mut self, node: ClassProp, ast: &Ast) {
-        <ClassProp as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ClassProp as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_private_prop(&mut self, node: PrivateProp, ast: &Ast) {
-        <PrivateProp as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <PrivateProp as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_class_method(&mut self, node: ClassMethod, ast: &Ast) {
-        <ClassMethod as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ClassMethod as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_private_method(&mut self, node: PrivateMethod, ast: &Ast) {
-        <PrivateMethod as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <PrivateMethod as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_constructor(&mut self, node: Constructor, ast: &Ast) {
-        <Constructor as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Constructor as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_decorator(&mut self, node: Decorator, ast: &Ast) {
-        <Decorator as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Decorator as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_static_block(&mut self, node: StaticBlock, ast: &Ast) {
-        <StaticBlock as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <StaticBlock as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_key(&mut self, node: Key, ast: &Ast) {
@@ -424,7 +584,9 @@ pub trait Visit {
     }
     #[inline]
     fn visit_auto_accessor(&mut self, node: AutoAccessor, ast: &Ast) {
-        <AutoAccessor as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <AutoAccessor as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_prop(&mut self, node: Prop, ast: &Ast) {
@@ -432,23 +594,33 @@ pub trait Visit {
     }
     #[inline]
     fn visit_key_value_prop(&mut self, node: KeyValueProp, ast: &Ast) {
-        <KeyValueProp as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <KeyValueProp as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_assign_prop(&mut self, node: AssignProp, ast: &Ast) {
-        <AssignProp as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <AssignProp as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_getter_prop(&mut self, node: GetterProp, ast: &Ast) {
-        <GetterProp as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <GetterProp as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_setter_prop(&mut self, node: SetterProp, ast: &Ast) {
-        <SetterProp as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <SetterProp as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_method_prop(&mut self, node: MethodProp, ast: &Ast) {
-        <MethodProp as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <MethodProp as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_prop_name(&mut self, node: PropName, ast: &Ast) {
@@ -456,7 +628,9 @@ pub trait Visit {
     }
     #[inline]
     fn visit_computed_prop_name(&mut self, node: ComputedPropName, ast: &Ast) {
-        <ComputedPropName as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ComputedPropName as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_pat(&mut self, node: Pat, ast: &Ast) {
@@ -464,19 +638,27 @@ pub trait Visit {
     }
     #[inline]
     fn visit_array_pat(&mut self, node: ArrayPat, ast: &Ast) {
-        <ArrayPat as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ArrayPat as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_object_pat(&mut self, node: ObjectPat, ast: &Ast) {
-        <ObjectPat as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ObjectPat as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_assign_pat(&mut self, node: AssignPat, ast: &Ast) {
-        <AssignPat as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <AssignPat as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_rest_pat(&mut self, node: RestPat, ast: &Ast) {
-        <RestPat as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <RestPat as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_object_pat_prop(&mut self, node: ObjectPatProp, ast: &Ast) {
@@ -484,27 +666,39 @@ pub trait Visit {
     }
     #[inline]
     fn visit_key_value_pat_prop(&mut self, node: KeyValuePatProp, ast: &Ast) {
-        <KeyValuePatProp as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <KeyValuePatProp as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_assign_pat_prop(&mut self, node: AssignPatProp, ast: &Ast) {
-        <AssignPatProp as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <AssignPatProp as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_ident(&mut self, node: Ident, ast: &Ast) {
-        <Ident as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Ident as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_ident_name(&mut self, node: IdentName, ast: &Ast) {
-        <IdentName as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <IdentName as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_private_name(&mut self, node: PrivateName, ast: &Ast) {
-        <PrivateName as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <PrivateName as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_binding_ident(&mut self, node: BindingIdent, ast: &Ast) {
-        <BindingIdent as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <BindingIdent as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_lit(&mut self, node: Lit, ast: &Ast) {
@@ -512,27 +706,39 @@ pub trait Visit {
     }
     #[inline]
     fn visit_str(&mut self, node: Str, ast: &Ast) {
-        <Str as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Str as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_bool(&mut self, node: Bool, ast: &Ast) {
-        <Bool as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Bool as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_null(&mut self, node: Null, ast: &Ast) {
-        <Null as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Null as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_number(&mut self, node: Number, ast: &Ast) {
-        <Number as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Number as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_big_int(&mut self, node: BigInt, ast: &Ast) {
-        <BigInt as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <BigInt as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_regex(&mut self, node: Regex, ast: &Ast) {
-        <Regex as VisitWith<Self>>::visit_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Regex as VisitWith<Self>>::visit_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_module_items(&mut self, node: TypedSubRange<ModuleItem>, ast: &Ast) {
@@ -682,7 +888,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Module {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -701,7 +906,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Module {
                 .optional_utf8
         };
         <OptionalUtf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Script {
@@ -710,7 +914,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Script {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -729,7 +932,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Script {
                 .optional_utf8
         };
         <OptionalUtf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ModuleItem {
@@ -768,7 +970,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ImportDecl {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -816,7 +1017,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ImportDecl {
                 .other
         };
         <ImportPhase as VisitWith<V>>::visit_with(ImportPhase::from_extra_data(ret), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ImportSpecifier {
@@ -841,7 +1041,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ImportNamedSpecifier {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -871,7 +1070,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ImportNamedSpecifier {
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ImportDefaultSpecifier {
@@ -880,7 +1078,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ImportDefaultSpecifier {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -892,7 +1089,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ImportDefaultSpecifier {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ImportStarAsSpecifier {
@@ -901,7 +1097,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ImportStarAsSpecifier {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -913,7 +1108,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ImportStarAsSpecifier {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ExportDecl {
@@ -922,7 +1116,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportDecl {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -934,7 +1127,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportDecl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for NamedExport {
@@ -943,7 +1135,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for NamedExport {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -984,7 +1175,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for NamedExport {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ExportSpecifier {
@@ -1009,7 +1199,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportNamespaceSpecifier {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1021,7 +1210,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportNamespaceSpecifier {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ModuleExportName {
@@ -1041,7 +1229,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportDefaultSpecifier {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1053,7 +1240,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportDefaultSpecifier {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ExportNamedSpecifier {
@@ -1062,7 +1248,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportNamedSpecifier {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1092,7 +1277,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportNamedSpecifier {
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ExportDefaultDecl {
@@ -1101,7 +1285,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportDefaultDecl {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1113,7 +1296,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportDefaultDecl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for DefaultDecl {
@@ -1133,7 +1315,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportDefaultExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1145,7 +1326,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportDefaultExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ExportAll {
@@ -1154,7 +1334,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportAll {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1184,7 +1363,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExportAll {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for BlockStmt {
@@ -1193,7 +1371,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for BlockStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1205,7 +1382,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for BlockStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Stmt {
@@ -1242,7 +1418,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExprStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1254,7 +1429,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExprStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for EmptyStmt {
@@ -1263,8 +1437,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for EmptyStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for DebuggerStmt {
@@ -1273,8 +1445,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for DebuggerStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for WithStmt {
@@ -1283,7 +1453,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for WithStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1306,7 +1475,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for WithStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ReturnStmt {
@@ -1315,7 +1483,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ReturnStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1327,7 +1494,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ReturnStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for LabeledStmt {
@@ -1336,7 +1502,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for LabeledStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1359,7 +1524,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for LabeledStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for BreakStmt {
@@ -1368,7 +1532,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for BreakStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1380,7 +1543,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for BreakStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ContinueStmt {
@@ -1389,7 +1551,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ContinueStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1401,7 +1562,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ContinueStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for IfStmt {
@@ -1410,7 +1570,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for IfStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1444,7 +1603,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for IfStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for SwitchStmt {
@@ -1453,7 +1611,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for SwitchStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1476,7 +1633,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for SwitchStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ThrowStmt {
@@ -1485,7 +1641,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ThrowStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1497,7 +1652,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ThrowStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for TryStmt {
@@ -1506,7 +1660,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for TryStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1540,7 +1693,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for TryStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for WhileStmt {
@@ -1549,7 +1701,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for WhileStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1572,7 +1723,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for WhileStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for DoWhileStmt {
@@ -1581,7 +1731,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for DoWhileStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1604,7 +1753,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for DoWhileStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ForStmt {
@@ -1613,7 +1761,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ForStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1658,7 +1805,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ForStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ForInStmt {
@@ -1667,7 +1813,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ForInStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1701,7 +1846,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ForInStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ForOfStmt {
@@ -1710,7 +1854,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ForOfStmt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1751,7 +1894,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ForOfStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for SwitchCase {
@@ -1760,7 +1902,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for SwitchCase {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1783,7 +1924,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for SwitchCase {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for CatchClause {
@@ -1792,7 +1932,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for CatchClause {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1815,7 +1954,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for CatchClause {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ForHead {
@@ -1860,7 +1998,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for FnDecl {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1890,7 +2027,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for FnDecl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ClassDecl {
@@ -1899,7 +2035,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ClassDecl {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1929,7 +2064,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ClassDecl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for VarDecl {
@@ -1938,7 +2072,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for VarDecl {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1964,7 +2097,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for VarDecl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for VarDeclarator {
@@ -1973,7 +2105,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for VarDeclarator {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -1996,7 +2127,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for VarDeclarator {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for UsingDecl {
@@ -2005,7 +2135,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for UsingDecl {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2024,7 +2153,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for UsingDecl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Expr {
@@ -2069,8 +2197,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ThisExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ArrayLit {
@@ -2079,7 +2205,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ArrayLit {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2091,7 +2216,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ArrayLit {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ObjectLit {
@@ -2100,7 +2224,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ObjectLit {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2112,7 +2235,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ObjectLit {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for PropOrSpread {
@@ -2134,7 +2256,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for SpreadElement {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2153,7 +2274,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for SpreadElement {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for UnaryExpr {
@@ -2162,7 +2282,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for UnaryExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2181,7 +2300,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for UnaryExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for UpdateExpr {
@@ -2190,7 +2308,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for UpdateExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2216,7 +2333,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for UpdateExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for BinExpr {
@@ -2225,7 +2341,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for BinExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2255,7 +2370,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for BinExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for FnExpr {
@@ -2264,7 +2378,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for FnExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2287,7 +2400,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for FnExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ClassExpr {
@@ -2296,7 +2408,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ClassExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2319,7 +2430,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ClassExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for AssignExpr {
@@ -2328,7 +2438,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for AssignExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2358,7 +2467,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for AssignExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for MemberExpr {
@@ -2367,7 +2475,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for MemberExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2390,7 +2497,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for MemberExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for MemberProp {
@@ -2411,7 +2517,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for SuperPropExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2434,7 +2539,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for SuperPropExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for SuperProp {
@@ -2454,7 +2558,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for CondExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2488,7 +2591,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for CondExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for CallExpr {
@@ -2497,7 +2599,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for CallExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2520,7 +2621,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for CallExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for NewExpr {
@@ -2529,7 +2629,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for NewExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2552,7 +2651,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for NewExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for SeqExpr {
@@ -2561,7 +2659,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for SeqExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2573,7 +2670,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for SeqExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ArrowExpr {
@@ -2582,7 +2678,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ArrowExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2619,7 +2714,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ArrowExpr {
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for YieldExpr {
@@ -2628,7 +2722,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for YieldExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2647,7 +2740,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for YieldExpr {
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for MetaPropExpr {
@@ -2656,7 +2748,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for MetaPropExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2668,7 +2759,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for MetaPropExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for AwaitExpr {
@@ -2677,7 +2767,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for AwaitExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2689,7 +2778,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for AwaitExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Tpl {
@@ -2698,7 +2786,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Tpl {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2721,7 +2808,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Tpl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for TaggedTpl {
@@ -2730,7 +2816,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for TaggedTpl {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2753,7 +2838,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for TaggedTpl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for TplElement {
@@ -2762,7 +2846,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for TplElement {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2784,7 +2867,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for TplElement {
                 .utf8
         };
         <Utf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ParenExpr {
@@ -2793,7 +2875,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ParenExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2805,7 +2886,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ParenExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Callee {
@@ -2826,8 +2906,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Super {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Import {
@@ -2836,7 +2914,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Import {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2844,7 +2921,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Import {
                 .other
         };
         <ImportPhase as VisitWith<V>>::visit_with(ImportPhase::from_extra_data(ret), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ExprOrSpread {
@@ -2853,7 +2929,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExprOrSpread {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2876,7 +2951,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ExprOrSpread {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for SpreadDot3Token {
@@ -2885,8 +2959,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for SpreadDot3Token {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for BlockStmtOrExpr {
@@ -2944,7 +3016,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for OptChainExpr {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -2963,7 +3034,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for OptChainExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for OptChainBase {
@@ -2983,7 +3053,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for OptCall {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3006,7 +3075,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for OptCall {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Invalid {
@@ -3015,8 +3083,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Invalid {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Function {
@@ -3025,7 +3091,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Function {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3073,7 +3138,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Function {
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Param {
@@ -3082,7 +3146,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Param {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3105,7 +3168,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Param {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ParamOrTsParamProp {
@@ -3124,7 +3186,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Class {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3165,7 +3226,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Class {
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ClassMember {
@@ -3193,7 +3253,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ClassProp {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3234,7 +3293,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ClassProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for PrivateProp {
@@ -3243,7 +3301,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for PrivateProp {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3284,7 +3341,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for PrivateProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ClassMethod {
@@ -3293,7 +3349,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ClassMethod {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3330,7 +3385,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ClassMethod {
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for PrivateMethod {
@@ -3339,7 +3393,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for PrivateMethod {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3376,7 +3429,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for PrivateMethod {
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Constructor {
@@ -3385,7 +3437,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Constructor {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3419,7 +3470,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Constructor {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Decorator {
@@ -3428,7 +3478,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Decorator {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3440,7 +3489,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Decorator {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for StaticBlock {
@@ -3449,7 +3497,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for StaticBlock {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3461,7 +3508,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for StaticBlock {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Key {
@@ -3481,7 +3527,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for AutoAccessor {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3522,7 +3567,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for AutoAccessor {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Prop {
@@ -3546,7 +3590,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for KeyValueProp {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3569,7 +3612,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for KeyValueProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for AssignProp {
@@ -3578,7 +3620,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for AssignProp {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3601,7 +3642,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for AssignProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for GetterProp {
@@ -3610,7 +3650,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for GetterProp {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3633,7 +3672,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for GetterProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for SetterProp {
@@ -3642,7 +3680,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for SetterProp {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3687,7 +3724,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for SetterProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for MethodProp {
@@ -3696,7 +3732,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for MethodProp {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3719,7 +3754,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for MethodProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for PropName {
@@ -3742,7 +3776,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ComputedPropName {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3754,7 +3787,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ComputedPropName {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Pat {
@@ -3779,7 +3811,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ArrayPat {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3798,7 +3829,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ArrayPat {
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ObjectPat {
@@ -3807,7 +3837,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ObjectPat {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3826,7 +3855,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for ObjectPat {
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for AssignPat {
@@ -3835,7 +3863,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for AssignPat {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3858,7 +3885,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for AssignPat {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for RestPat {
@@ -3867,7 +3893,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for RestPat {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3886,7 +3911,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for RestPat {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for ObjectPatProp {
@@ -3907,7 +3931,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for KeyValuePatProp {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3930,7 +3953,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for KeyValuePatProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for AssignPatProp {
@@ -3939,7 +3961,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for AssignPatProp {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3962,7 +3983,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for AssignPatProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Ident {
@@ -3971,7 +3991,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Ident {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -3986,7 +4005,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Ident {
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for IdentName {
@@ -3995,7 +4013,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for IdentName {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -4003,7 +4020,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for IdentName {
                 .utf8
         };
         <Utf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for PrivateName {
@@ -4012,7 +4028,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for PrivateName {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -4020,7 +4035,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for PrivateName {
                 .utf8
         };
         <Utf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for BindingIdent {
@@ -4029,7 +4043,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for BindingIdent {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -4041,7 +4054,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for BindingIdent {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Lit {
@@ -4065,7 +4077,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Str {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -4080,7 +4091,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Str {
                 .optional_utf8
         };
         <OptionalUtf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Bool {
@@ -4089,7 +4099,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Bool {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -4097,7 +4106,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Bool {
                 .bool
         };
         <bool as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Null {
@@ -4106,8 +4114,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Null {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Number {
@@ -4116,7 +4122,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Number {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -4131,7 +4136,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Number {
                 .optional_utf8
         };
         <OptionalUtf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for BigInt {
@@ -4140,7 +4144,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for BigInt {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -4155,7 +4158,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for BigInt {
                 .optional_utf8
         };
         <OptionalUtf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for Regex {
@@ -4164,7 +4166,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Regex {
     }
     fn visit_children_with(self, visitor: &mut V, ast: &Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -4179,7 +4180,6 @@ impl<V: ?Sized + Visit> VisitWith<V> for Regex {
                 .utf8
         };
         <Utf8Ref as VisitWith<V>>::visit_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + Visit> VisitWith<V> for TypedSubRange<ModuleItem> {
@@ -4523,11 +4523,15 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_module(&mut self, node: Module, ast: &mut Ast) {
-        <Module as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Module as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_script(&mut self, node: Script, ast: &mut Ast) {
-        <Script as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Script as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_module_item(&mut self, node: ModuleItem, ast: &mut Ast) {
@@ -4539,7 +4543,9 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_import_decl(&mut self, node: ImportDecl, ast: &mut Ast) {
-        <ImportDecl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ImportDecl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_import_specifier(&mut self, node: ImportSpecifier, ast: &mut Ast) {
@@ -4547,23 +4553,33 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_import_named_specifier(&mut self, node: ImportNamedSpecifier, ast: &mut Ast) {
-        <ImportNamedSpecifier as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ImportNamedSpecifier as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_import_default_specifier(&mut self, node: ImportDefaultSpecifier, ast: &mut Ast) {
-        <ImportDefaultSpecifier as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ImportDefaultSpecifier as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_import_star_as_specifier(&mut self, node: ImportStarAsSpecifier, ast: &mut Ast) {
-        <ImportStarAsSpecifier as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ImportStarAsSpecifier as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_export_decl(&mut self, node: ExportDecl, ast: &mut Ast) {
-        <ExportDecl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExportDecl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_named_export(&mut self, node: NamedExport, ast: &mut Ast) {
-        <NamedExport as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <NamedExport as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_export_specifier(&mut self, node: ExportSpecifier, ast: &mut Ast) {
@@ -4575,7 +4591,9 @@ pub trait VisitMut {
         node: ExportNamespaceSpecifier,
         ast: &mut Ast,
     ) {
-        <ExportNamespaceSpecifier as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExportNamespaceSpecifier as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_module_export_name(&mut self, node: ModuleExportName, ast: &mut Ast) {
@@ -4583,15 +4601,21 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_export_default_specifier(&mut self, node: ExportDefaultSpecifier, ast: &mut Ast) {
-        <ExportDefaultSpecifier as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExportDefaultSpecifier as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_export_named_specifier(&mut self, node: ExportNamedSpecifier, ast: &mut Ast) {
-        <ExportNamedSpecifier as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExportNamedSpecifier as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_export_default_decl(&mut self, node: ExportDefaultDecl, ast: &mut Ast) {
-        <ExportDefaultDecl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExportDefaultDecl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_default_decl(&mut self, node: DefaultDecl, ast: &mut Ast) {
@@ -4599,15 +4623,21 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_export_default_expr(&mut self, node: ExportDefaultExpr, ast: &mut Ast) {
-        <ExportDefaultExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExportDefaultExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_export_all(&mut self, node: ExportAll, ast: &mut Ast) {
-        <ExportAll as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExportAll as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_block_stmt(&mut self, node: BlockStmt, ast: &mut Ast) {
-        <BlockStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <BlockStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_stmt(&mut self, node: Stmt, ast: &mut Ast) {
@@ -4615,79 +4645,117 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_expr_stmt(&mut self, node: ExprStmt, ast: &mut Ast) {
-        <ExprStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExprStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_empty_stmt(&mut self, node: EmptyStmt, ast: &mut Ast) {
-        <EmptyStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <EmptyStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_debugger_stmt(&mut self, node: DebuggerStmt, ast: &mut Ast) {
-        <DebuggerStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <DebuggerStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_with_stmt(&mut self, node: WithStmt, ast: &mut Ast) {
-        <WithStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <WithStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_return_stmt(&mut self, node: ReturnStmt, ast: &mut Ast) {
-        <ReturnStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ReturnStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_labeled_stmt(&mut self, node: LabeledStmt, ast: &mut Ast) {
-        <LabeledStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <LabeledStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_break_stmt(&mut self, node: BreakStmt, ast: &mut Ast) {
-        <BreakStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <BreakStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_continue_stmt(&mut self, node: ContinueStmt, ast: &mut Ast) {
-        <ContinueStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ContinueStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_if_stmt(&mut self, node: IfStmt, ast: &mut Ast) {
-        <IfStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <IfStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_switch_stmt(&mut self, node: SwitchStmt, ast: &mut Ast) {
-        <SwitchStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <SwitchStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_throw_stmt(&mut self, node: ThrowStmt, ast: &mut Ast) {
-        <ThrowStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ThrowStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_try_stmt(&mut self, node: TryStmt, ast: &mut Ast) {
-        <TryStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <TryStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_while_stmt(&mut self, node: WhileStmt, ast: &mut Ast) {
-        <WhileStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <WhileStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_do_while_stmt(&mut self, node: DoWhileStmt, ast: &mut Ast) {
-        <DoWhileStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <DoWhileStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_for_stmt(&mut self, node: ForStmt, ast: &mut Ast) {
-        <ForStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ForStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_for_in_stmt(&mut self, node: ForInStmt, ast: &mut Ast) {
-        <ForInStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ForInStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_for_of_stmt(&mut self, node: ForOfStmt, ast: &mut Ast) {
-        <ForOfStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ForOfStmt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_switch_case(&mut self, node: SwitchCase, ast: &mut Ast) {
-        <SwitchCase as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <SwitchCase as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_catch_clause(&mut self, node: CatchClause, ast: &mut Ast) {
-        <CatchClause as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <CatchClause as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_for_head(&mut self, node: ForHead, ast: &mut Ast) {
@@ -4703,23 +4771,33 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_fn_decl(&mut self, node: FnDecl, ast: &mut Ast) {
-        <FnDecl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <FnDecl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_class_decl(&mut self, node: ClassDecl, ast: &mut Ast) {
-        <ClassDecl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ClassDecl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_var_decl(&mut self, node: VarDecl, ast: &mut Ast) {
-        <VarDecl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <VarDecl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_var_declarator(&mut self, node: VarDeclarator, ast: &mut Ast) {
-        <VarDeclarator as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <VarDeclarator as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_using_decl(&mut self, node: UsingDecl, ast: &mut Ast) {
-        <UsingDecl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <UsingDecl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_expr(&mut self, node: Expr, ast: &mut Ast) {
@@ -4727,15 +4805,21 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_this_expr(&mut self, node: ThisExpr, ast: &mut Ast) {
-        <ThisExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ThisExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_array_lit(&mut self, node: ArrayLit, ast: &mut Ast) {
-        <ArrayLit as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ArrayLit as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_object_lit(&mut self, node: ObjectLit, ast: &mut Ast) {
-        <ObjectLit as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ObjectLit as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_prop_or_spread(&mut self, node: PropOrSpread, ast: &mut Ast) {
@@ -4743,35 +4827,51 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_spread_element(&mut self, node: SpreadElement, ast: &mut Ast) {
-        <SpreadElement as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <SpreadElement as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_unary_expr(&mut self, node: UnaryExpr, ast: &mut Ast) {
-        <UnaryExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <UnaryExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_update_expr(&mut self, node: UpdateExpr, ast: &mut Ast) {
-        <UpdateExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <UpdateExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_bin_expr(&mut self, node: BinExpr, ast: &mut Ast) {
-        <BinExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <BinExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_fn_expr(&mut self, node: FnExpr, ast: &mut Ast) {
-        <FnExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <FnExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_class_expr(&mut self, node: ClassExpr, ast: &mut Ast) {
-        <ClassExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ClassExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_assign_expr(&mut self, node: AssignExpr, ast: &mut Ast) {
-        <AssignExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <AssignExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_member_expr(&mut self, node: MemberExpr, ast: &mut Ast) {
-        <MemberExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <MemberExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_member_prop(&mut self, node: MemberProp, ast: &mut Ast) {
@@ -4779,7 +4879,9 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_super_prop_expr(&mut self, node: SuperPropExpr, ast: &mut Ast) {
-        <SuperPropExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <SuperPropExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_super_prop(&mut self, node: SuperProp, ast: &mut Ast) {
@@ -4787,51 +4889,75 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_cond_expr(&mut self, node: CondExpr, ast: &mut Ast) {
-        <CondExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <CondExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_call_expr(&mut self, node: CallExpr, ast: &mut Ast) {
-        <CallExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <CallExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_new_expr(&mut self, node: NewExpr, ast: &mut Ast) {
-        <NewExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <NewExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_seq_expr(&mut self, node: SeqExpr, ast: &mut Ast) {
-        <SeqExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <SeqExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_arrow_expr(&mut self, node: ArrowExpr, ast: &mut Ast) {
-        <ArrowExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ArrowExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_yield_expr(&mut self, node: YieldExpr, ast: &mut Ast) {
-        <YieldExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <YieldExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_meta_prop_expr(&mut self, node: MetaPropExpr, ast: &mut Ast) {
-        <MetaPropExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <MetaPropExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_await_expr(&mut self, node: AwaitExpr, ast: &mut Ast) {
-        <AwaitExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <AwaitExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_tpl(&mut self, node: Tpl, ast: &mut Ast) {
-        <Tpl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Tpl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_tagged_tpl(&mut self, node: TaggedTpl, ast: &mut Ast) {
-        <TaggedTpl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <TaggedTpl as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_tpl_element(&mut self, node: TplElement, ast: &mut Ast) {
-        <TplElement as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <TplElement as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_paren_expr(&mut self, node: ParenExpr, ast: &mut Ast) {
-        <ParenExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ParenExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_callee(&mut self, node: Callee, ast: &mut Ast) {
@@ -4839,19 +4965,27 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_super(&mut self, node: Super, ast: &mut Ast) {
-        <Super as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Super as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_import(&mut self, node: Import, ast: &mut Ast) {
-        <Import as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Import as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_expr_or_spread(&mut self, node: ExprOrSpread, ast: &mut Ast) {
-        <ExprOrSpread as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ExprOrSpread as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_spread_dot_3_token(&mut self, node: SpreadDot3Token, ast: &mut Ast) {
-        <SpreadDot3Token as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <SpreadDot3Token as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_block_stmt_or_expr(&mut self, node: BlockStmtOrExpr, ast: &mut Ast) {
@@ -4871,7 +5005,9 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_opt_chain_expr(&mut self, node: OptChainExpr, ast: &mut Ast) {
-        <OptChainExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <OptChainExpr as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_opt_chain_base(&mut self, node: OptChainBase, ast: &mut Ast) {
@@ -4879,19 +5015,27 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_opt_call(&mut self, node: OptCall, ast: &mut Ast) {
-        <OptCall as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <OptCall as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_invalid(&mut self, node: Invalid, ast: &mut Ast) {
-        <Invalid as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Invalid as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_function(&mut self, node: Function, ast: &mut Ast) {
-        <Function as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Function as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_param(&mut self, node: Param, ast: &mut Ast) {
-        <Param as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Param as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_param_or_ts_param_prop(&mut self, node: ParamOrTsParamProp, ast: &mut Ast) {
@@ -4899,7 +5043,9 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_class(&mut self, node: Class, ast: &mut Ast) {
-        <Class as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Class as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_class_member(&mut self, node: ClassMember, ast: &mut Ast) {
@@ -4907,31 +5053,45 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_class_prop(&mut self, node: ClassProp, ast: &mut Ast) {
-        <ClassProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ClassProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_private_prop(&mut self, node: PrivateProp, ast: &mut Ast) {
-        <PrivateProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <PrivateProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_class_method(&mut self, node: ClassMethod, ast: &mut Ast) {
-        <ClassMethod as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ClassMethod as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_private_method(&mut self, node: PrivateMethod, ast: &mut Ast) {
-        <PrivateMethod as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <PrivateMethod as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_constructor(&mut self, node: Constructor, ast: &mut Ast) {
-        <Constructor as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Constructor as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_decorator(&mut self, node: Decorator, ast: &mut Ast) {
-        <Decorator as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Decorator as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_static_block(&mut self, node: StaticBlock, ast: &mut Ast) {
-        <StaticBlock as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <StaticBlock as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_key(&mut self, node: Key, ast: &mut Ast) {
@@ -4939,7 +5099,9 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_auto_accessor(&mut self, node: AutoAccessor, ast: &mut Ast) {
-        <AutoAccessor as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <AutoAccessor as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_prop(&mut self, node: Prop, ast: &mut Ast) {
@@ -4947,23 +5109,33 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_key_value_prop(&mut self, node: KeyValueProp, ast: &mut Ast) {
-        <KeyValueProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <KeyValueProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_assign_prop(&mut self, node: AssignProp, ast: &mut Ast) {
-        <AssignProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <AssignProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_getter_prop(&mut self, node: GetterProp, ast: &mut Ast) {
-        <GetterProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <GetterProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_setter_prop(&mut self, node: SetterProp, ast: &mut Ast) {
-        <SetterProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <SetterProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_method_prop(&mut self, node: MethodProp, ast: &mut Ast) {
-        <MethodProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <MethodProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_prop_name(&mut self, node: PropName, ast: &mut Ast) {
@@ -4971,7 +5143,9 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_computed_prop_name(&mut self, node: ComputedPropName, ast: &mut Ast) {
-        <ComputedPropName as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ComputedPropName as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_pat(&mut self, node: Pat, ast: &mut Ast) {
@@ -4979,19 +5153,27 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_array_pat(&mut self, node: ArrayPat, ast: &mut Ast) {
-        <ArrayPat as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ArrayPat as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_object_pat(&mut self, node: ObjectPat, ast: &mut Ast) {
-        <ObjectPat as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <ObjectPat as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_assign_pat(&mut self, node: AssignPat, ast: &mut Ast) {
-        <AssignPat as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <AssignPat as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_rest_pat(&mut self, node: RestPat, ast: &mut Ast) {
-        <RestPat as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <RestPat as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_object_pat_prop(&mut self, node: ObjectPatProp, ast: &mut Ast) {
@@ -4999,27 +5181,39 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_key_value_pat_prop(&mut self, node: KeyValuePatProp, ast: &mut Ast) {
-        <KeyValuePatProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <KeyValuePatProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_assign_pat_prop(&mut self, node: AssignPatProp, ast: &mut Ast) {
-        <AssignPatProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <AssignPatProp as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_ident(&mut self, node: Ident, ast: &mut Ast) {
-        <Ident as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Ident as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_ident_name(&mut self, node: IdentName, ast: &mut Ast) {
-        <IdentName as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <IdentName as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_private_name(&mut self, node: PrivateName, ast: &mut Ast) {
-        <PrivateName as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <PrivateName as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_binding_ident(&mut self, node: BindingIdent, ast: &mut Ast) {
-        <BindingIdent as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <BindingIdent as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_lit(&mut self, node: Lit, ast: &mut Ast) {
@@ -5027,27 +5221,39 @@ pub trait VisitMut {
     }
     #[inline]
     fn visit_mut_str(&mut self, node: Str, ast: &mut Ast) {
-        <Str as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Str as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_bool(&mut self, node: Bool, ast: &mut Ast) {
-        <Bool as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Bool as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_null(&mut self, node: Null, ast: &mut Ast) {
-        <Null as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Null as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_number(&mut self, node: Number, ast: &mut Ast) {
-        <Number as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Number as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_big_int(&mut self, node: BigInt, ast: &mut Ast) {
-        <BigInt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <BigInt as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_regex(&mut self, node: Regex, ast: &mut Ast) {
-        <Regex as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+        self.enter_node(node.node_id(), ast);
+        <Regex as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+        self.leave_node(node.node_id(), ast);
     }
     #[inline]
     fn visit_mut_module_items(&mut self, node: TypedSubRange<ModuleItem>, ast: &mut Ast) {
@@ -5215,7 +5421,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Module {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5234,7 +5439,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Module {
                 .optional_utf8
         };
         <OptionalUtf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Script {
@@ -5243,7 +5447,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Script {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5262,7 +5465,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Script {
                 .optional_utf8
         };
         <OptionalUtf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ModuleItem {
@@ -5307,7 +5509,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportDecl {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5359,7 +5560,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportDecl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportSpecifier {
@@ -5386,7 +5586,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportNamedSpecifier {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5416,7 +5615,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportNamedSpecifier {
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportDefaultSpecifier {
@@ -5425,7 +5623,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportDefaultSpecifier {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5437,7 +5634,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportDefaultSpecifier {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportStarAsSpecifier {
@@ -5446,7 +5642,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportStarAsSpecifier {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5458,7 +5653,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ImportStarAsSpecifier {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportDecl {
@@ -5467,7 +5661,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportDecl {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5479,7 +5672,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportDecl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for NamedExport {
@@ -5488,7 +5680,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for NamedExport {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5529,7 +5720,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for NamedExport {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportSpecifier {
@@ -5556,7 +5746,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportNamespaceSpecifier {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5568,7 +5757,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportNamespaceSpecifier {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ModuleExportName {
@@ -5588,7 +5776,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportDefaultSpecifier {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5600,7 +5787,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportDefaultSpecifier {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportNamedSpecifier {
@@ -5609,7 +5795,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportNamedSpecifier {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5639,7 +5824,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportNamedSpecifier {
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportDefaultDecl {
@@ -5648,7 +5832,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportDefaultDecl {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5660,7 +5843,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportDefaultDecl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for DefaultDecl {
@@ -5680,7 +5862,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportDefaultExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5692,7 +5873,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportDefaultExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportAll {
@@ -5701,7 +5881,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportAll {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5731,7 +5910,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExportAll {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for BlockStmt {
@@ -5740,7 +5918,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for BlockStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5752,7 +5929,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for BlockStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Stmt {
@@ -5793,7 +5969,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExprStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5805,7 +5980,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExprStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for EmptyStmt {
@@ -5814,8 +5988,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for EmptyStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for DebuggerStmt {
@@ -5824,8 +5996,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for DebuggerStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for WithStmt {
@@ -5834,7 +6004,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for WithStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5857,7 +6026,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for WithStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ReturnStmt {
@@ -5866,7 +6034,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ReturnStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5878,7 +6045,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ReturnStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for LabeledStmt {
@@ -5887,7 +6053,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for LabeledStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5910,7 +6075,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for LabeledStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for BreakStmt {
@@ -5919,7 +6083,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for BreakStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5931,7 +6094,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for BreakStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ContinueStmt {
@@ -5940,7 +6102,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ContinueStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5952,7 +6113,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ContinueStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for IfStmt {
@@ -5961,7 +6121,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for IfStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -5995,7 +6154,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for IfStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for SwitchStmt {
@@ -6004,7 +6162,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SwitchStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6027,7 +6184,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SwitchStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ThrowStmt {
@@ -6036,7 +6192,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ThrowStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6048,7 +6203,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ThrowStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for TryStmt {
@@ -6057,7 +6211,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for TryStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6091,7 +6244,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for TryStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for WhileStmt {
@@ -6100,7 +6252,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for WhileStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6123,7 +6274,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for WhileStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for DoWhileStmt {
@@ -6132,7 +6282,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for DoWhileStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6155,7 +6304,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for DoWhileStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForStmt {
@@ -6164,7 +6312,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6209,7 +6356,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForInStmt {
@@ -6218,7 +6364,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForInStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6252,7 +6397,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForInStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForOfStmt {
@@ -6261,7 +6405,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForOfStmt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6302,7 +6445,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForOfStmt {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for SwitchCase {
@@ -6311,7 +6453,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SwitchCase {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6334,7 +6475,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SwitchCase {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for CatchClause {
@@ -6343,7 +6483,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for CatchClause {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6366,7 +6505,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for CatchClause {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ForHead {
@@ -6411,7 +6549,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for FnDecl {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6441,7 +6578,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for FnDecl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassDecl {
@@ -6450,7 +6586,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassDecl {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6480,7 +6615,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassDecl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for VarDecl {
@@ -6489,7 +6623,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for VarDecl {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6519,7 +6652,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for VarDecl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for VarDeclarator {
@@ -6528,7 +6660,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for VarDeclarator {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6551,7 +6682,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for VarDeclarator {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for UsingDecl {
@@ -6560,7 +6690,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for UsingDecl {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6579,7 +6708,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for UsingDecl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Expr {
@@ -6632,8 +6760,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ThisExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ArrayLit {
@@ -6642,7 +6768,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ArrayLit {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6654,7 +6779,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ArrayLit {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ObjectLit {
@@ -6663,7 +6787,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ObjectLit {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6675,7 +6798,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ObjectLit {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for PropOrSpread {
@@ -6697,7 +6819,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SpreadElement {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6716,7 +6837,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SpreadElement {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for UnaryExpr {
@@ -6725,7 +6845,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for UnaryExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6744,7 +6863,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for UnaryExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for UpdateExpr {
@@ -6753,7 +6871,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for UpdateExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6779,7 +6896,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for UpdateExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for BinExpr {
@@ -6788,7 +6904,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for BinExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6818,7 +6933,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for BinExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for FnExpr {
@@ -6827,7 +6941,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for FnExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6850,7 +6963,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for FnExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassExpr {
@@ -6859,7 +6971,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6882,7 +6993,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignExpr {
@@ -6891,7 +7001,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6921,7 +7030,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for MemberExpr {
@@ -6930,7 +7038,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for MemberExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -6953,7 +7060,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for MemberExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for MemberProp {
@@ -6978,7 +7084,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SuperPropExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7001,7 +7106,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SuperPropExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for SuperProp {
@@ -7023,7 +7127,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for CondExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7057,7 +7160,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for CondExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for CallExpr {
@@ -7066,7 +7168,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for CallExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7089,7 +7190,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for CallExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for NewExpr {
@@ -7098,7 +7198,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for NewExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7121,7 +7220,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for NewExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for SeqExpr {
@@ -7130,7 +7228,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SeqExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7142,7 +7239,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SeqExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ArrowExpr {
@@ -7151,7 +7247,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ArrowExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7188,7 +7283,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ArrowExpr {
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for YieldExpr {
@@ -7197,7 +7291,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for YieldExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7216,7 +7309,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for YieldExpr {
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for MetaPropExpr {
@@ -7225,7 +7317,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for MetaPropExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7237,7 +7328,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for MetaPropExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for AwaitExpr {
@@ -7246,7 +7336,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AwaitExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7258,7 +7347,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AwaitExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Tpl {
@@ -7267,7 +7355,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Tpl {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7290,7 +7377,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Tpl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for TaggedTpl {
@@ -7299,7 +7385,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for TaggedTpl {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7322,7 +7407,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for TaggedTpl {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for TplElement {
@@ -7331,7 +7415,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for TplElement {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7353,7 +7436,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for TplElement {
                 .utf8
         };
         <Utf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ParenExpr {
@@ -7362,7 +7444,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ParenExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7374,7 +7455,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ParenExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Callee {
@@ -7395,8 +7475,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Super {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Import {
@@ -7405,7 +7483,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Import {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7417,7 +7494,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Import {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExprOrSpread {
@@ -7426,7 +7502,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExprOrSpread {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7449,7 +7524,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ExprOrSpread {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for SpreadDot3Token {
@@ -7458,8 +7532,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SpreadDot3Token {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for BlockStmtOrExpr {
@@ -7523,7 +7595,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for OptChainExpr {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7542,7 +7613,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for OptChainExpr {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for OptChainBase {
@@ -7562,7 +7632,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for OptCall {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7585,7 +7654,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for OptCall {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Invalid {
@@ -7594,8 +7662,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Invalid {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Function {
@@ -7604,7 +7670,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Function {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7652,7 +7717,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Function {
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Param {
@@ -7661,7 +7725,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Param {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7684,7 +7747,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Param {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ParamOrTsParamProp {
@@ -7703,7 +7765,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Class {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7744,7 +7805,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Class {
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassMember {
@@ -7780,7 +7840,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassProp {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7821,7 +7880,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateProp {
@@ -7830,7 +7888,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateProp {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7871,7 +7928,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassMethod {
@@ -7880,7 +7936,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassMethod {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7921,7 +7976,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ClassMethod {
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateMethod {
@@ -7930,7 +7984,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateMethod {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -7971,7 +8024,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateMethod {
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Constructor {
@@ -7980,7 +8032,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Constructor {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8014,7 +8065,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Constructor {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Decorator {
@@ -8023,7 +8073,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Decorator {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8035,7 +8084,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Decorator {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for StaticBlock {
@@ -8044,7 +8092,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for StaticBlock {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8056,7 +8103,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for StaticBlock {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Key {
@@ -8076,7 +8122,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AutoAccessor {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8117,7 +8162,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AutoAccessor {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Prop {
@@ -8143,7 +8187,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for KeyValueProp {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8166,7 +8209,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for KeyValueProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignProp {
@@ -8175,7 +8217,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignProp {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8198,7 +8239,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for GetterProp {
@@ -8207,7 +8247,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for GetterProp {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8230,7 +8269,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for GetterProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for SetterProp {
@@ -8239,7 +8277,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SetterProp {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8284,7 +8321,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for SetterProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for MethodProp {
@@ -8293,7 +8329,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for MethodProp {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8316,7 +8351,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for MethodProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for PropName {
@@ -8341,7 +8375,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ComputedPropName {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8353,7 +8386,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ComputedPropName {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Pat {
@@ -8378,7 +8410,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ArrayPat {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8397,7 +8428,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ArrayPat {
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ObjectPat {
@@ -8406,7 +8436,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ObjectPat {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8425,7 +8454,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for ObjectPat {
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignPat {
@@ -8434,7 +8462,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignPat {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8457,7 +8484,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignPat {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for RestPat {
@@ -8466,7 +8492,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for RestPat {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8485,7 +8510,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for RestPat {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for ObjectPatProp {
@@ -8510,7 +8534,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for KeyValuePatProp {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8533,7 +8556,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for KeyValuePatProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignPatProp {
@@ -8542,7 +8564,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignPatProp {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8565,7 +8586,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for AssignPatProp {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Ident {
@@ -8574,7 +8594,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Ident {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8589,7 +8608,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Ident {
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for IdentName {
@@ -8598,7 +8616,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for IdentName {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8606,7 +8623,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for IdentName {
                 .utf8
         };
         <Utf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateName {
@@ -8615,7 +8631,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateName {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8623,7 +8638,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for PrivateName {
                 .utf8
         };
         <Utf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for BindingIdent {
@@ -8632,7 +8646,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for BindingIdent {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8644,7 +8657,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for BindingIdent {
             visitor,
             ast,
         );
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Lit {
@@ -8668,7 +8680,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Str {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8683,7 +8694,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Str {
                 .optional_utf8
         };
         <OptionalUtf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Bool {
@@ -8692,7 +8702,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Bool {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8700,7 +8709,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Bool {
                 .bool
         };
         <bool as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Null {
@@ -8709,8 +8717,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Null {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Number {
@@ -8719,7 +8725,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Number {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8734,7 +8739,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Number {
                 .optional_utf8
         };
         <OptionalUtf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for BigInt {
@@ -8743,7 +8747,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for BigInt {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8758,7 +8761,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for BigInt {
                 .optional_utf8
         };
         <OptionalUtf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for Regex {
@@ -8767,7 +8769,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Regex {
     }
     fn visit_mut_children_with(self, visitor: &mut V, ast: &mut Ast) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start };
-        visitor.enter_node(self.node_id(), ast);
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
@@ -8782,7 +8783,6 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Regex {
                 .utf8
         };
         <Utf8Ref as VisitMutWith<V>>::visit_mut_with(ret.into(), visitor, ast);
-        visitor.leave_node(self.node_id(), ast);
     }
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for TypedSubRange<ModuleItem> {

@@ -40,22 +40,23 @@ pub fn ast_visitor(schema: &Schema) -> RawOutput {
                 visit_functions.extend(quote! {
                     #[inline]
                     fn #fn_name(&mut self, node: #ty_ident, ast: &Ast) {
-                        <#ty_ident as VisitWith<Self>>::visit_children_with(node, self, ast)
+                        self.enter_node(node.node_id(), ast);
+                        <#ty_ident as VisitWith<Self>>::visit_children_with(node, self, ast);
+                        self.leave_node(node.node_id(), ast);
                     }
                 });
                 visit_mut_functions.extend(quote! {
                     #[inline]
                     fn #fn_mut_name(&mut self, node: #ty_ident, ast: &mut Ast) {
-                        <#ty_ident as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast)
+                        self.enter_node(node.node_id(), ast);
+                        <#ty_ident as VisitMutWith<Self>>::visit_mut_children_with(node, self, ast);
+                        self.leave_node(node.node_id(), ast);
                     }
                 });
 
                 // VisitWith/VisitMutWith
                 let mut visit_children = TokenStream::new();
                 let mut visit_mut_children = TokenStream::new();
-
-                visit_children.extend(quote! { visitor.enter_node(self.node_id(), ast); });
-                visit_mut_children.extend(quote! { visitor.enter_node(self.node_id(), ast); });
 
                 for (offset, field) in ast.fields.iter().enumerate() {
                     let field_ty = &schema.types[field.type_id];
@@ -89,9 +90,6 @@ pub fn ast_visitor(schema: &Schema) -> RawOutput {
                         <#field_ty_ident as VisitMutWith<V>>::visit_mut_with(#cast_expr, visitor, ast);
                     });
                 }
-
-                visit_children.extend(quote! { visitor.leave_node(self.node_id(), ast); });
-                visit_mut_children.extend(quote! { visitor.leave_node(self.node_id(), ast); });
 
                 visit_with_impls.extend(quote! {
                     impl<V: ?Sized + Visit> VisitWith<V> for #ty_ident {
@@ -275,8 +273,10 @@ pub fn ast_visitor(schema: &Schema) -> RawOutput {
 
                 // VisitWith/VisitMutWith
                 let get_node = match inner_type {
-                    AstType::Option(_) => quote!( let child = ast.get_opt_node(child); ),
-                    _ => quote! ( let child = ast.get_node(child); ),
+                    AstType::Option(_) => {
+                        quote!( let child = ast.get_opt_node_in_sub_range(child); )
+                    }
+                    _ => quote! ( let child = ast.get_node_in_sub_range(child); ),
                 };
                 visit_with_impls.extend(quote! {
                     impl<V: ?Sized + Visit> VisitWith<V> for #ty_ident {
