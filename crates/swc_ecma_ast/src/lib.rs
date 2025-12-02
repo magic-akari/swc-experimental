@@ -4,7 +4,9 @@ mod ast_list;
 mod common;
 mod derive;
 mod node_id;
+mod string_allocator;
 mod visit;
+
 mod generated {
     mod ast_builder;
     mod ast_clone_in;
@@ -18,7 +20,7 @@ use swc_common::BytePos;
 
 use num_bigint::BigInt as BigIntValue;
 use oxc_index::IndexVec;
-use swc_atoms::wtf8::{Wtf8, Wtf8Buf};
+use swc_atoms::wtf8::Wtf8;
 
 pub use ast::*;
 pub use common::*;
@@ -29,14 +31,13 @@ pub use node_id::{
     OptionalUtf8Ref, OptionalWtf8Ref, SubRange, TypedSubRange, Utf8Ref, Wtf8Ref,
 };
 
-use crate::ast_list::NodeList;
+use crate::{ast_list::NodeList, string_allocator::StringAllocator};
 
 pub struct Ast {
     nodes: NodeList,
     extra_data: IndexVec<ExtraDataId, ExtraData>,
     bigint: IndexVec<BigIntId, BigIntValue>,
-    allocated_utf8: String,
-    allocated_wtf8: Wtf8Buf,
+    string_allocator: StringAllocator,
 }
 
 pub struct AstNode {
@@ -280,8 +281,7 @@ impl Ast {
             nodes: NodeList::default(),
             extra_data: IndexVec::new(),
             bigint: IndexVec::new(),
-            allocated_utf8: String::with_capacity(source_len / 2),
-            allocated_wtf8: Wtf8Buf::new(),
+            string_allocator: StringAllocator::new(source_len),
         }
     }
 
@@ -328,63 +328,52 @@ impl Ast {
 
     #[inline]
     pub fn add_utf8(&mut self, s: &str) -> Utf8Ref {
-        let lo = self.allocated_utf8.len() as u32;
-        self.allocated_utf8.push_str(s);
-        let hi = self.allocated_utf8.len() as u32;
-        Utf8Ref::new_ref(lo, hi)
+        self.string_allocator.add_utf8(s)
     }
 
     #[inline]
     pub fn add_optional_utf8(&mut self, s: Option<&str>) -> OptionalUtf8Ref {
-        match s {
-            Some(s) => self.add_utf8(s).into(),
-            None => OptionalUtf8Ref::new_none(),
-        }
+        self.string_allocator.add_optional_utf8(s)
     }
 
     #[inline]
     pub fn add_wtf8(&mut self, s: &Wtf8) -> Wtf8Ref {
-        let lo = self.allocated_wtf8.len() as u32;
-        self.allocated_wtf8.push_wtf8(s);
-        let hi = self.allocated_wtf8.len() as u32;
-        Wtf8Ref::new_ref(lo, hi)
+        self.string_allocator.add_wtf8(s)
     }
 
     #[inline]
     pub fn add_optional_wtf8(&mut self, s: Option<&Wtf8>) -> OptionalWtf8Ref {
-        match s {
-            Some(s) => self.add_wtf8(s).into(),
-            None => OptionalWtf8Ref::new_none(),
-        }
+        self.string_allocator.add_optional_wtf8(s)
     }
 
     #[inline]
     pub fn get_utf8(&self, id: Utf8Ref) -> &str {
-        &self.allocated_utf8[id.lo() as usize..id.hi() as usize]
+        self.string_allocator.get_utf8(id)
     }
 
     #[inline]
     pub fn get_optional_utf8(&self, id: OptionalUtf8Ref) -> Option<&str> {
-        let id = id.to_option()?;
-        Some(self.get_utf8(id))
+        self.string_allocator.get_optional_utf8(id)
     }
 
     #[inline]
     pub fn get_wtf8(&self, id: Wtf8Ref) -> &Wtf8 {
-        &self
-            .allocated_wtf8
-            .slice(id.lo() as usize, id.hi() as usize)
+        self.string_allocator.get_wtf8(id)
     }
 
     #[inline]
     pub fn get_optional_wtf8(&self, id: OptionalWtf8Ref) -> Option<&Wtf8> {
-        let id = id.to_option()?;
-        Some(self.get_wtf8(id))
+        self.string_allocator.get_optional_wtf8(id)
     }
 
     #[inline]
     pub fn add_bigint(&mut self, big_int: BigIntValue) -> BigIntId {
         self.bigint.push(big_int)
+    }
+
+    #[inline]
+    pub fn into_string_allocator(self) -> StringAllocator {
+        self.string_allocator
     }
 }
 
