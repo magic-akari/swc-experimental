@@ -97,6 +97,7 @@ pub struct Decorator {
 }
 
 #[repr(u64)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MethodKind {
     Method,
     Getter,

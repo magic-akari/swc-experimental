@@ -184,6 +184,7 @@ pub struct MetaPropExpr {
 }
 
 #[repr(u64)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum MetaPropKind {
     /// `new.target`
     NewTarget,

@@ -1,3 +1,4 @@
+use convert_case::{Case, Casing};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
@@ -5,6 +6,7 @@ use crate::{
     AST_CRATE_PATH,
     output::{RawOutput, RustOutput, output_path},
     schema::{AstEnum, AstStruct, AstType, Schema},
+    util::safe_ident,
 };
 
 pub fn ast_clone_in(schema: &Schema) -> RawOutput {
@@ -38,24 +40,27 @@ pub fn ast_clone_in(schema: &Schema) -> RawOutput {
 fn generate_clone_in_for_struct(ast: &AstStruct, _schema: &Schema) -> TokenStream {
     let name = format_ident!("{}", ast.name);
 
-    let mut fields = TokenStream::new();
+    let mut fields_clone_in = TokenStream::new();
+    let mut fields_params = Vec::new();
+    fields_clone_in.extend(quote! { let span = self.span(ast).clone_in(ast); });
+    fields_params.push(quote!(span));
     for field in ast.fields.iter() {
-        let field_ident = format_ident!("{}", field.name);
-        fields.extend(quote! {
-            #field_ident: CloneIn::clone_in(&self.#field_ident(ast), ast),
+        let field_ident = safe_ident(&field.name.to_case(Case::Snake));
+        fields_clone_in.extend(quote! {
+            let #field_ident = self.#field_ident(ast).clone_in(ast);
         });
+        fields_params.push(quote!(#field_ident));
     }
 
+    let fn_name = safe_ident(&ast.name.to_case(Case::Snake));
     let clone_in = quote! {
         impl CloneIn for #name {
             type Cloned = #name;
 
             #[inline]
             fn clone_in(&self, ast: &mut Ast) -> Self::Cloned {
-                // #name {
-                //     #fields
-                // }
-                todo!()
+                #fields_clone_in
+                ast.#fn_name( #(#fields_params),* )
             }
         }
     };
