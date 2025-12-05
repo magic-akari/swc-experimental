@@ -1,5 +1,8 @@
 use swc_experimental_ecma_parser::{EsSyntax, Parser, StringSource, Syntax};
 
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 pub fn main() {
     let source = include_str!("../files/typescript.js");
     let syntax = Syntax::Es(EsSyntax::default());
