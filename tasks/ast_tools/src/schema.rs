@@ -32,7 +32,7 @@ impl AstType {
             AstType::Enum(ast) => &ast.name,
             AstType::Vec(ast) => &ast.name,
             AstType::Option(ast) => &ast.name,
-            AstType::Primitive(ast) => &ast.name,
+            AstType::Primitive(ast) => ast.name,
         }
     }
 
@@ -60,7 +60,7 @@ pub struct AstStruct {
     pub type_id: TypeId,
     pub name: String,
     pub fields: Vec<AstStructField>,
-    pub attrs: AstAttrs,
+    pub _attrs: AstAttrs,
 }
 
 #[derive(Debug)]
@@ -74,7 +74,7 @@ pub struct AstEnum {
     pub type_id: TypeId,
     pub name: String,
     pub variants: Vec<AstEnumVariant>,
-    pub attrs: AstAttrs,
+    pub _attrs: AstAttrs,
 }
 
 #[derive(Debug)]
@@ -98,6 +98,7 @@ pub struct AstOption {
 }
 
 #[derive(Debug)]
+#[allow(unused)]
 pub struct AstNode {
     pub type_id: TypeId,
     pub name: String,
@@ -110,6 +111,7 @@ pub struct AstPrimitive {
 }
 
 #[derive(Debug)]
+#[allow(unused)]
 pub struct AstAttrs {
     pub ast_attrs: HashSet<String>,
     pub generate_derives: HashSet<String>,

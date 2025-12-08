@@ -328,10 +328,9 @@ impl<I: Tokens> Parser<I> {
                                 |p| {
                                     let params = p.parse_formal_params()?;
 
-                                    if params
-                                        .iter()
-                                        .any(|param| is_not_this(&p.ast, p.ast.get_node_in_sub_range(param)))
-                                    {
+                                    if params.iter().any(|param| {
+                                        is_not_this(&p.ast, p.ast.get_node_in_sub_range(param))
+                                    }) {
                                         p.emit_err(key_span, SyntaxError::GetterParam);
                                     }
 
@@ -365,22 +364,20 @@ impl<I: Tokens> Parser<I> {
 
                                     if params
                                         .iter()
-                                        .filter(|param| is_not_this(&p.ast, p.ast.get_node_in_sub_range(*param)))
+                                        .filter(|param| {
+                                            is_not_this(&p.ast, p.ast.get_node_in_sub_range(*param))
+                                        })
                                         .count()
                                         != 1
                                     {
                                         p.emit_err(key_span, SyntaxError::SetterParam);
                                     }
 
-                                    if !params.is_empty() {
-                                        if let Pat::Rest(rest) =
+                                    if !params.is_empty()
+                                        && let Pat::Rest(rest) =
                                             p.ast.get_node_in_sub_range(params.get(0)).pat(&p.ast)
-                                        {
-                                            p.emit_err(
-                                                rest.span(&p.ast),
-                                                SyntaxError::RestPatInSetter,
-                                            );
-                                        }
+                                    {
+                                        p.emit_err(rest.span(&p.ast), SyntaxError::RestPatInSetter);
                                     }
 
                                     if p.input().syntax().typescript()
@@ -398,7 +395,11 @@ impl<I: Tokens> Parser<I> {
                                 let mut this = None;
                                 let mut params = function.params(&p.ast);
                                 if params.len() >= 2 {
-                                    this = Some(p.ast.get_node_in_sub_range(params.remove_first()).pat(&p.ast));
+                                    this = Some(
+                                        p.ast
+                                            .get_node_in_sub_range(params.remove_first())
+                                            .pat(&p.ast),
+                                    );
                                 }
 
                                 if params.len() != 1 {
@@ -452,16 +453,14 @@ impl<I: Tokens> Parser<I> {
                     unreachable!()
                 })
             })
-        } else {
-            if self.input().syntax().typescript() {
-                unexpected!(
-                    self,
-                    "... , *,  (, [, :, , ?, =, an identifier, public, protected, private, \
+        } else if self.input().syntax().typescript() {
+            unexpected!(
+                self,
+                "... , *,  (, [, :, , ?, =, an identifier, public, protected, private, \
                          readonly, <."
-                )
-            } else {
-                unexpected!(self, "... , *,  (, [, :, , ?, = or an identifier")
-            }
+            )
+        } else {
+            unexpected!(self, "... , *,  (, [, :, , ?, = or an identifier")
         }
     }
 
