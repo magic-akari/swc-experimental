@@ -27,8 +27,8 @@ pub use common::*;
 pub use derive::*;
 pub use generated::ast_visitor::*;
 pub use node_id::{
-    BigIntId, ExtraDataId, FromNodeId, GetNodeId, GetOptionalNodeId, NodeId, OptionalNodeId,
-    OptionalUtf8Ref, OptionalWtf8Ref, SubRange, TypedSubRange, Utf8Ref, Wtf8Ref,
+    BigIntId, ExtraDataId, NodeId, NodeIdTrait, OptionalNodeId, OptionalUtf8Ref, OptionalWtf8Ref,
+    SubRange, TypedSubRange, Utf8Ref, Wtf8Ref,
 };
 
 use crate::{ast_list::NodeList, string_allocator::StringAllocator};
@@ -327,7 +327,7 @@ impl Ast {
     }
 
     #[inline]
-    pub fn add_typed_sub_range<N: GetNodeId>(&mut self, range: &[NodeId]) -> TypedSubRange<N> {
+    pub fn add_typed_sub_range<N: NodeIdTrait>(&mut self, range: &[NodeId]) -> TypedSubRange<N> {
         let start = self.extra_data.next_idx();
         self.extra_data
             .extend(range.iter().map(|n| ExtraData { node: *n }));
@@ -341,7 +341,7 @@ impl Ast {
     }
 
     #[inline]
-    pub fn add_typed_opt_sub_range<N: GetOptionalNodeId>(
+    pub fn add_typed_opt_sub_range<N: NodeIdTrait>(
         &mut self,
         range: &[OptionalNodeId],
     ) -> TypedSubRange<Option<N>> {

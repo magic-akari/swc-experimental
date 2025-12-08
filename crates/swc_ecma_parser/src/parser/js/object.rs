@@ -5,7 +5,7 @@ use crate::parser::js::is_not_this;
 use crate::{Context, PResult, Parser, error::SyntaxError, input::Tokens, lexer::Token};
 
 impl<I: Tokens> Parser<I> {
-    pub(crate) fn parse_object<Object, ObjectProp: GetNodeId>(
+    pub(crate) fn parse_object<Object, ObjectProp: NodeIdTrait>(
         &mut self,
         parse_prop: impl Fn(&mut Self) -> PResult<ObjectProp>,
         make_object: impl Fn(

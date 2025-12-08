@@ -1,20 +1,10 @@
 use crate::Ast;
 
-pub trait GetNodeId {
+pub trait NodeIdTrait {
+    /// Get node id from node
     fn node_id(&self) -> NodeId;
-}
 
-pub trait GetOptionalNodeId {
-    fn optional_node_id(&self) -> OptionalNodeId;
-}
-
-impl<T: GetNodeId> GetOptionalNodeId for T {
-    fn optional_node_id(&self) -> OptionalNodeId {
-        self.node_id().into()
-    }
-}
-
-pub trait FromNodeId {
+    /// A safe method to construct typed ast node, with `node.kind` checking
     fn from_node_id(id: NodeId, ast: &Ast) -> Self;
 
     /// # Safety
@@ -35,6 +25,15 @@ pub struct OptionalNodeId(u32);
 impl From<NodeId> for OptionalNodeId {
     fn from(value: NodeId) -> Self {
         Self(value.0)
+    }
+}
+
+impl From<Option<NodeId>> for OptionalNodeId {
+    fn from(value: Option<NodeId>) -> Self {
+        match value {
+            Some(value) => Self(value.0),
+            None => OptionalNodeId::none(),
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 use swc_core::atoms::{Atom, Wtf8Atom};
 use swc_core::ecma::ast as legacy;
 use swc_experimental_ecma_ast::{
-    self as experimental, Ast, FromNodeId, OptionalUtf8Ref, OptionalWtf8Ref, TypedSubRange,
+    self as experimental, Ast, NodeIdTrait, OptionalUtf8Ref, OptionalWtf8Ref, TypedSubRange,
     Utf8Ref, Wtf8Ref,
 };
 
@@ -1432,7 +1432,7 @@ fn compat_opt_wtf8_ref(ast: &Ast, wtf8_ref: OptionalWtf8Ref) -> Option<Wtf8Atom>
         .map(|wtf8_ref| compat_wtf8_ref(ast, wtf8_ref))
 }
 
-fn compat_type_sub_range<T: FromNodeId, U, F: Fn(&Ast, T) -> U>(
+fn compat_type_sub_range<T: NodeIdTrait, U, F: Fn(&Ast, T) -> U>(
     ast: &Ast,
     typed_range: TypedSubRange<T>,
     transformer: F,
@@ -1444,7 +1444,7 @@ fn compat_type_sub_range<T: FromNodeId, U, F: Fn(&Ast, T) -> U>(
     ret
 }
 
-fn compat_opt_type_sub_range<T: FromNodeId, U, F: Fn(&Ast, T) -> U>(
+fn compat_opt_type_sub_range<T: NodeIdTrait, U, F: Fn(&Ast, T) -> U>(
     ast: &Ast,
     typed_range: TypedSubRange<Option<T>>,
     transformer: F,

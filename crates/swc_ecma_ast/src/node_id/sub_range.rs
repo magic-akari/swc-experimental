@@ -1,9 +1,6 @@
 use std::{marker::PhantomData, ops::Deref};
 
-use crate::{
-    Ast, AstNode,
-    node_id::{ExtraDataId, FromNodeId},
-};
+use crate::{Ast, AstNode, NodeIdTrait, node_id::ExtraDataId};
 
 pub const EMPTY_SUB_RANGE: SubRange = SubRange {
     start: ExtraDataId::from_raw(0),
@@ -152,7 +149,7 @@ pub struct TypedSubRangeIterator<T> {
     _phantom: PhantomData<T>,
 }
 
-impl<T: FromNodeId> Iterator for TypedSubRangeIterator<T> {
+impl<T: NodeIdTrait> Iterator for TypedSubRangeIterator<T> {
     type Item = NodeExtraDataId<T>;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -173,7 +170,7 @@ impl<T: FromNodeId> Iterator for TypedSubRangeIterator<T> {
     }
 }
 
-impl<T: FromNodeId> DoubleEndedIterator for TypedSubRangeIterator<T> {
+impl<T: NodeIdTrait> DoubleEndedIterator for TypedSubRangeIterator<T> {
     fn next_back(&mut self) -> Option<Self::Item> {
         if self.cur == self.end {
             return None;
@@ -192,7 +189,7 @@ impl<T: FromNodeId> DoubleEndedIterator for TypedSubRangeIterator<T> {
     }
 }
 
-impl<T: FromNodeId> Iterator for TypedSubRangeIterator<Option<T>> {
+impl<T: NodeIdTrait> Iterator for TypedSubRangeIterator<Option<T>> {
     type Item = NodeExtraDataId<Option<T>>;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -213,7 +210,7 @@ impl<T: FromNodeId> Iterator for TypedSubRangeIterator<Option<T>> {
     }
 }
 
-impl<T: FromNodeId> DoubleEndedIterator for TypedSubRangeIterator<Option<T>> {
+impl<T: NodeIdTrait> DoubleEndedIterator for TypedSubRangeIterator<Option<T>> {
     fn next_back(&mut self) -> Option<Self::Item> {
         if self.cur == self.end {
             return None;
@@ -241,14 +238,14 @@ pub struct NodeExtraDataId<T> {
 }
 
 impl Ast {
-    pub fn get_node_in_sub_range<T: FromNodeId>(&self, id: NodeExtraDataId<T>) -> T {
+    pub fn get_node_in_sub_range<T: NodeIdTrait>(&self, id: NodeExtraDataId<T>) -> T {
         let node_id = unsafe { self.extra_data[id.inner].node };
 
         // Safety: `NodeExtraDataId<T>` should always be valid
         unsafe { T::from_node_id_unchecked(node_id, self) }
     }
 
-    pub fn get_opt_node_in_sub_range<T: FromNodeId>(
+    pub fn get_opt_node_in_sub_range<T: NodeIdTrait>(
         &self,
         id: NodeExtraDataId<Option<T>>,
     ) -> Option<T> {

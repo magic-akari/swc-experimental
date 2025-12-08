@@ -110,7 +110,7 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
 
         let extra_data_value = match &field_ty {
             AstType::Option(_) => {
-                quote!(#field_name.optional_node_id().into())
+                quote!(#field_name.map(|n| n.node_id()).into())
             }
             AstType::Struct(_) | AstType::Enum(_) => quote!(#field_name.node_id().into()),
             _ if extra_data_name == "other" => {

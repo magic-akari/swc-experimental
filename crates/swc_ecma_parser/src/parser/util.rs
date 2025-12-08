@@ -142,7 +142,7 @@ impl ExprExt for Expr {
     }
 }
 
-pub trait FromStmt: GetNodeId {
+pub trait FromStmt: NodeIdTrait {
     fn from_stmt(stmt: Stmt) -> Self;
 }
 
@@ -158,12 +158,12 @@ impl FromStmt for Stmt {
     }
 }
 
-pub(crate) struct ScratchIndex<N: GetNodeId> {
+pub(crate) struct ScratchIndex<N: NodeIdTrait> {
     start: usize,
     _p: PhantomData<N>,
 }
 
-impl<N: GetNodeId> ScratchIndex<N> {
+impl<N: NodeIdTrait> ScratchIndex<N> {
     pub(crate) fn new(start: usize) -> Self {
         Self {
             start,

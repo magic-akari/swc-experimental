@@ -352,7 +352,8 @@ impl<I: Tokens> Parser<I> {
                                 self.ast.free_node(expr_or_spread.node_id());
                                 params.push(
                                     self.reparse_expr_as_pat(pat_ty.element(), expr)?
-                                        .optional_node_id(),
+                                        .node_id()
+                                        .into(),
                                 )
                             }
                         },
@@ -393,12 +394,14 @@ impl<I: Tokens> Parser<I> {
                                         .map(|pat| {
                                             self.ast.pat_rest_pat(expr_span, spread_span, pat)
                                         })?
-                                        .optional_node_id()
+                                        .node_id()
+                                        .into()
                                 }
                                 None => {
                                     // TODO: is BindingPat correct?
                                     self.reparse_expr_as_pat(pat_ty.element(), expr)?
-                                        .optional_node_id()
+                                        .node_id()
+                                        .into()
                                 }
                             }
                         }
@@ -503,9 +506,9 @@ impl<I: Tokens> Parser<I> {
                 rest_span = self.span(start);
 
                 let pat = self.ast.pat_rest_pat(rest_span, dot3_token, pat);
-                elems.push(pat.optional_node_id());
+                elems.push(pat.node_id().into());
             } else {
-                elems.push(self.parse_binding_element()?.optional_node_id());
+                elems.push(self.parse_binding_element()?.node_id().into());
             }
 
             if !self.input().is(Token::RBracket) {

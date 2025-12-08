@@ -442,7 +442,7 @@ impl ImportDecl {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = with.optional_node_id().into()
+                .optional_node = with.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -590,7 +590,7 @@ impl ImportNamedSpecifier {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = imported.optional_node_id().into()
+                .optional_node = imported.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -820,7 +820,7 @@ impl NamedExport {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = src.optional_node_id().into()
+                .optional_node = src.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -842,7 +842,7 @@ impl NamedExport {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = with.optional_node_id().into()
+                .optional_node = with.map(|n| n.node_id()).into()
         };
     }
 }
@@ -1111,7 +1111,7 @@ impl ExportNamedSpecifier {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = exported.optional_node_id().into()
+                .optional_node = exported.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -1343,7 +1343,7 @@ impl ExportAll {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = with.optional_node_id().into()
+                .optional_node = with.map(|n| n.node_id()).into()
         };
     }
 }
@@ -1845,7 +1845,7 @@ impl ReturnStmt {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = arg.optional_node_id().into()
+                .optional_node = arg.map(|n| n.node_id()).into()
         };
     }
 }
@@ -1954,7 +1954,7 @@ impl BreakStmt {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = label.optional_node_id().into()
+                .optional_node = label.map(|n| n.node_id()).into()
         };
     }
 }
@@ -1997,7 +1997,7 @@ impl ContinueStmt {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = label.optional_node_id().into()
+                .optional_node = label.map(|n| n.node_id()).into()
         };
     }
 }
@@ -2086,7 +2086,7 @@ impl IfStmt {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = alt.optional_node_id().into()
+                .optional_node = alt.map(|n| n.node_id()).into()
         };
     }
 }
@@ -2273,7 +2273,7 @@ impl TryStmt {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = handler.optional_node_id().into()
+                .optional_node = handler.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -2284,7 +2284,7 @@ impl TryStmt {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = finalizer.optional_node_id().into()
+                .optional_node = finalizer.map(|n| n.node_id()).into()
         };
     }
 }
@@ -2495,7 +2495,7 @@ impl ForStmt {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = init.optional_node_id().into()
+                .optional_node = init.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -2506,7 +2506,7 @@ impl ForStmt {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = test.optional_node_id().into()
+                .optional_node = test.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -2517,7 +2517,7 @@ impl ForStmt {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = update.optional_node_id().into()
+                .optional_node = update.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -2784,7 +2784,7 @@ impl SwitchCase {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = test.optional_node_id().into()
+                .optional_node = test.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -2850,7 +2850,7 @@ impl CatchClause {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = param.optional_node_id().into()
+                .optional_node = param.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -3371,7 +3371,7 @@ impl VarDeclarator {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = init.optional_node_id().into()
+                .optional_node = init.map(|n| n.node_id()).into()
         };
     }
 }
@@ -4390,7 +4390,7 @@ impl FnExpr {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = ident.optional_node_id().into()
+                .optional_node = ident.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -4456,7 +4456,7 @@ impl ClassExpr {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = ident.optional_node_id().into()
+                .optional_node = ident.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -5224,7 +5224,7 @@ impl YieldExpr {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = arg.optional_node_id().into()
+                .optional_node = arg.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -5762,7 +5762,7 @@ impl ExprOrSpread {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = spread.optional_node_id().into()
+                .optional_node = spread.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -6353,7 +6353,7 @@ impl Function {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = body.optional_node_id().into()
+                .optional_node = body.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -6575,7 +6575,7 @@ impl Class {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = super_class.optional_node_id().into()
+                .optional_node = super_class.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -6800,7 +6800,7 @@ impl ClassProp {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = value.optional_node_id().into()
+                .optional_node = value.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -6912,7 +6912,7 @@ impl PrivateProp {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = value.optional_node_id().into()
+                .optional_node = value.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -7247,7 +7247,7 @@ impl Constructor {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = body.optional_node_id().into()
+                .optional_node = body.map(|n| n.node_id()).into()
         };
     }
 }
@@ -7469,7 +7469,7 @@ impl AutoAccessor {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = value.optional_node_id().into()
+                .optional_node = value.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -7787,7 +7787,7 @@ impl GetterProp {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = body.optional_node_id().into()
+                .optional_node = body.map(|n| n.node_id()).into()
         };
     }
 }
@@ -7877,7 +7877,7 @@ impl SetterProp {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = this_param.optional_node_id().into()
+                .optional_node = this_param.map(|n| n.node_id()).into()
         };
     }
     #[inline]
@@ -7899,7 +7899,7 @@ impl SetterProp {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = body.optional_node_id().into()
+                .optional_node = body.map(|n| n.node_id()).into()
         };
     }
 }
@@ -8659,7 +8659,7 @@ impl AssignPatProp {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = value.optional_node_id().into()
+                .optional_node = value.map(|n| n.node_id()).into()
         };
     }
 }
@@ -9912,7 +9912,7 @@ impl JSXAttr {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = value.optional_node_id().into()
+                .optional_node = value.map(|n| n.node_id()).into()
         };
     }
 }
@@ -10185,7 +10185,7 @@ impl JSXElement {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .optional_node = closing.optional_node_id().into()
+                .optional_node = closing.map(|n| n.node_id()).into()
         };
     }
 }

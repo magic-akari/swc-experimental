@@ -37,30 +37,13 @@ pub fn ast_node_id(schema: &Schema) -> RawOutput {
 
 fn generate_node_id_for_struct(ast: &AstStruct, _schema: &Schema) -> TokenStream {
     let name = format_ident!("{}", ast.name);
-
-    let node_id_getter = quote! {
-        impl GetNodeId for #name {
+    quote! {
+        impl NodeIdTrait for #name {
             #[inline]
             fn node_id(&self) -> NodeId {
                 self.0
             }
-        }
-    };
 
-    let optional_id_getter = quote! {
-        impl GetOptionalNodeId for Option<#name> {
-            #[inline]
-            fn optional_node_id(&self) -> OptionalNodeId {
-                match self {
-                    Some(it) => it.node_id().into(),
-                    None => OptionalNodeId::none(),
-                }
-            }
-        }
-    };
-
-    let from_node_id = quote! {
-        impl FromNodeId for #name {
             #[inline]
             fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
                 assert!(ast.nodes[node_id].kind == NodeKind::#name);
@@ -72,12 +55,6 @@ fn generate_node_id_for_struct(ast: &AstStruct, _schema: &Schema) -> TokenStream
                 Self(node_id)
             }
         }
-    };
-
-    quote! {
-        #node_id_getter
-        #optional_id_getter
-        #from_node_id
     }
 }
 
@@ -92,29 +69,6 @@ fn generate_node_id_for_enum(ast: &AstEnum, schema: &Schema) -> TokenStream {
         });
     }
 
-    let node_id_getter = quote! {
-        impl GetNodeId for #name {
-            #[inline]
-            fn node_id(&self) -> NodeId {
-                match self {
-                    #node_id_getter_arms
-                }
-            }
-        }
-    };
-
-    let optional_id_getter = quote! {
-        impl GetOptionalNodeId for Option<#name> {
-            #[inline]
-            fn optional_node_id(&self) -> OptionalNodeId {
-                match self {
-                    Some(it) => it.node_id().into(),
-                    None => OptionalNodeId::none(),
-                }
-            }
-        }
-    };
-
     let mut from_node_id_arms = TokenStream::new();
     for (_, element) in flat_enum_type(ast, schema) {
         let kind = element.kind;
@@ -126,8 +80,16 @@ fn generate_node_id_for_enum(ast: &AstEnum, schema: &Schema) -> TokenStream {
             NodeKind::#kind => #body,
         });
     }
-    let from_node_id = quote! {
-        impl FromNodeId for #name {
+
+    quote! {
+        impl NodeIdTrait for #name {
+            #[inline]
+            fn node_id(&self) -> NodeId {
+                match self {
+                    #node_id_getter_arms
+                }
+            }
+
             #[inline]
             fn from_node_id(id: NodeId, ast: &Ast) -> Self {
                 match &ast.nodes[id].kind {
@@ -141,11 +103,5 @@ fn generate_node_id_for_enum(ast: &AstEnum, schema: &Schema) -> TokenStream {
                 Self::from_node_id(id, ast)
             }
         }
-    };
-
-    quote! {
-        #node_id_getter
-        #optional_id_getter
-        #from_node_id
     }
 }

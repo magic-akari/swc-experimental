@@ -63,7 +63,7 @@ fn generate_build_function_for_struct(ast: &AstStruct, schema: &Schema) -> Token
         let extra_data_field = map_field_type_to_extra_field(field_ty);
         let field_value = match field_ty {
             AstType::Option(_) => {
-                quote!( #field_name.optional_node_id() )
+                quote!(#field_name.map(|n| n.node_id()).into())
             }
             AstType::Struct(_) | AstType::Enum(_) => {
                 quote!( #field_name.node_id() )

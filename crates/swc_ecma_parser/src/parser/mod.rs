@@ -95,7 +95,7 @@ impl<I: Tokens> Parser<I> {
     }
 
     #[inline]
-    fn scratch_start<N: GetNodeId>(&self) -> ScratchIndex<N> {
+    fn scratch_start<N: NodeIdTrait>(&self) -> ScratchIndex<N> {
         ScratchIndex::new(self.scratch.len())
     }
 

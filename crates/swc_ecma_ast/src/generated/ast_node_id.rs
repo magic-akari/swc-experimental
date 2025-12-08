@@ -1,7 +1,7 @@
 #![allow(unused)]
 use crate::{Ast, NodeKind};
 use crate::{ast::*, node_id::*};
-impl GetNodeId for Program {
+impl NodeIdTrait for Program {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -9,17 +9,6 @@ impl GetNodeId for Program {
             Self::Script(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<Program> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Program {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -33,22 +22,11 @@ impl FromNodeId for Program {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for Module {
+impl NodeIdTrait for Module {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Module> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Module {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Module);
@@ -59,22 +37,11 @@ impl FromNodeId for Module {
         Self(node_id)
     }
 }
-impl GetNodeId for Script {
+impl NodeIdTrait for Script {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Script> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Script {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Script);
@@ -85,7 +52,7 @@ impl FromNodeId for Script {
         Self(node_id)
     }
 }
-impl GetNodeId for ModuleItem {
+impl NodeIdTrait for ModuleItem {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -93,17 +60,6 @@ impl GetNodeId for ModuleItem {
             Self::Stmt(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<ModuleItem> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ModuleItem {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -203,7 +159,7 @@ impl FromNodeId for ModuleItem {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for ModuleDecl {
+impl NodeIdTrait for ModuleDecl {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -215,17 +171,6 @@ impl GetNodeId for ModuleDecl {
             Self::ExportAll(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<ModuleDecl> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ModuleDecl {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -255,22 +200,11 @@ impl FromNodeId for ModuleDecl {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for ImportDecl {
+impl NodeIdTrait for ImportDecl {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ImportDecl> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ImportDecl {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ImportDecl);
@@ -281,7 +215,7 @@ impl FromNodeId for ImportDecl {
         Self(node_id)
     }
 }
-impl GetNodeId for ImportSpecifier {
+impl NodeIdTrait for ImportSpecifier {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -290,17 +224,6 @@ impl GetNodeId for ImportSpecifier {
             Self::Namespace(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<ImportSpecifier> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ImportSpecifier {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -321,22 +244,11 @@ impl FromNodeId for ImportSpecifier {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for ImportNamedSpecifier {
+impl NodeIdTrait for ImportNamedSpecifier {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ImportNamedSpecifier> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ImportNamedSpecifier {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ImportNamedSpecifier);
@@ -347,22 +259,11 @@ impl FromNodeId for ImportNamedSpecifier {
         Self(node_id)
     }
 }
-impl GetNodeId for ImportDefaultSpecifier {
+impl NodeIdTrait for ImportDefaultSpecifier {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ImportDefaultSpecifier> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ImportDefaultSpecifier {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ImportDefaultSpecifier);
@@ -373,22 +274,11 @@ impl FromNodeId for ImportDefaultSpecifier {
         Self(node_id)
     }
 }
-impl GetNodeId for ImportStarAsSpecifier {
+impl NodeIdTrait for ImportStarAsSpecifier {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ImportStarAsSpecifier> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ImportStarAsSpecifier {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ImportStarAsSpecifier);
@@ -399,22 +289,11 @@ impl FromNodeId for ImportStarAsSpecifier {
         Self(node_id)
     }
 }
-impl GetNodeId for ExportDecl {
+impl NodeIdTrait for ExportDecl {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ExportDecl> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ExportDecl {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ExportDecl);
@@ -425,22 +304,11 @@ impl FromNodeId for ExportDecl {
         Self(node_id)
     }
 }
-impl GetNodeId for NamedExport {
+impl NodeIdTrait for NamedExport {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<NamedExport> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for NamedExport {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::NamedExport);
@@ -451,7 +319,7 @@ impl FromNodeId for NamedExport {
         Self(node_id)
     }
 }
-impl GetNodeId for ExportSpecifier {
+impl NodeIdTrait for ExportSpecifier {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -460,17 +328,6 @@ impl GetNodeId for ExportSpecifier {
             Self::Named(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<ExportSpecifier> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ExportSpecifier {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -491,22 +348,11 @@ impl FromNodeId for ExportSpecifier {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for ExportNamespaceSpecifier {
+impl NodeIdTrait for ExportNamespaceSpecifier {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ExportNamespaceSpecifier> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ExportNamespaceSpecifier {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ExportNamespaceSpecifier);
@@ -517,7 +363,7 @@ impl FromNodeId for ExportNamespaceSpecifier {
         Self(node_id)
     }
 }
-impl GetNodeId for ModuleExportName {
+impl NodeIdTrait for ModuleExportName {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -525,17 +371,6 @@ impl GetNodeId for ModuleExportName {
             Self::Str(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<ModuleExportName> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ModuleExportName {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -551,22 +386,11 @@ impl FromNodeId for ModuleExportName {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for ExportDefaultSpecifier {
+impl NodeIdTrait for ExportDefaultSpecifier {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ExportDefaultSpecifier> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ExportDefaultSpecifier {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ExportDefaultSpecifier);
@@ -577,22 +401,11 @@ impl FromNodeId for ExportDefaultSpecifier {
         Self(node_id)
     }
 }
-impl GetNodeId for ExportNamedSpecifier {
+impl NodeIdTrait for ExportNamedSpecifier {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ExportNamedSpecifier> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ExportNamedSpecifier {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ExportNamedSpecifier);
@@ -603,22 +416,11 @@ impl FromNodeId for ExportNamedSpecifier {
         Self(node_id)
     }
 }
-impl GetNodeId for ExportDefaultDecl {
+impl NodeIdTrait for ExportDefaultDecl {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ExportDefaultDecl> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ExportDefaultDecl {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ExportDefaultDecl);
@@ -629,7 +431,7 @@ impl FromNodeId for ExportDefaultDecl {
         Self(node_id)
     }
 }
-impl GetNodeId for DefaultDecl {
+impl NodeIdTrait for DefaultDecl {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -637,17 +439,6 @@ impl GetNodeId for DefaultDecl {
             Self::Fn(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<DefaultDecl> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for DefaultDecl {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -663,22 +454,11 @@ impl FromNodeId for DefaultDecl {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for ExportDefaultExpr {
+impl NodeIdTrait for ExportDefaultExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ExportDefaultExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ExportDefaultExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ExportDefaultExpr);
@@ -689,22 +469,11 @@ impl FromNodeId for ExportDefaultExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for ExportAll {
+impl NodeIdTrait for ExportAll {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ExportAll> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ExportAll {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ExportAll);
@@ -715,22 +484,11 @@ impl FromNodeId for ExportAll {
         Self(node_id)
     }
 }
-impl GetNodeId for BlockStmt {
+impl NodeIdTrait for BlockStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<BlockStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for BlockStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::BlockStmt);
@@ -741,7 +499,7 @@ impl FromNodeId for BlockStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for Stmt {
+impl NodeIdTrait for Stmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -766,17 +524,6 @@ impl GetNodeId for Stmt {
             Self::Expr(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<Stmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Stmt {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -844,22 +591,11 @@ impl FromNodeId for Stmt {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for ExprStmt {
+impl NodeIdTrait for ExprStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ExprStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ExprStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ExprStmt);
@@ -870,22 +606,11 @@ impl FromNodeId for ExprStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for EmptyStmt {
+impl NodeIdTrait for EmptyStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<EmptyStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for EmptyStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::EmptyStmt);
@@ -896,22 +621,11 @@ impl FromNodeId for EmptyStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for DebuggerStmt {
+impl NodeIdTrait for DebuggerStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<DebuggerStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for DebuggerStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::DebuggerStmt);
@@ -922,22 +636,11 @@ impl FromNodeId for DebuggerStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for WithStmt {
+impl NodeIdTrait for WithStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<WithStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for WithStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::WithStmt);
@@ -948,22 +651,11 @@ impl FromNodeId for WithStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for ReturnStmt {
+impl NodeIdTrait for ReturnStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ReturnStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ReturnStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ReturnStmt);
@@ -974,22 +666,11 @@ impl FromNodeId for ReturnStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for LabeledStmt {
+impl NodeIdTrait for LabeledStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<LabeledStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for LabeledStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::LabeledStmt);
@@ -1000,22 +681,11 @@ impl FromNodeId for LabeledStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for BreakStmt {
+impl NodeIdTrait for BreakStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<BreakStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for BreakStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::BreakStmt);
@@ -1026,22 +696,11 @@ impl FromNodeId for BreakStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for ContinueStmt {
+impl NodeIdTrait for ContinueStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ContinueStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ContinueStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ContinueStmt);
@@ -1052,22 +711,11 @@ impl FromNodeId for ContinueStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for IfStmt {
+impl NodeIdTrait for IfStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<IfStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for IfStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::IfStmt);
@@ -1078,22 +726,11 @@ impl FromNodeId for IfStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for SwitchStmt {
+impl NodeIdTrait for SwitchStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<SwitchStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for SwitchStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::SwitchStmt);
@@ -1104,22 +741,11 @@ impl FromNodeId for SwitchStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for ThrowStmt {
+impl NodeIdTrait for ThrowStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ThrowStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ThrowStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ThrowStmt);
@@ -1130,22 +756,11 @@ impl FromNodeId for ThrowStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for TryStmt {
+impl NodeIdTrait for TryStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<TryStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for TryStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::TryStmt);
@@ -1156,22 +771,11 @@ impl FromNodeId for TryStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for WhileStmt {
+impl NodeIdTrait for WhileStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<WhileStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for WhileStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::WhileStmt);
@@ -1182,22 +786,11 @@ impl FromNodeId for WhileStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for DoWhileStmt {
+impl NodeIdTrait for DoWhileStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<DoWhileStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for DoWhileStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::DoWhileStmt);
@@ -1208,22 +801,11 @@ impl FromNodeId for DoWhileStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for ForStmt {
+impl NodeIdTrait for ForStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ForStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ForStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ForStmt);
@@ -1234,22 +816,11 @@ impl FromNodeId for ForStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for ForInStmt {
+impl NodeIdTrait for ForInStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ForInStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ForInStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ForInStmt);
@@ -1260,22 +831,11 @@ impl FromNodeId for ForInStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for ForOfStmt {
+impl NodeIdTrait for ForOfStmt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ForOfStmt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ForOfStmt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ForOfStmt);
@@ -1286,22 +846,11 @@ impl FromNodeId for ForOfStmt {
         Self(node_id)
     }
 }
-impl GetNodeId for SwitchCase {
+impl NodeIdTrait for SwitchCase {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<SwitchCase> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for SwitchCase {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::SwitchCase);
@@ -1312,22 +861,11 @@ impl FromNodeId for SwitchCase {
         Self(node_id)
     }
 }
-impl GetNodeId for CatchClause {
+impl NodeIdTrait for CatchClause {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<CatchClause> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for CatchClause {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::CatchClause);
@@ -1338,7 +876,7 @@ impl FromNodeId for CatchClause {
         Self(node_id)
     }
 }
-impl GetNodeId for ForHead {
+impl NodeIdTrait for ForHead {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -1347,17 +885,6 @@ impl GetNodeId for ForHead {
             Self::Pat(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<ForHead> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ForHead {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -1503,7 +1030,7 @@ impl FromNodeId for ForHead {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for VarDeclOrExpr {
+impl NodeIdTrait for VarDeclOrExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -1511,17 +1038,6 @@ impl GetNodeId for VarDeclOrExpr {
             Self::Expr(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<VarDeclOrExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for VarDeclOrExpr {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -1647,7 +1163,7 @@ impl FromNodeId for VarDeclOrExpr {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for Decl {
+impl NodeIdTrait for Decl {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -1657,17 +1173,6 @@ impl GetNodeId for Decl {
             Self::Using(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<Decl> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Decl {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -1687,22 +1192,11 @@ impl FromNodeId for Decl {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for FnDecl {
+impl NodeIdTrait for FnDecl {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<FnDecl> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for FnDecl {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::FnDecl);
@@ -1713,22 +1207,11 @@ impl FromNodeId for FnDecl {
         Self(node_id)
     }
 }
-impl GetNodeId for ClassDecl {
+impl NodeIdTrait for ClassDecl {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ClassDecl> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ClassDecl {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ClassDecl);
@@ -1739,22 +1222,11 @@ impl FromNodeId for ClassDecl {
         Self(node_id)
     }
 }
-impl GetNodeId for VarDecl {
+impl NodeIdTrait for VarDecl {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<VarDecl> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for VarDecl {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::VarDecl);
@@ -1765,22 +1237,11 @@ impl FromNodeId for VarDecl {
         Self(node_id)
     }
 }
-impl GetNodeId for VarDeclarator {
+impl NodeIdTrait for VarDeclarator {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<VarDeclarator> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for VarDeclarator {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::VarDeclarator);
@@ -1791,22 +1252,11 @@ impl FromNodeId for VarDeclarator {
         Self(node_id)
     }
 }
-impl GetNodeId for UsingDecl {
+impl NodeIdTrait for UsingDecl {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<UsingDecl> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for UsingDecl {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::UsingDecl);
@@ -1817,7 +1267,7 @@ impl FromNodeId for UsingDecl {
         Self(node_id)
     }
 }
-impl GetNodeId for Expr {
+impl NodeIdTrait for Expr {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -1855,17 +1305,6 @@ impl GetNodeId for Expr {
             Self::Invalid(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<Expr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Expr {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -1964,22 +1403,11 @@ impl FromNodeId for Expr {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for ThisExpr {
+impl NodeIdTrait for ThisExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ThisExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ThisExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ThisExpr);
@@ -1990,22 +1418,11 @@ impl FromNodeId for ThisExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for ArrayLit {
+impl NodeIdTrait for ArrayLit {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ArrayLit> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ArrayLit {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ArrayLit);
@@ -2016,22 +1433,11 @@ impl FromNodeId for ArrayLit {
         Self(node_id)
     }
 }
-impl GetNodeId for ObjectLit {
+impl NodeIdTrait for ObjectLit {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ObjectLit> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ObjectLit {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ObjectLit);
@@ -2042,7 +1448,7 @@ impl FromNodeId for ObjectLit {
         Self(node_id)
     }
 }
-impl GetNodeId for PropOrSpread {
+impl NodeIdTrait for PropOrSpread {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -2050,17 +1456,6 @@ impl GetNodeId for PropOrSpread {
             Self::Prop(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<PropOrSpread> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for PropOrSpread {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -2093,22 +1488,11 @@ impl FromNodeId for PropOrSpread {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for SpreadElement {
+impl NodeIdTrait for SpreadElement {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<SpreadElement> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for SpreadElement {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::SpreadElement);
@@ -2119,22 +1503,11 @@ impl FromNodeId for SpreadElement {
         Self(node_id)
     }
 }
-impl GetNodeId for UnaryExpr {
+impl NodeIdTrait for UnaryExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<UnaryExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for UnaryExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::UnaryExpr);
@@ -2145,22 +1518,11 @@ impl FromNodeId for UnaryExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for UpdateExpr {
+impl NodeIdTrait for UpdateExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<UpdateExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for UpdateExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::UpdateExpr);
@@ -2171,22 +1533,11 @@ impl FromNodeId for UpdateExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for BinExpr {
+impl NodeIdTrait for BinExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<BinExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for BinExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::BinExpr);
@@ -2197,22 +1548,11 @@ impl FromNodeId for BinExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for FnExpr {
+impl NodeIdTrait for FnExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<FnExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for FnExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::FnExpr);
@@ -2223,22 +1563,11 @@ impl FromNodeId for FnExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for ClassExpr {
+impl NodeIdTrait for ClassExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ClassExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ClassExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ClassExpr);
@@ -2249,22 +1578,11 @@ impl FromNodeId for ClassExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for AssignExpr {
+impl NodeIdTrait for AssignExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<AssignExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for AssignExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::AssignExpr);
@@ -2275,22 +1593,11 @@ impl FromNodeId for AssignExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for MemberExpr {
+impl NodeIdTrait for MemberExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<MemberExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for MemberExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::MemberExpr);
@@ -2301,7 +1608,7 @@ impl FromNodeId for MemberExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for MemberProp {
+impl NodeIdTrait for MemberProp {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -2310,17 +1617,6 @@ impl GetNodeId for MemberProp {
             Self::Computed(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<MemberProp> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for MemberProp {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -2341,22 +1637,11 @@ impl FromNodeId for MemberProp {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for SuperPropExpr {
+impl NodeIdTrait for SuperPropExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<SuperPropExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for SuperPropExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::SuperPropExpr);
@@ -2367,7 +1652,7 @@ impl FromNodeId for SuperPropExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for SuperProp {
+impl NodeIdTrait for SuperProp {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -2375,17 +1660,6 @@ impl GetNodeId for SuperProp {
             Self::Computed(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<SuperProp> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for SuperProp {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -2403,22 +1677,11 @@ impl FromNodeId for SuperProp {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for CondExpr {
+impl NodeIdTrait for CondExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<CondExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for CondExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::CondExpr);
@@ -2429,22 +1692,11 @@ impl FromNodeId for CondExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for CallExpr {
+impl NodeIdTrait for CallExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<CallExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for CallExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::CallExpr);
@@ -2455,22 +1707,11 @@ impl FromNodeId for CallExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for NewExpr {
+impl NodeIdTrait for NewExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<NewExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for NewExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::NewExpr);
@@ -2481,22 +1722,11 @@ impl FromNodeId for NewExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for SeqExpr {
+impl NodeIdTrait for SeqExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<SeqExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for SeqExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::SeqExpr);
@@ -2507,22 +1737,11 @@ impl FromNodeId for SeqExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for ArrowExpr {
+impl NodeIdTrait for ArrowExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ArrowExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ArrowExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ArrowExpr);
@@ -2533,22 +1752,11 @@ impl FromNodeId for ArrowExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for YieldExpr {
+impl NodeIdTrait for YieldExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<YieldExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for YieldExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::YieldExpr);
@@ -2559,22 +1767,11 @@ impl FromNodeId for YieldExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for MetaPropExpr {
+impl NodeIdTrait for MetaPropExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<MetaPropExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for MetaPropExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::MetaPropExpr);
@@ -2585,22 +1782,11 @@ impl FromNodeId for MetaPropExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for AwaitExpr {
+impl NodeIdTrait for AwaitExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<AwaitExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for AwaitExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::AwaitExpr);
@@ -2611,22 +1797,11 @@ impl FromNodeId for AwaitExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for Tpl {
+impl NodeIdTrait for Tpl {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Tpl> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Tpl {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Tpl);
@@ -2637,22 +1812,11 @@ impl FromNodeId for Tpl {
         Self(node_id)
     }
 }
-impl GetNodeId for TaggedTpl {
+impl NodeIdTrait for TaggedTpl {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<TaggedTpl> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for TaggedTpl {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::TaggedTpl);
@@ -2663,22 +1827,11 @@ impl FromNodeId for TaggedTpl {
         Self(node_id)
     }
 }
-impl GetNodeId for TplElement {
+impl NodeIdTrait for TplElement {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<TplElement> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for TplElement {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::TplElement);
@@ -2689,22 +1842,11 @@ impl FromNodeId for TplElement {
         Self(node_id)
     }
 }
-impl GetNodeId for ParenExpr {
+impl NodeIdTrait for ParenExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ParenExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ParenExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ParenExpr);
@@ -2715,7 +1857,7 @@ impl FromNodeId for ParenExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for Callee {
+impl NodeIdTrait for Callee {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -2724,17 +1866,6 @@ impl GetNodeId for Callee {
             Self::Expr(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<Callee> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Callee {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -2859,22 +1990,11 @@ impl FromNodeId for Callee {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for Super {
+impl NodeIdTrait for Super {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Super> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Super {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Super);
@@ -2885,22 +2005,11 @@ impl FromNodeId for Super {
         Self(node_id)
     }
 }
-impl GetNodeId for Import {
+impl NodeIdTrait for Import {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Import> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Import {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Import);
@@ -2911,22 +2020,11 @@ impl FromNodeId for Import {
         Self(node_id)
     }
 }
-impl GetNodeId for ExprOrSpread {
+impl NodeIdTrait for ExprOrSpread {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ExprOrSpread> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ExprOrSpread {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ExprOrSpread);
@@ -2937,22 +2035,11 @@ impl FromNodeId for ExprOrSpread {
         Self(node_id)
     }
 }
-impl GetNodeId for SpreadDot3Token {
+impl NodeIdTrait for SpreadDot3Token {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<SpreadDot3Token> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for SpreadDot3Token {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::SpreadDot3Token);
@@ -2963,7 +2050,7 @@ impl FromNodeId for SpreadDot3Token {
         Self(node_id)
     }
 }
-impl GetNodeId for BlockStmtOrExpr {
+impl NodeIdTrait for BlockStmtOrExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -2971,17 +2058,6 @@ impl GetNodeId for BlockStmtOrExpr {
             Self::Expr(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<BlockStmtOrExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for BlockStmtOrExpr {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -3107,7 +2183,7 @@ impl FromNodeId for BlockStmtOrExpr {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for AssignTarget {
+impl NodeIdTrait for AssignTarget {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -3115,17 +2191,6 @@ impl GetNodeId for AssignTarget {
             Self::Pat(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<AssignTarget> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for AssignTarget {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -3163,7 +2228,7 @@ impl FromNodeId for AssignTarget {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for AssignTargetPat {
+impl NodeIdTrait for AssignTargetPat {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -3172,17 +2237,6 @@ impl GetNodeId for AssignTargetPat {
             Self::Invalid(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<AssignTargetPat> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for AssignTargetPat {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -3203,7 +2257,7 @@ impl FromNodeId for AssignTargetPat {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for SimpleAssignTarget {
+impl NodeIdTrait for SimpleAssignTarget {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -3215,17 +2269,6 @@ impl GetNodeId for SimpleAssignTarget {
             Self::Invalid(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<SimpleAssignTarget> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for SimpleAssignTarget {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -3255,22 +2298,11 @@ impl FromNodeId for SimpleAssignTarget {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for OptChainExpr {
+impl NodeIdTrait for OptChainExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<OptChainExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for OptChainExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::OptChainExpr);
@@ -3281,7 +2313,7 @@ impl FromNodeId for OptChainExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for OptChainBase {
+impl NodeIdTrait for OptChainBase {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -3289,17 +2321,6 @@ impl GetNodeId for OptChainBase {
             Self::Call(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<OptChainBase> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for OptChainBase {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -3317,22 +2338,11 @@ impl FromNodeId for OptChainBase {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for OptCall {
+impl NodeIdTrait for OptCall {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<OptCall> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for OptCall {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::OptCall);
@@ -3343,22 +2353,11 @@ impl FromNodeId for OptCall {
         Self(node_id)
     }
 }
-impl GetNodeId for Invalid {
+impl NodeIdTrait for Invalid {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Invalid> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Invalid {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Invalid);
@@ -3369,22 +2368,11 @@ impl FromNodeId for Invalid {
         Self(node_id)
     }
 }
-impl GetNodeId for Function {
+impl NodeIdTrait for Function {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Function> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Function {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Function);
@@ -3395,22 +2383,11 @@ impl FromNodeId for Function {
         Self(node_id)
     }
 }
-impl GetNodeId for Param {
+impl NodeIdTrait for Param {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Param> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Param {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Param);
@@ -3421,24 +2398,13 @@ impl FromNodeId for Param {
         Self(node_id)
     }
 }
-impl GetNodeId for ParamOrTsParamProp {
+impl NodeIdTrait for ParamOrTsParamProp {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
             Self::Param(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<ParamOrTsParamProp> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ParamOrTsParamProp {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -3453,22 +2419,11 @@ impl FromNodeId for ParamOrTsParamProp {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for Class {
+impl NodeIdTrait for Class {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Class> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Class {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Class);
@@ -3479,7 +2434,7 @@ impl FromNodeId for Class {
         Self(node_id)
     }
 }
-impl GetNodeId for ClassMember {
+impl NodeIdTrait for ClassMember {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -3493,17 +2448,6 @@ impl GetNodeId for ClassMember {
             Self::AutoAccessor(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<ClassMember> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ClassMember {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -3539,22 +2483,11 @@ impl FromNodeId for ClassMember {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for ClassProp {
+impl NodeIdTrait for ClassProp {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ClassProp> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ClassProp {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ClassProp);
@@ -3565,22 +2498,11 @@ impl FromNodeId for ClassProp {
         Self(node_id)
     }
 }
-impl GetNodeId for PrivateProp {
+impl NodeIdTrait for PrivateProp {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<PrivateProp> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for PrivateProp {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::PrivateProp);
@@ -3591,22 +2513,11 @@ impl FromNodeId for PrivateProp {
         Self(node_id)
     }
 }
-impl GetNodeId for ClassMethod {
+impl NodeIdTrait for ClassMethod {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ClassMethod> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ClassMethod {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ClassMethod);
@@ -3617,22 +2528,11 @@ impl FromNodeId for ClassMethod {
         Self(node_id)
     }
 }
-impl GetNodeId for PrivateMethod {
+impl NodeIdTrait for PrivateMethod {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<PrivateMethod> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for PrivateMethod {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::PrivateMethod);
@@ -3643,22 +2543,11 @@ impl FromNodeId for PrivateMethod {
         Self(node_id)
     }
 }
-impl GetNodeId for Constructor {
+impl NodeIdTrait for Constructor {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Constructor> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Constructor {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Constructor);
@@ -3669,22 +2558,11 @@ impl FromNodeId for Constructor {
         Self(node_id)
     }
 }
-impl GetNodeId for Decorator {
+impl NodeIdTrait for Decorator {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Decorator> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Decorator {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Decorator);
@@ -3695,22 +2573,11 @@ impl FromNodeId for Decorator {
         Self(node_id)
     }
 }
-impl GetNodeId for StaticBlock {
+impl NodeIdTrait for StaticBlock {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<StaticBlock> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for StaticBlock {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::StaticBlock);
@@ -3721,7 +2588,7 @@ impl FromNodeId for StaticBlock {
         Self(node_id)
     }
 }
-impl GetNodeId for Key {
+impl NodeIdTrait for Key {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -3729,17 +2596,6 @@ impl GetNodeId for Key {
             Self::Public(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<Key> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Key {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -3769,22 +2625,11 @@ impl FromNodeId for Key {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for AutoAccessor {
+impl NodeIdTrait for AutoAccessor {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<AutoAccessor> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for AutoAccessor {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::AutoAccessor);
@@ -3795,7 +2640,7 @@ impl FromNodeId for AutoAccessor {
         Self(node_id)
     }
 }
-impl GetNodeId for Prop {
+impl NodeIdTrait for Prop {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -3807,17 +2652,6 @@ impl GetNodeId for Prop {
             Self::Method(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<Prop> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Prop {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -3845,22 +2679,11 @@ impl FromNodeId for Prop {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for KeyValueProp {
+impl NodeIdTrait for KeyValueProp {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<KeyValueProp> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for KeyValueProp {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::KeyValueProp);
@@ -3871,22 +2694,11 @@ impl FromNodeId for KeyValueProp {
         Self(node_id)
     }
 }
-impl GetNodeId for AssignProp {
+impl NodeIdTrait for AssignProp {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<AssignProp> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for AssignProp {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::AssignProp);
@@ -3897,22 +2709,11 @@ impl FromNodeId for AssignProp {
         Self(node_id)
     }
 }
-impl GetNodeId for GetterProp {
+impl NodeIdTrait for GetterProp {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<GetterProp> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for GetterProp {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::GetterProp);
@@ -3923,22 +2724,11 @@ impl FromNodeId for GetterProp {
         Self(node_id)
     }
 }
-impl GetNodeId for SetterProp {
+impl NodeIdTrait for SetterProp {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<SetterProp> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for SetterProp {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::SetterProp);
@@ -3949,22 +2739,11 @@ impl FromNodeId for SetterProp {
         Self(node_id)
     }
 }
-impl GetNodeId for MethodProp {
+impl NodeIdTrait for MethodProp {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<MethodProp> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for MethodProp {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::MethodProp);
@@ -3975,7 +2754,7 @@ impl FromNodeId for MethodProp {
         Self(node_id)
     }
 }
-impl GetNodeId for PropName {
+impl NodeIdTrait for PropName {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -3986,17 +2765,6 @@ impl GetNodeId for PropName {
             Self::BigInt(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<PropName> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for PropName {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -4019,22 +2787,11 @@ impl FromNodeId for PropName {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for ComputedPropName {
+impl NodeIdTrait for ComputedPropName {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ComputedPropName> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ComputedPropName {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ComputedPropName);
@@ -4045,7 +2802,7 @@ impl FromNodeId for ComputedPropName {
         Self(node_id)
     }
 }
-impl GetNodeId for Pat {
+impl NodeIdTrait for Pat {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -4058,17 +2815,6 @@ impl GetNodeId for Pat {
             Self::Expr(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<Pat> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Pat {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -4198,22 +2944,11 @@ impl FromNodeId for Pat {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for ArrayPat {
+impl NodeIdTrait for ArrayPat {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ArrayPat> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ArrayPat {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ArrayPat);
@@ -4224,22 +2959,11 @@ impl FromNodeId for ArrayPat {
         Self(node_id)
     }
 }
-impl GetNodeId for ObjectPat {
+impl NodeIdTrait for ObjectPat {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<ObjectPat> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ObjectPat {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::ObjectPat);
@@ -4250,22 +2974,11 @@ impl FromNodeId for ObjectPat {
         Self(node_id)
     }
 }
-impl GetNodeId for AssignPat {
+impl NodeIdTrait for AssignPat {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<AssignPat> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for AssignPat {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::AssignPat);
@@ -4276,22 +2989,11 @@ impl FromNodeId for AssignPat {
         Self(node_id)
     }
 }
-impl GetNodeId for RestPat {
+impl NodeIdTrait for RestPat {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<RestPat> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for RestPat {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::RestPat);
@@ -4302,7 +3004,7 @@ impl FromNodeId for RestPat {
         Self(node_id)
     }
 }
-impl GetNodeId for ObjectPatProp {
+impl NodeIdTrait for ObjectPatProp {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -4311,17 +3013,6 @@ impl GetNodeId for ObjectPatProp {
             Self::Rest(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<ObjectPatProp> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for ObjectPatProp {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -4342,22 +3033,11 @@ impl FromNodeId for ObjectPatProp {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for KeyValuePatProp {
+impl NodeIdTrait for KeyValuePatProp {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<KeyValuePatProp> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for KeyValuePatProp {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::KeyValuePatProp);
@@ -4368,22 +3048,11 @@ impl FromNodeId for KeyValuePatProp {
         Self(node_id)
     }
 }
-impl GetNodeId for AssignPatProp {
+impl NodeIdTrait for AssignPatProp {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<AssignPatProp> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for AssignPatProp {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::AssignPatProp);
@@ -4394,22 +3063,11 @@ impl FromNodeId for AssignPatProp {
         Self(node_id)
     }
 }
-impl GetNodeId for Ident {
+impl NodeIdTrait for Ident {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Ident> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Ident {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Ident);
@@ -4420,22 +3078,11 @@ impl FromNodeId for Ident {
         Self(node_id)
     }
 }
-impl GetNodeId for IdentName {
+impl NodeIdTrait for IdentName {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<IdentName> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for IdentName {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::IdentName);
@@ -4446,22 +3093,11 @@ impl FromNodeId for IdentName {
         Self(node_id)
     }
 }
-impl GetNodeId for PrivateName {
+impl NodeIdTrait for PrivateName {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<PrivateName> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for PrivateName {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::PrivateName);
@@ -4472,22 +3108,11 @@ impl FromNodeId for PrivateName {
         Self(node_id)
     }
 }
-impl GetNodeId for BindingIdent {
+impl NodeIdTrait for BindingIdent {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<BindingIdent> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for BindingIdent {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::BindingIdent);
@@ -4498,7 +3123,7 @@ impl FromNodeId for BindingIdent {
         Self(node_id)
     }
 }
-impl GetNodeId for Lit {
+impl NodeIdTrait for Lit {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -4510,17 +3135,6 @@ impl GetNodeId for Lit {
             Self::Regex(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<Lit> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Lit {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -4538,22 +3152,11 @@ impl FromNodeId for Lit {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for Str {
+impl NodeIdTrait for Str {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Str> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Str {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Str);
@@ -4564,22 +3167,11 @@ impl FromNodeId for Str {
         Self(node_id)
     }
 }
-impl GetNodeId for Bool {
+impl NodeIdTrait for Bool {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Bool> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Bool {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Bool);
@@ -4590,22 +3182,11 @@ impl FromNodeId for Bool {
         Self(node_id)
     }
 }
-impl GetNodeId for Null {
+impl NodeIdTrait for Null {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Null> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Null {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Null);
@@ -4616,22 +3197,11 @@ impl FromNodeId for Null {
         Self(node_id)
     }
 }
-impl GetNodeId for Number {
+impl NodeIdTrait for Number {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Number> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Number {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Number);
@@ -4642,22 +3212,11 @@ impl FromNodeId for Number {
         Self(node_id)
     }
 }
-impl GetNodeId for BigInt {
+impl NodeIdTrait for BigInt {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<BigInt> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for BigInt {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::BigInt);
@@ -4668,22 +3227,11 @@ impl FromNodeId for BigInt {
         Self(node_id)
     }
 }
-impl GetNodeId for Regex {
+impl NodeIdTrait for Regex {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<Regex> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for Regex {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::Regex);
@@ -4694,7 +3242,7 @@ impl FromNodeId for Regex {
         Self(node_id)
     }
 }
-impl GetNodeId for JSXObject {
+impl NodeIdTrait for JSXObject {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -4702,17 +3250,6 @@ impl GetNodeId for JSXObject {
             Self::Ident(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<JSXObject> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXObject {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -4728,22 +3265,11 @@ impl FromNodeId for JSXObject {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for JSXMemberExpr {
+impl NodeIdTrait for JSXMemberExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<JSXMemberExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXMemberExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::JSXMemberExpr);
@@ -4754,22 +3280,11 @@ impl FromNodeId for JSXMemberExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for JSXNamespacedName {
+impl NodeIdTrait for JSXNamespacedName {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<JSXNamespacedName> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXNamespacedName {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::JSXNamespacedName);
@@ -4780,22 +3295,11 @@ impl FromNodeId for JSXNamespacedName {
         Self(node_id)
     }
 }
-impl GetNodeId for JSXEmptyExpr {
+impl NodeIdTrait for JSXEmptyExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<JSXEmptyExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXEmptyExpr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::JSXEmptyExpr);
@@ -4806,22 +3310,11 @@ impl FromNodeId for JSXEmptyExpr {
         Self(node_id)
     }
 }
-impl GetNodeId for JSXExprContainer {
+impl NodeIdTrait for JSXExprContainer {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<JSXExprContainer> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXExprContainer {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::JSXExprContainer);
@@ -4832,7 +3325,7 @@ impl FromNodeId for JSXExprContainer {
         Self(node_id)
     }
 }
-impl GetNodeId for JSXExpr {
+impl NodeIdTrait for JSXExpr {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -4840,17 +3333,6 @@ impl GetNodeId for JSXExpr {
             Self::Expr(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<JSXExpr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXExpr {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -4973,22 +3455,11 @@ impl FromNodeId for JSXExpr {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for JSXSpreadChild {
+impl NodeIdTrait for JSXSpreadChild {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<JSXSpreadChild> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXSpreadChild {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::JSXSpreadChild);
@@ -4999,7 +3470,7 @@ impl FromNodeId for JSXSpreadChild {
         Self(node_id)
     }
 }
-impl GetNodeId for JSXElementName {
+impl NodeIdTrait for JSXElementName {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -5008,17 +3479,6 @@ impl GetNodeId for JSXElementName {
             Self::JSXNamespacedName(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<JSXElementName> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXElementName {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -5039,22 +3499,11 @@ impl FromNodeId for JSXElementName {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for JSXOpeningElement {
+impl NodeIdTrait for JSXOpeningElement {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<JSXOpeningElement> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXOpeningElement {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::JSXOpeningElement);
@@ -5065,7 +3514,7 @@ impl FromNodeId for JSXOpeningElement {
         Self(node_id)
     }
 }
-impl GetNodeId for JSXAttrOrSpread {
+impl NodeIdTrait for JSXAttrOrSpread {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -5073,17 +3522,6 @@ impl GetNodeId for JSXAttrOrSpread {
             Self::SpreadElement(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<JSXAttrOrSpread> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXAttrOrSpread {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -5101,22 +3539,11 @@ impl FromNodeId for JSXAttrOrSpread {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for JSXClosingElement {
+impl NodeIdTrait for JSXClosingElement {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<JSXClosingElement> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXClosingElement {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::JSXClosingElement);
@@ -5127,22 +3554,11 @@ impl FromNodeId for JSXClosingElement {
         Self(node_id)
     }
 }
-impl GetNodeId for JSXAttr {
+impl NodeIdTrait for JSXAttr {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<JSXAttr> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXAttr {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::JSXAttr);
@@ -5153,7 +3569,7 @@ impl FromNodeId for JSXAttr {
         Self(node_id)
     }
 }
-impl GetNodeId for JSXAttrName {
+impl NodeIdTrait for JSXAttrName {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -5161,17 +3577,6 @@ impl GetNodeId for JSXAttrName {
             Self::JSXNamespacedName(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<JSXAttrName> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXAttrName {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -5189,7 +3594,7 @@ impl FromNodeId for JSXAttrName {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for JSXAttrValue {
+impl NodeIdTrait for JSXAttrValue {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -5199,17 +3604,6 @@ impl GetNodeId for JSXAttrValue {
             Self::JSXFragment(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<JSXAttrValue> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXAttrValue {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -5231,22 +3625,11 @@ impl FromNodeId for JSXAttrValue {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for JSXText {
+impl NodeIdTrait for JSXText {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<JSXText> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXText {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::JSXText);
@@ -5257,22 +3640,11 @@ impl FromNodeId for JSXText {
         Self(node_id)
     }
 }
-impl GetNodeId for JSXElement {
+impl NodeIdTrait for JSXElement {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<JSXElement> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXElement {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::JSXElement);
@@ -5283,7 +3655,7 @@ impl FromNodeId for JSXElement {
         Self(node_id)
     }
 }
-impl GetNodeId for JSXElementChild {
+impl NodeIdTrait for JSXElementChild {
     #[inline]
     fn node_id(&self) -> NodeId {
         match self {
@@ -5294,17 +3666,6 @@ impl GetNodeId for JSXElementChild {
             Self::JSXFragment(it) => it.node_id(),
         }
     }
-}
-impl GetOptionalNodeId for Option<JSXElementChild> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXElementChild {
     #[inline]
     fn from_node_id(id: NodeId, ast: &Ast) -> Self {
         match &ast.nodes[id].kind {
@@ -5331,22 +3692,11 @@ impl FromNodeId for JSXElementChild {
         Self::from_node_id(id, ast)
     }
 }
-impl GetNodeId for JSXFragment {
+impl NodeIdTrait for JSXFragment {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<JSXFragment> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXFragment {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::JSXFragment);
@@ -5357,22 +3707,11 @@ impl FromNodeId for JSXFragment {
         Self(node_id)
     }
 }
-impl GetNodeId for JSXOpeningFragment {
+impl NodeIdTrait for JSXOpeningFragment {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<JSXOpeningFragment> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXOpeningFragment {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::JSXOpeningFragment);
@@ -5383,22 +3722,11 @@ impl FromNodeId for JSXOpeningFragment {
         Self(node_id)
     }
 }
-impl GetNodeId for JSXClosingFragment {
+impl NodeIdTrait for JSXClosingFragment {
     #[inline]
     fn node_id(&self) -> NodeId {
         self.0
     }
-}
-impl GetOptionalNodeId for Option<JSXClosingFragment> {
-    #[inline]
-    fn optional_node_id(&self) -> OptionalNodeId {
-        match self {
-            Some(it) => it.node_id().into(),
-            None => OptionalNodeId::none(),
-        }
-    }
-}
-impl FromNodeId for JSXClosingFragment {
     #[inline]
     fn from_node_id(node_id: NodeId, ast: &Ast) -> Self {
         assert!(ast.nodes[node_id].kind == NodeKind::JSXClosingFragment);
