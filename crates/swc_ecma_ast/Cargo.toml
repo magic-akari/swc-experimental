@@ -11,8 +11,7 @@ version               = "0.1.1"
 [dependencies]
 num-bigint       = { workspace = true }
 oxc_index        = { workspace = true }
-swc_atoms        = { workspace = true }
-swc_common       = { workspace = true }
+swc_core         = { workspace = true }
 unicode-id-start = { workspace = true }
 
 swc_experimental_ast_macros = { workspace = true }

@@ -14,7 +14,7 @@ oxc_index  = { workspace = true }
 rustc-hash = { workspace = true }
 
 # For legacy
-swc_common = { workspace = true }
+swc_core = { workspace = true }
 
 swc_experimental_ecma_ast   = { workspace = true }
 swc_experimental_ecma_visit = { workspace = true }

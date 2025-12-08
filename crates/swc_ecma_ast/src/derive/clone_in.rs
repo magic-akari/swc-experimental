@@ -1,4 +1,4 @@
-use swc_common::Span;
+use swc_core::common::Span;
 
 use crate::{
     AssignOp, Ast, BigIntId, BinaryOp, FromNodeId, GetNodeId, ImportPhase, MetaPropKind,

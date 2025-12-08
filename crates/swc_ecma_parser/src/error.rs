@@ -2,8 +2,8 @@
 
 use std::{borrow::Cow, fmt::Debug};
 
-use swc_atoms::Atom;
-use swc_common::{
+use swc_core::atoms::Atom;
+use swc_core::common::{
     Span,
     errors::{DiagnosticBuilder, Handler},
 };

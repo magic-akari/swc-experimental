@@ -1,5 +1,5 @@
-use swc_atoms::wtf8::Wtf8;
-use swc_common::{BytePos, Span};
+use swc_core::atoms::wtf8::Wtf8;
+use swc_core::common::{BytePos, Span};
 use swc_experimental_ecma_ast::EsVersion;
 
 use crate::{

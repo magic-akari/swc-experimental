@@ -313,7 +313,7 @@ pub fn ast_visitor(schema: &Schema) -> RawOutput {
 
     let output = quote! {
             #![allow(unused)]
-            use swc_common::Span;
+            use swc_core::common::Span;
 
             use crate::{Ast, node_id::*, ast::*};
 

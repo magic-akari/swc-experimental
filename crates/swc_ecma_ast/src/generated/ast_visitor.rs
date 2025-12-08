@@ -1,6 +1,6 @@
 #![allow(unused)]
 use crate::{ast::*, node_id::*, Ast};
-use swc_common::Span;
+use swc_core::common::Span;
 pub trait Visit {
     #[inline]
     fn enter_node(&mut self, node_id: NodeId, ast: &Ast) {}

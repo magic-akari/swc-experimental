@@ -1,6 +1,6 @@
-use swc_common::BytePos;
+use swc_core::common::BytePos;
 
-/// Optimized [swc_common::input::StringInput]
+/// Optimized [swc_core::common::input::StringInput]
 #[derive(Clone)]
 pub struct StringSource<'a> {
     source: &'a [u8],

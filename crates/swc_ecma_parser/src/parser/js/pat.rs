@@ -7,7 +7,7 @@ use crate::{
     lexer::Token,
     parser::{Parser, js::expr::AssignTargetOrSpread, util::ExprExt},
 };
-use swc_common::BytePos;
+use swc_core::common::BytePos;
 use swc_experimental_ecma_ast::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

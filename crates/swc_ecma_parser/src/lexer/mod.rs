@@ -5,8 +5,8 @@ use std::{borrow::Cow, char, iter::FusedIterator};
 use either::Either::{self, Left, Right};
 use num_bigint::BigInt as BigIntValue;
 use smartstring::{LazyCompact, SmartString};
-use swc_atoms::{Atom, wtf8::CodePoint};
-use swc_common::{
+use swc_core::atoms::{Atom, wtf8::CodePoint};
+use swc_core::common::{
     BytePos, Span,
     comments::{Comment, CommentKind, Comments},
 };
@@ -166,7 +166,7 @@ impl<'a> Lexer<'a> {
     }
 
     #[inline(always)]
-    fn comments(&self) -> Option<&'a dyn swc_common::comments::Comments> {
+    fn comments(&self) -> Option<&'a dyn swc_core::common::comments::Comments> {
         self.comments
     }
 
@@ -668,8 +668,8 @@ impl<'a> Lexer<'a> {
 
                 if self.comments_buffer().is_some() {
                     let s = unsafe { self.input_slice(slice_start, end) };
-                    let cmt = swc_common::comments::Comment {
-                        kind: swc_common::comments::CommentKind::Line,
+                    let cmt = swc_core::common::comments::Comment {
+                        kind: swc_core::common::comments::CommentKind::Line,
                         span: Span::new_with_checked(start, end),
                         text: Atom::new(s),
                     };
@@ -699,8 +699,8 @@ impl<'a> Lexer<'a> {
                 // Safety: We know that the start and the end are valid
                 self.input_slice_to_cur(slice_start)
             };
-            let cmt = swc_common::comments::Comment {
-                kind: swc_common::comments::CommentKind::Line,
+            let cmt = swc_core::common::comments::Comment {
+                kind: swc_core::common::comments::CommentKind::Line,
                 span: Span::new_with_checked(start, end),
                 text: Atom::new(s),
             };

@@ -1,6 +1,6 @@
 use either::Either;
-use swc_atoms::Atom;
-use swc_common::BytePos;
+use swc_core::atoms::Atom;
+use swc_core::common::BytePos;
 use swc_experimental_ecma_ast::*;
 
 use crate::{

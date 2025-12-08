@@ -1,9 +1,9 @@
 use std::mem::take;
 
-use swc_atoms::wtf8::{CodePoint, Wtf8};
+use swc_core::atoms::wtf8::{CodePoint, Wtf8};
 use swc_experimental_ecma_ast::EsVersion;
-// use swc_atoms::wtf8::CodePoint;
-use swc_common::BytePos;
+// use swc_core::atoms::wtf8::CodePoint;
+use swc_core::common::BytePos;
 
 use super::{Context, Lexer};
 use crate::{

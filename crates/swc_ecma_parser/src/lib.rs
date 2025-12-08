@@ -40,8 +40,8 @@
 //! #[macro_use]
 //! extern crate swc_common;
 //! extern crate swc_ecma_parser;
-//! use swc_common::sync::Lrc;
-//! use swc_common::{
+//! use swc_core::common::sync::Lrc;
+//! use swc_core::common::{
 //!     errors::{ColorConfig, Handler},
 //!     FileName, FilePathMapping, SourceMap,
 //! };
@@ -145,7 +145,7 @@ pub mod unstable {
 }
 
 use error::Error;
-use swc_common::comments::Comments;
+use swc_core::common::comments::Comments;
 use swc_experimental_ecma_ast::*;
 
 mod context;

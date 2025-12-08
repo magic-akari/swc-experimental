@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use colored::Colorize;
-use swc_common::comments::SingleThreadedComments;
+use swc_core::common::comments::SingleThreadedComments;
 use swc_experimental_ecma_ast::{NodeId, Program, Visit};
 use swc_experimental_ecma_parser::{Lexer, Parser, StringSource};
 

@@ -1,4 +1,4 @@
-use swc_common::BytePos;
+use swc_core::common::BytePos;
 
 pub struct LazyInteger {
     pub(super) start: BytePos,

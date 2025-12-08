@@ -1,9 +1,9 @@
-use swc_common::BytePos;
+use swc_core::common::BytePos;
 use swc_experimental_ecma_ast::NodeKind;
 
 fn test_legacy(src: &str) -> usize {
-    use swc_ecma_parser::{Parser, StringInput, Syntax, lexer::Lexer};
-    use swc_ecma_visit::VisitWith;
+    use swc_core::ecma::parser::{Parser, StringInput, Syntax, lexer::Lexer};
+    use swc_core::ecma::visit::VisitWith;
 
     let input = StringInput::new(src, BytePos(0), BytePos(src.len() as u32));
     let lexer = Lexer::new(
@@ -19,8 +19,8 @@ fn test_legacy(src: &str) -> usize {
         count: usize,
     }
 
-    impl swc_ecma_visit::Visit for Counter {
-        fn visit_ident(&mut self, _node: &swc_ecma_ast::Ident) {
+    impl swc_core::ecma::visit::Visit for Counter {
+        fn visit_ident(&mut self, _node: &swc_core::ecma::ast::Ident) {
             self.count += 1;
         }
     }

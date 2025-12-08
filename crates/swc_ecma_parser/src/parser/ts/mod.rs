@@ -1,8 +1,8 @@
 use std::{fmt::Write, mem};
 
 use either::Either;
-use swc_atoms::{Atom, Wtf8Atom, atom};
-use swc_common::{BytePos, Span};
+use swc_core::atoms::{Atom, Wtf8Atom, atom};
+use swc_core::common::{BytePos, Span};
 use swc_ecma_ast::*;
 
 use crate::{

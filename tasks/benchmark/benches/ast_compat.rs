@@ -2,11 +2,11 @@
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 use criterion::{Bencher, Criterion, criterion_group, criterion_main};
-use swc_common::BytePos;
+use swc_core::common::BytePos;
 use swc_experimental_ecma_parser::StringSource;
 
 fn bench_legacy(b: &mut Bencher, src: &'static str) {
-    use swc_ecma_parser::{Parser, StringInput, Syntax, lexer::Lexer};
+    use swc_core::ecma::parser::{Parser, StringInput, Syntax, lexer::Lexer};
     b.iter(|| {
         let input = StringInput::new(src, BytePos(0), BytePos(src.len() as u32));
         let lexer = Lexer::new(

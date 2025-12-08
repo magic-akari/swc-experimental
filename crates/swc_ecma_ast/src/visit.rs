@@ -2,7 +2,7 @@ use crate::{
     AssignOp, BigIntId, BinaryOp, ImportPhase, MetaPropKind, MethodKind, OptionalUtf8Ref,
     OptionalWtf8Ref, UnaryOp, UpdateOp, Utf8Ref, VarDeclKind, Wtf8Ref,
 };
-use swc_common::Span;
+use swc_core::common::Span;
 
 use crate::{Visit, VisitMut, VisitMutWith, VisitWith};
 

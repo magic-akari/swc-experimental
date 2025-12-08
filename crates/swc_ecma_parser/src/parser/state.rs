@@ -1,7 +1,7 @@
 use std::ops::{Deref, DerefMut};
 
 use rustc_hash::FxHashMap;
-use swc_common::{BytePos, Span};
+use swc_core::common::{BytePos, Span};
 use swc_experimental_ecma_ast::Utf8Ref;
 
 use crate::{Parser, input::Tokens};

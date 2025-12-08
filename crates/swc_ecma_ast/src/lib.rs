@@ -16,11 +16,11 @@ mod generated {
 }
 
 use std::marker::PhantomData;
-use swc_common::BytePos;
+use swc_core::atoms::wtf8::Wtf8;
+use swc_core::common::BytePos;
 
 use num_bigint::BigInt as BigIntValue;
 use oxc_index::IndexVec;
-use swc_atoms::wtf8::Wtf8;
 
 pub use ast::*;
 pub use common::*;

@@ -1,5 +1,5 @@
-use swc_atoms::wtf8::{CodePoint, Wtf8, Wtf8Buf};
-use swc_common::{BytePos, Span};
+use swc_core::atoms::wtf8::{CodePoint, Wtf8, Wtf8Buf};
+use swc_core::common::{BytePos, Span};
 
 /// If `start` <= `end`, it means that the string is from source.
 /// If `start` > `end`, it means that the string is allocated.

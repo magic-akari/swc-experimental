@@ -1,4 +1,4 @@
-use swc_common::Span;
+use swc_core::common::Span;
 
 /// A reference to a utf8 string in the string allocator.
 #[derive(Debug, Clone, Copy)]

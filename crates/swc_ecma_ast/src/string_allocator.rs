@@ -1,4 +1,4 @@
-use swc_atoms::wtf8::{Wtf8, Wtf8Buf};
+use swc_core::atoms::wtf8::{Wtf8, Wtf8Buf};
 
 use crate::{OptionalUtf8Ref, OptionalWtf8Ref, Utf8Ref, Wtf8Ref};
 

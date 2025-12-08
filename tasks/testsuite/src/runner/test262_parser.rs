@@ -1,5 +1,5 @@
 use colored::Colorize;
-use swc_common::comments::SingleThreadedComments;
+use swc_core::common::comments::SingleThreadedComments;
 use swc_experimental_ecma_ast::Program;
 use swc_experimental_ecma_parser::{Lexer, Parser, StringSource};
 

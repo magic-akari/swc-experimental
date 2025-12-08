@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
-use swc_atoms::Atom;
-use swc_common::Span;
+use swc_core::atoms::Atom;
+use swc_core::common::Span;
 use swc_experimental_ecma_ast::*;
 
 use crate::{Context, PResult, Parser, error::SyntaxError, input::Tokens, lexer::Token};

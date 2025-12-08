@@ -112,7 +112,7 @@ impl<I: Tokens> Tokens for Capturing<I> {
         self.inner.target()
     }
 
-    fn set_next_regexp(&mut self, start: Option<swc_common::BytePos>) {
+    fn set_next_regexp(&mut self, start: Option<swc_core::common::BytePos>) {
         self.inner.set_next_regexp(start);
     }
 
@@ -124,7 +124,7 @@ impl<I: Tokens> Tokens for Capturing<I> {
         self.inner.add_module_mode_error(error);
     }
 
-    fn end_pos(&self) -> swc_common::BytePos {
+    fn end_pos(&self) -> swc_core::common::BytePos {
         self.inner.end_pos()
     }
 
@@ -164,7 +164,7 @@ impl<I: Tokens> Tokens for Capturing<I> {
         self.inner.scan_jsx_open_el_terminal_token()
     }
 
-    fn rescan_jsx_open_el_terminal_token(&mut self, reset: swc_common::BytePos) -> TokenAndSpan {
+    fn rescan_jsx_open_el_terminal_token(&mut self, reset: swc_core::common::BytePos) -> TokenAndSpan {
         let ts = self.inner.rescan_jsx_open_el_terminal_token(reset);
         self.capture(ts);
         ts
@@ -173,14 +173,14 @@ impl<I: Tokens> Tokens for Capturing<I> {
     fn rescan_jsx_token(
         &mut self,
         allow_multiline_jsx_text: bool,
-        reset: swc_common::BytePos,
+        reset: swc_core::common::BytePos,
     ) -> TokenAndSpan {
         let ts = self.inner.rescan_jsx_token(allow_multiline_jsx_text, reset);
         self.capture(ts);
         ts
     }
 
-    fn scan_jsx_identifier(&mut self, start: swc_common::BytePos) -> TokenAndSpan {
+    fn scan_jsx_identifier(&mut self, start: swc_core::common::BytePos) -> TokenAndSpan {
         let ts = self.inner.scan_jsx_identifier(start);
         self.capture(ts);
         ts
@@ -194,7 +194,7 @@ impl<I: Tokens> Tokens for Capturing<I> {
 
     fn rescan_template_token(
         &mut self,
-        start: swc_common::BytePos,
+        start: swc_core::common::BytePos,
         start_with_back_tick: bool,
     ) -> TokenAndSpan {
         let ts = self

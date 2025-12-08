@@ -1,7 +1,7 @@
 #![allow(clippy::let_unit_value)]
 #![deny(non_snake_case)]
 
-use swc_common::{BytePos, Span, comments::Comments};
+use swc_core::common::{BytePos, Span, comments::Comments};
 use swc_experimental_ecma_ast::*;
 
 use crate::{

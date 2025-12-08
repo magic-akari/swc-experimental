@@ -1,6 +1,6 @@
 use either::Either;
 use rustc_hash::FxHashMap;
-use swc_common::{BytePos, Span, source_map::SmallPos};
+use swc_core::common::{BytePos, Span, source_map::SmallPos};
 use swc_experimental_ecma_ast::*;
 
 use crate::parser::util::ExprExt;

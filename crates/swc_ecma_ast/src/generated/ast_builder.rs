@@ -1,6 +1,6 @@
 #![allow(unused)]
 use crate::{ast::*, node_id::*, Ast, AstNode, ExtraData, NodeData, NodeKind};
-use swc_common::Span;
+use swc_core::common::Span;
 impl Ast {
     #[inline]
     pub fn program_module(

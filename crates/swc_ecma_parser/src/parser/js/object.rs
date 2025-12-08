@@ -1,4 +1,4 @@
-use swc_common::{DUMMY_SP, Span};
+use swc_core::common::{DUMMY_SP, Span};
 use swc_experimental_ecma_ast::*;
 
 use crate::parser::js::is_not_this;

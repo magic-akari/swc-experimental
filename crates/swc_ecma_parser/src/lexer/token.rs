@@ -1,5 +1,5 @@
 use num_bigint::BigInt;
-use swc_common::Span;
+use swc_core::common::Span;
 use swc_experimental_ecma_ast::AssignOp;
 
 use super::LexResult;
