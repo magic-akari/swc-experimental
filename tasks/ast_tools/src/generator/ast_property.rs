@@ -44,7 +44,7 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
     field_getters.extend(quote! {
         #[inline]
         pub fn span(&self, ast: &crate::Ast) -> crate::Span {
-            unsafe { ast.nodes.get_unchecked(self.0).span }
+            unsafe { ast.nodes.get_unchecked(self.0).span() }
         }
         #[inline]
         pub fn span_lo(&self, ast: &crate::Ast) -> crate::BytePos {
@@ -59,7 +59,7 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
     field_setters.extend(quote! {
         #[inline]
         pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
-            unsafe { ast.nodes.get_unchecked_mut(self.0).span = span; }
+            unsafe { ast.nodes.get_unchecked_mut(self.0).set_span(span); }
         }
     });
 
@@ -100,7 +100,7 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
         field_getters.extend(quote! {
             #[inline]
             pub fn #getter_name(&self, ast: &crate::Ast) -> #ret_ty {
-                let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + #offset;
+                let offset = unsafe { ast.nodes.get_unchecked(self.0).data().extra_data_start } + #offset;
 
                 debug_assert!(offset < ast.extra_data.len());
                 let ret = unsafe { ast.extra_data.as_raw_slice().get_unchecked(offset.index()).#extra_data_name };
@@ -122,7 +122,7 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
         field_setters.extend(quote! {
             #[inline]
             pub fn #setter_name(&self, ast: &mut crate::Ast, #field_name: #ret_ty) {
-                let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + #offset;
+                let offset = unsafe { ast.nodes.get_unchecked(self.0).data().extra_data_start } + #offset;
 
                 debug_assert!(offset < ast.extra_data.len());
                 unsafe { ast.extra_data.as_raw_slice_mut().get_unchecked_mut(offset.index()).#extra_data_name = #extra_data_value };

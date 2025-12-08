@@ -89,13 +89,13 @@ fn generate_build_function_for_struct(ast: &AstStruct, schema: &Schema) -> Token
             #add_extra_data
 
             #ret_ty(
-                self.add_node(AstNode {
+                self.add_node(AstNode::new(
                     span,
-                    kind: NodeKind::#ret_ty,
-                    data: NodeData {
+                    NodeKind::#ret_ty,
+                    NodeData {
                         #node_data
                     },
-                })
+                ))
             )
         }
     };

@@ -15,7 +15,7 @@ mod generated {
     pub(crate) mod ast_visitor;
 }
 
-use std::marker::PhantomData;
+use std::{marker::PhantomData, mem};
 use swc_core::atoms::wtf8::Wtf8;
 use swc_core::common::BytePos;
 
@@ -51,11 +51,83 @@ pub struct Ast {
     string_allocator: StringAllocator,
 }
 
+const START_SHIFT: usize = 0;
+const END_SHIFT: usize = 32;
+const DATA_SHIFT: usize = 64;
+const KIND_SHIFT: usize = 96;
+
+const START_MASK: u128 = 0xFFFF_FFFF; // 32 bits
+const END_MASK: u128 = 0xFFFF_FFFF; // 32 bits
+const DATA_MASK: u128 = 0xFFFF_FFFF; // 32 bits
+const KIND_MASK: u128 = 0xFF; // 8 bits
+
 /// Untyped AST node
-pub struct AstNode {
-    pub span: Span,
-    pub kind: NodeKind,
-    data: NodeData,
+#[repr(transparent)]
+pub struct AstNode(u128);
+
+impl AstNode {
+    #[inline]
+    pub(crate) fn new(span: Span, kind: NodeKind, data: NodeData) -> Self {
+        let mut node: u128 = 0;
+        node |= u128::from(span.lo.0) << START_SHIFT;
+        node |= u128::from(span.hi.0) << END_SHIFT;
+        node |= u128::from(unsafe { mem::transmute::<NodeData, u32>(data) }) << DATA_SHIFT;
+        node |= u128::from(kind as u8) << KIND_SHIFT;
+        Self(node)
+    }
+
+    #[inline]
+    pub fn span(&self) -> Span {
+        Span {
+            lo: self.start(),
+            hi: self.end(),
+        }
+    }
+
+    #[inline]
+    pub fn set_span(&mut self, span: Span) {
+        self.set_start(span.lo);
+        self.set_end(span.hi);
+    }
+
+    #[inline]
+    pub fn start(&self) -> BytePos {
+        BytePos(((self.0 >> START_SHIFT) & START_MASK) as u32)
+    }
+
+    #[inline]
+    pub fn end(&self) -> BytePos {
+        BytePos(((self.0 >> END_SHIFT) & END_MASK) as u32)
+    }
+
+    #[inline]
+    pub fn set_start(&mut self, start: BytePos) {
+        self.0 &= !(START_MASK << START_SHIFT);
+        self.0 |= u128::from(start.0) << START_SHIFT;
+    }
+
+    #[inline]
+    pub fn set_end(&mut self, end: BytePos) {
+        self.0 &= !(END_MASK << END_SHIFT);
+        self.0 |= u128::from(end.0) << END_SHIFT;
+    }
+
+    #[inline]
+    pub fn kind(&self) -> NodeKind {
+        unsafe { mem::transmute::<u8, NodeKind>(((self.0 >> KIND_SHIFT) & KIND_MASK) as u8) }
+    }
+
+    #[inline]
+    pub(crate) fn mark_free(&mut self, next_free: OptionalNodeId) {
+        self.0 &= !(KIND_MASK << KIND_SHIFT);
+        self.0 &= !(DATA_MASK << DATA_SHIFT);
+        self.0 |= u128::from(next_free.raw()) << DATA_SHIFT;
+    }
+
+    #[inline]
+    pub(crate) fn data(&self) -> NodeData {
+        unsafe { mem::transmute::<u32, NodeData>(((self.0 >> DATA_SHIFT) & DATA_MASK) as u32) }
+    }
 }
 
 /// Node data is the start index of [Ast::extra_data], if the node is not freed, which indicates the first field of the AST node.
@@ -68,6 +140,12 @@ pub struct AstNode {
 /// another safety guarantee.
 pub union NodeData {
     empty: (),
+
+    // Inlined data type
+    _bool: bool,
+    _node: NodeId,
+    _optional_node: OptionalNodeId,
+
     extra_data_start: ExtraDataId,
     next_free: OptionalNodeId,
 }
@@ -98,8 +176,12 @@ pub union ExtraData {
 }
 
 /// The NodeKind is one-to-one mapping to the typed AST node declared with struct keyword (not enum).
+#[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum NodeKind {
+    /// This is a special node kind to mark a node as freed.
+    __FREED = 0,
+
     // module.rs
     Module,
     Script,
@@ -299,9 +381,6 @@ pub enum NodeKind {
     TsSatisfiesExpr,
     TsConstAssertion,
     TsInstantiation,
-
-    /// This is a special node kind to mark a node as freed.
-    __FREED,
 }
 
 impl Ast {

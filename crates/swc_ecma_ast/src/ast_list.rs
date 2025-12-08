@@ -37,8 +37,8 @@ impl NodeList {
         // We first check if there is a reusable slot in the free list.
         match self.free_head.to_option() {
             Some(node_id) => {
-                debug_assert!(self.inner[node_id].kind == NodeKind::__FREED);
-                self.free_head = unsafe { self.inner[node_id].data.next_free };
+                debug_assert!(self.inner[node_id].kind() == NodeKind::__FREED);
+                self.free_head = unsafe { self.inner[node_id].data().next_free };
                 self.inner[node_id] = node;
                 node_id
             }
@@ -49,12 +49,11 @@ impl NodeList {
     #[inline]
     /// Free a node in the arena and update the free head.
     pub fn free_node(&mut self, node_id: NodeId) {
-        debug_assert!(self.inner[node_id].kind != NodeKind::__FREED);
+        debug_assert!(self.inner[node_id].kind() != NodeKind::__FREED);
 
         // Mark the node as freed and save the next free node to the node's data.
         self.num_elems -= 1;
-        self.inner[node_id].kind = NodeKind::__FREED;
-        self.inner[node_id].data.next_free = self.free_head;
+        self.inner[node_id].mark_free(self.free_head);
         self.free_head = OptionalNodeId::from(node_id);
     }
 

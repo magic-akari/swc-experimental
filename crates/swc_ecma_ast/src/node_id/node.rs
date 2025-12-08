@@ -63,4 +63,9 @@ impl OptionalNodeId {
 
         Some(f(NodeId(self.0)))
     }
+
+    #[inline]
+    pub(crate) fn raw(&self) -> u32 {
+        self.0
+    }
 }
