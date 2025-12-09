@@ -5,6 +5,7 @@ use crate::{
     error::Error,
     input::Tokens,
     lexer::{TokenFlags, token::TokenAndSpan},
+    string_alloc::{MaybeSubUtf8, MaybeSubWtf8},
     syntax::SyntaxFlags,
 };
 
@@ -108,7 +109,7 @@ impl<I: Tokens> Tokens for Capturing<I> {
         self.inner.syntax()
     }
 
-    fn target(&self) -> swc_ecma_ast::EsVersion {
+    fn target(&self) -> swc_experimental_ecma_ast::EsVersion {
         self.inner.target()
     }
 
@@ -205,5 +206,13 @@ impl<I: Tokens> Tokens for Capturing<I> {
             .rescan_template_token(start, start_with_back_tick);
         self.capture(ts);
         ts
+    }
+
+    fn get_maybe_sub_utf8(&self, atom_ref: MaybeSubUtf8) -> &str {
+        self.inner.get_maybe_sub_utf8(atom_ref)
+    }
+
+    fn get_maybe_sub_wtf8(&self, atom_ref: MaybeSubWtf8) -> &swc_core::atoms::wtf8::Wtf8 {
+        self.inner.get_maybe_sub_wtf8(atom_ref)
     }
 }
