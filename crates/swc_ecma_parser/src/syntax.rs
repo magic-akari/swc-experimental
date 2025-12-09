@@ -164,6 +164,13 @@ pub struct TsSyntax {
     pub tsx: bool,
     pub decorators: bool,
     pub dts: bool,
+
+    /// When enabled, the parser will not create ParenExpr nodes for
+    /// parenthesized expressions. Instead, it returns the inner expression
+    /// directly. This aligns with the ESTree spec, which does not have a
+    /// ParenthesizedExpression type.
+    pub no_paren: bool,
+
     pub no_early_errors: bool,
 
     /// babel: `disallowAmbiguousJSXLike`
@@ -192,6 +199,9 @@ impl TsSyntax {
         if self.dts {
             flags |= SyntaxFlags::DTS;
         }
+        if self.no_paren {
+            flags |= SyntaxFlags::NO_PAREN;
+        }
         if self.no_early_errors {
             flags |= SyntaxFlags::NO_EARLY_ERRORS;
         }
@@ -207,6 +217,11 @@ pub struct EsSyntax {
     pub jsx: bool,
     /// Support function bind expression.
     pub fn_bind: bool,
+    /// When enabled, the parser will not create ParenExpr nodes for
+    /// parenthesized expressions. Instead, it returns the inner expression
+    /// directly. This aligns with the ESTree spec, which does not have a
+    /// ParenthesizedExpression type.
+    pub no_paren: bool,
     /// Enable decorators.
     pub decorators: bool,
     /// babel: `decorators.decoratorsBeforeExport`
@@ -231,6 +246,9 @@ impl EsSyntax {
         }
         if self.fn_bind {
             flags |= SyntaxFlags::FN_BIND;
+        }
+        if self.no_paren {
+            flags |= SyntaxFlags::NO_PAREN;
         }
         if self.decorators {
             flags |= SyntaxFlags::DECORATORS;
@@ -317,6 +335,11 @@ impl SyntaxFlags {
     }
 
     #[inline(always)]
+    pub const fn no_paren(&self) -> bool {
+        self.contains(SyntaxFlags::NO_PAREN)
+    }
+
+    #[inline(always)]
     pub const fn allow_super_outside_method(&self) -> bool {
         self.contains(SyntaxFlags::ALLOW_SUPER_OUTSIDE_METHOD)
     }
@@ -359,5 +382,6 @@ bitflags::bitflags! {
         const NO_EARLY_ERRORS = 1 << 11;
         const DISALLOW_AMBIGUOUS_JSX_LIKE = 1 << 12;
         const TS = 1 << 13;
+        const NO_PAREN = 1 << 14;
     }
 }

@@ -2314,6 +2314,10 @@ impl<I: Tokens> Parser<I> {
                 None => expr_or_spread.expr(&self.ast),
             };
             self.ast.free_node(expr_or_spread.node_id());
+
+            if self.syntax().no_paren() {
+                return Ok(expr);
+            }
             Ok(self.ast.expr_paren_expr(self.span(expr_start), expr))
         } else {
             debug_assert!(expr_or_spreads.len() >= 2);
@@ -2349,6 +2353,9 @@ impl<I: Tokens> Parser<I> {
                 .ast
                 .expr_seq_expr(Span::new_with_checked(span_lo, span_hi), exprs);
 
+            if self.syntax().no_paren() {
+                return Ok(seq_expr);
+            }
             Ok(self.ast.expr_paren_expr(self.span(expr_start), seq_expr))
         }
     }
