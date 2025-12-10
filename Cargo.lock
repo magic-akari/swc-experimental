@@ -1469,6 +1469,7 @@ version = "0.1.1"
 dependencies = [
  "swc_core",
  "swc_experimental_ecma_ast",
+ "swc_experimental_ecma_semantic",
 ]
 
 [[package]]

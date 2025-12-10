@@ -184,6 +184,15 @@ impl Semantic {
     }
 
     #[inline]
+    pub fn body_scope(&self, block: BlockStmt) -> ScopeId {
+        let Some(scope_id) = self.block_scopes.get(&block.node_id()).cloned() else {
+            return UNRESOLVED_SCOPE_ID;
+        };
+
+        scope_id
+    }
+
+    #[inline]
     pub fn top_level_scope_id(&self) -> ScopeId {
         self.top_level_scope_id
     }

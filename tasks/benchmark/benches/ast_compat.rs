@@ -2,11 +2,12 @@
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 use criterion::{Bencher, Criterion, criterion_group, criterion_main};
-use swc_core::common::BytePos;
-use swc_experimental_ecma_parser::StringSource;
+use swc_core::common::{BytePos, Mark};
 
 fn bench_legacy(b: &mut Bencher, src: &'static str) {
     use swc_core::ecma::parser::{Parser, StringInput, Syntax, lexer::Lexer};
+    use swc_core::ecma::transforms::base::resolver;
+    use swc_core::ecma::visit::VisitMut;
     b.iter(|| {
         let input = StringInput::new(src, BytePos(0), BytePos(src.len() as u32));
         let lexer = Lexer::new(
@@ -16,12 +17,16 @@ fn bench_legacy(b: &mut Bencher, src: &'static str) {
             None,
         );
         let mut parser = Parser::new_from(lexer);
-        parser.parse_module().unwrap();
+        let mut module = parser.parse_module().unwrap();
+        resolver(Mark::new(), Mark::new(), false).visit_mut_module(&mut module);
     });
 }
 
 fn bench_new(b: &mut Bencher, src: &'static str) {
+    use swc_experimental_ecma_parser::StringSource;
     use swc_experimental_ecma_parser::{Lexer, Parser};
+    use swc_experimental_ecma_semantic::resolver::resolver;
+
     b.iter(|| {
         let input = StringSource::new(src);
         let lexer = Lexer::new(
@@ -32,7 +37,10 @@ fn bench_new(b: &mut Bencher, src: &'static str) {
         );
         let parser = Parser::new_from(lexer);
         let ret = parser.parse_module().unwrap();
-        swc_experimental_ecma_ast_compat::compat_module(&ret.ast, ret.root);
+
+        let semantic = resolver(ret.root, &ret.ast);
+        swc_experimental_ecma_ast_compat::AstCompat::new(&ret.ast, &semantic)
+            .compat_module(ret.root);
     });
 }
 
