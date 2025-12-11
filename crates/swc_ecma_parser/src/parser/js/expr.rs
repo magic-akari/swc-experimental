@@ -1529,9 +1529,7 @@ impl<I: Tokens> Parser<I> {
             if !is_new_expr || self.input().is(Token::LParen) {
                 // Parsed with 'MemberExpression' production.
                 let args = self.parse_args(false)?;
-                let new_expr =
-                    self.ast
-                        .expr_call_expr(self.span(start), Callee::Expr(callee), args);
+                let new_expr = self.ast.expr_new_expr(self.span(start), callee, args);
 
                 // We should parse subscripts for MemberExpression.
                 // Because it's left recursive.
