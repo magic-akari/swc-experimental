@@ -4978,16 +4978,16 @@ impl NewExpr {
         unsafe { Expr::from_node_id_unchecked(ret, ast) }
     }
     #[inline]
-    pub fn args(&self, ast: &crate::Ast) -> TypedSubRange<ExprOrSpread> {
+    pub fn args(&self, ast: &crate::Ast) -> Option<TypedSubRange<ExprOrSpread>> {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         let ret = unsafe {
             ast.extra_data
                 .as_raw_slice()
                 .get_unchecked(offset.index())
-                .sub_range
+                .optional_sub_range
         };
-        unsafe { ret.cast_to_typed() }
+        unsafe { ret.cast_to_typed().to_option() }
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -5007,14 +5007,14 @@ impl NewExpr {
         };
     }
     #[inline]
-    pub fn set_args(&self, ast: &mut crate::Ast, args: TypedSubRange<ExprOrSpread>) {
+    pub fn set_args(&self, ast: &mut crate::Ast, args: Option<TypedSubRange<ExprOrSpread>>) {
         let offset = unsafe { ast.nodes.get_unchecked(self.0).data.extra_data_start } + 1usize;
         debug_assert!(offset < ast.extra_data.len());
         unsafe {
             ast.extra_data
                 .as_raw_slice_mut()
                 .get_unchecked_mut(offset.index())
-                .sub_range = args.into()
+                .optional_sub_range = args.map(|n| n.inner).into()
         };
     }
 }

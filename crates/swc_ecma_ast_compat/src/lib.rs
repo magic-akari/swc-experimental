@@ -454,9 +454,9 @@ impl AstCompat<'_> {
                 span: n.span(self.ast),
                 ctxt: Default::default(),
                 callee: Box::new(self.compat_expr(n.callee(self.ast))),
-                args: Some(
-                    self.compat_type_sub_range(n.args(self.ast), Self::compat_expr_or_spread),
-                ),
+                args: n
+                    .args(self.ast)
+                    .map(|args| self.compat_type_sub_range(args, Self::compat_expr_or_spread)),
                 type_args: None,
             }),
             experimental::Expr::Seq(s) => legacy::Expr::Seq(legacy::SeqExpr {

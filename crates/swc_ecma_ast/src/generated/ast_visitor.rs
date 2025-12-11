@@ -916,7 +916,7 @@ pub trait Visit {
         <Option<ExprOrSpread> as VisitWith<Self>>::visit_children_with(node, self);
     }
     #[inline]
-    fn visit_opt_expr_or_spreads(&mut self, node: TypedSubRange<Option<ExprOrSpread>>) {
+    fn visit_opt_vec_expr_or_spreads(&mut self, node: TypedSubRange<Option<ExprOrSpread>>) {
         <TypedSubRange<Option<ExprOrSpread>> as VisitWith<Self>>::visit_children_with(node, self)
     }
     #[inline]
@@ -926,6 +926,10 @@ pub trait Visit {
     #[inline]
     fn visit_expr_or_spreads(&mut self, node: TypedSubRange<ExprOrSpread>) {
         <TypedSubRange<ExprOrSpread> as VisitWith<Self>>::visit_children_with(node, self)
+    }
+    #[inline]
+    fn visit_opt_expr_or_spreads(&mut self, node: Option<TypedSubRange<ExprOrSpread>>) {
+        <Option<TypedSubRange<ExprOrSpread>> as VisitWith<Self>>::visit_children_with(node, self);
     }
     #[inline]
     fn visit_exprs(&mut self, node: TypedSubRange<Expr>) {
@@ -960,7 +964,7 @@ pub trait Visit {
         <TypedSubRange<ParamOrTsParamProp> as VisitWith<Self>>::visit_children_with(node, self)
     }
     #[inline]
-    fn visit_opt_pats(&mut self, node: TypedSubRange<Option<Pat>>) {
+    fn visit_opt_vec_pats(&mut self, node: TypedSubRange<Option<Pat>>) {
         <TypedSubRange<Option<Pat>> as VisitWith<Self>>::visit_children_with(node, self)
     }
     #[inline]
@@ -3259,10 +3263,10 @@ impl<V: ?Sized + Visit> VisitWith<V> for NewExpr {
                 .extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
-                .sub_range
+                .optional_sub_range
         };
-        <TypedSubRange<ExprOrSpread> as VisitWith<V>>::visit_with(
-            unsafe { ret.cast_to_typed() },
+        <Option<TypedSubRange<ExprOrSpread>> as VisitWith<V>>::visit_with(
+            unsafe { ret.cast_to_typed().to_option() },
             visitor,
         );
     }
@@ -5961,7 +5965,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for Option<ExprOrSpread> {
 }
 impl<V: ?Sized + Visit> VisitWith<V> for TypedSubRange<Option<ExprOrSpread>> {
     fn visit_with(self, visitor: &mut V) {
-        <V as Visit>::visit_opt_expr_or_spreads(visitor, self)
+        <V as Visit>::visit_opt_vec_expr_or_spreads(visitor, self)
     }
     fn visit_children_with(self, visitor: &mut V) {
         for child in self.iter() {
@@ -5989,6 +5993,17 @@ impl<V: ?Sized + Visit> VisitWith<V> for TypedSubRange<ExprOrSpread> {
         for child in self.iter() {
             let child = visitor.ast().get_node_in_sub_range(child);
             child.visit_with(visitor);
+        }
+    }
+}
+impl<V: ?Sized + Visit> VisitWith<V> for Option<TypedSubRange<ExprOrSpread>> {
+    fn visit_with(self, visitor: &mut V) {
+        <V as Visit>::visit_opt_expr_or_spreads(visitor, self)
+    }
+    fn visit_children_with(self, visitor: &mut V) {
+        match self {
+            Some(it) => it.visit_with(visitor),
+            None => {}
         }
     }
 }
@@ -6082,7 +6097,7 @@ impl<V: ?Sized + Visit> VisitWith<V> for TypedSubRange<ParamOrTsParamProp> {
 }
 impl<V: ?Sized + Visit> VisitWith<V> for TypedSubRange<Option<Pat>> {
     fn visit_with(self, visitor: &mut V) {
-        <V as Visit>::visit_opt_pats(visitor, self)
+        <V as Visit>::visit_opt_vec_pats(visitor, self)
     }
     fn visit_children_with(self, visitor: &mut V) {
         for child in self.iter() {
@@ -7061,7 +7076,7 @@ pub trait VisitMut {
         <Option<ExprOrSpread> as VisitMutWith<Self>>::visit_mut_children_with(node, self);
     }
     #[inline]
-    fn visit_mut_opt_expr_or_spreads(&mut self, node: TypedSubRange<Option<ExprOrSpread>>) {
+    fn visit_mut_opt_vec_expr_or_spreads(&mut self, node: TypedSubRange<Option<ExprOrSpread>>) {
         <TypedSubRange<Option<ExprOrSpread>> as VisitMutWith<Self>>::visit_mut_children_with(
             node, self,
         )
@@ -7073,6 +7088,12 @@ pub trait VisitMut {
     #[inline]
     fn visit_mut_expr_or_spreads(&mut self, node: TypedSubRange<ExprOrSpread>) {
         <TypedSubRange<ExprOrSpread> as VisitMutWith<Self>>::visit_mut_children_with(node, self)
+    }
+    #[inline]
+    fn visit_mut_opt_expr_or_spreads(&mut self, node: Option<TypedSubRange<ExprOrSpread>>) {
+        <Option<TypedSubRange<ExprOrSpread>> as VisitMutWith<Self>>::visit_mut_children_with(
+            node, self,
+        );
     }
     #[inline]
     fn visit_mut_exprs(&mut self, node: TypedSubRange<Expr>) {
@@ -7109,7 +7130,7 @@ pub trait VisitMut {
         )
     }
     #[inline]
-    fn visit_mut_opt_pats(&mut self, node: TypedSubRange<Option<Pat>>) {
+    fn visit_mut_opt_vec_pats(&mut self, node: TypedSubRange<Option<Pat>>) {
         <TypedSubRange<Option<Pat>> as VisitMutWith<Self>>::visit_mut_children_with(node, self)
     }
     #[inline]
@@ -9439,10 +9460,10 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for NewExpr {
                 .extra_data
                 .as_raw_slice()
                 .get_unchecked((offset + 1usize).index())
-                .sub_range
+                .optional_sub_range
         };
-        <TypedSubRange<ExprOrSpread> as VisitMutWith<V>>::visit_mut_with(
-            unsafe { ret.cast_to_typed() },
+        <Option<TypedSubRange<ExprOrSpread>> as VisitMutWith<V>>::visit_mut_with(
+            unsafe { ret.cast_to_typed().to_option() },
             visitor,
         );
     }
@@ -12177,7 +12198,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for Option<ExprOrSpread> {
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for TypedSubRange<Option<ExprOrSpread>> {
     fn visit_mut_with(self, visitor: &mut V) {
-        <V as VisitMut>::visit_mut_opt_expr_or_spreads(visitor, self)
+        <V as VisitMut>::visit_mut_opt_vec_expr_or_spreads(visitor, self)
     }
     fn visit_mut_children_with(self, visitor: &mut V) {
         for child in self.iter() {
@@ -12205,6 +12226,17 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for TypedSubRange<ExprOrSpread> {
         for child in self.iter() {
             let child = visitor.ast().get_node_in_sub_range(child);
             child.visit_mut_with(visitor);
+        }
+    }
+}
+impl<V: ?Sized + VisitMut> VisitMutWith<V> for Option<TypedSubRange<ExprOrSpread>> {
+    fn visit_mut_with(self, visitor: &mut V) {
+        <V as VisitMut>::visit_mut_opt_expr_or_spreads(visitor, self)
+    }
+    fn visit_mut_children_with(self, visitor: &mut V) {
+        match self {
+            Some(it) => it.visit_mut_with(visitor),
+            None => {}
         }
     }
 }
@@ -12298,7 +12330,7 @@ impl<V: ?Sized + VisitMut> VisitMutWith<V> for TypedSubRange<ParamOrTsParamProp>
 }
 impl<V: ?Sized + VisitMut> VisitMutWith<V> for TypedSubRange<Option<Pat>> {
     fn visit_mut_with(self, visitor: &mut V) {
-        <V as VisitMut>::visit_mut_opt_pats(visitor, self)
+        <V as VisitMut>::visit_mut_opt_vec_pats(visitor, self)
     }
     fn visit_mut_children_with(self, visitor: &mut V) {
         for child in self.iter() {

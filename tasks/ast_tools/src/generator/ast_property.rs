@@ -67,7 +67,7 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
         let field_name = format_ident!("{}", field.name);
         let field_ty = &schema.types[field.type_id];
 
-        let extra_data_name = map_field_type_to_extra_field(field_ty);
+        let extra_data_name = map_field_type_to_extra_field(field_ty, schema);
         let (ret_ty, cast_expr) = match &field_ty {
             AstType::Vec(_) => (
                 field_ty.repr_ident(schema),
@@ -75,11 +75,16 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
             ),
             AstType::Option(ast) => {
                 let option_field_ident = field_ty.repr_ident(schema);
-                let field_inner_ident = schema.types[ast.inner_type_id].repr_ident(schema);
-                (
-                    option_field_ident,
-                    quote!( ret.map(|id| unsafe { #field_inner_ident::from_node_id_unchecked(id, ast) }) ),
-                )
+                let cast_expr = match &schema.types[ast.inner_type_id] {
+                    AstType::Vec(_) => {
+                        quote!(unsafe { ret.cast_to_typed().to_option() })
+                    }
+                    _ => {
+                        let field_inner_ident = schema.types[ast.inner_type_id].repr_ident(schema);
+                        quote!( ret.map(|id| unsafe { #field_inner_ident::from_node_id_unchecked(id, ast) }) )
+                    }
+                };
+                (option_field_ident, cast_expr)
             }
             AstType::Struct(_) | AstType::Enum(_) => {
                 let field_inner_ty = field_ty.repr_ident(schema);
@@ -109,8 +114,12 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
         });
 
         let extra_data_value = match &field_ty {
-            AstType::Option(_) => {
-                quote!(#field_name.map(|n| n.node_id()).into())
+            AstType::Option(ast_option) => {
+                let inner_ty = &schema.types[ast_option.inner_type_id];
+                match inner_ty {
+                    AstType::Vec(_) => quote!(#field_name.map(|n| n.inner).into()),
+                    _ => quote!(#field_name.map(|n| n.node_id()).into()),
+                }
             }
             AstType::Struct(_) | AstType::Enum(_) => quote!(#field_name.node_id().into()),
             _ if extra_data_name == "other" => {

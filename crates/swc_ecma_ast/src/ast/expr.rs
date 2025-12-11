@@ -152,7 +152,7 @@ pub struct CallExpr {
 #[ast]
 pub struct NewExpr {
     callee: Expr,
-    args: Vec<ExprOrSpread>,
+    args: Option<Vec<ExprOrSpread>>,
     // type_args: Option<Box<TsTypeParamInstantiation>>,
     // pub type_params: Option<TsTypeParamInstantiation>,
 }

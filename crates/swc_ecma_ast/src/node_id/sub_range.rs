@@ -32,6 +32,63 @@ impl SubRange {
     }
 }
 
+/// An 8 bytes optimized version of `Option<SubRange>` (12 bytes).
+///
+/// We regard it as `None` if `OptionalSubRange::end` is `u32::MAX`.
+#[derive(Debug, Clone, Copy, Hash)]
+pub struct OptionalSubRange {
+    pub start: ExtraDataId,
+    pub end: ExtraDataId,
+}
+
+impl OptionalSubRange {
+    /// # Safety:
+    /// 1. The caller should make sure that the nodes in the range are all of type `T`.
+    pub(crate) unsafe fn cast_to_typed<T>(self) -> OptionalTypedSubRange<T> {
+        OptionalTypedSubRange {
+            inner: self,
+            _phantom: PhantomData,
+        }
+    }
+
+    pub const fn new_none() -> Self {
+        Self {
+            start: ExtraDataId::from_raw(0),
+            end: ExtraDataId::from_raw(u32::MAX),
+        }
+    }
+
+    pub const fn is_none(&self) -> bool {
+        self.end.raw() == u32::MAX
+    }
+
+    pub const fn unwrap(self) -> SubRange {
+        assert!(!self.is_none());
+        SubRange {
+            start: self.start,
+            end: self.end,
+        }
+    }
+}
+
+impl From<SubRange> for OptionalSubRange {
+    fn from(value: SubRange) -> Self {
+        Self {
+            start: value.start,
+            end: value.end,
+        }
+    }
+}
+
+impl From<Option<SubRange>> for OptionalSubRange {
+    fn from(value: Option<SubRange>) -> Self {
+        match value {
+            Some(value) => value.into(),
+            None => OptionalSubRange::new_none(),
+        }
+    }
+}
+
 /// A typed sub range of nodes in an arena.
 ///
 /// See [SubRange]
@@ -140,6 +197,27 @@ impl<T> Deref for TypedSubRange<T> {
 
     fn deref(&self) -> &Self::Target {
         &self.inner
+    }
+}
+
+/// An 8 bytes optimized version of `Option<TypedSubRange<T>>` (12 bytes).
+///
+/// We regard it as `None` if `OptionalTypedSubRange::end` is `u32::MAX`.
+#[derive(Debug, Clone, Copy, Hash)]
+pub struct OptionalTypedSubRange<T> {
+    pub(crate) inner: OptionalSubRange,
+    pub(crate) _phantom: PhantomData<T>,
+}
+
+impl<T> OptionalTypedSubRange<T> {
+    pub const fn to_option(self) -> Option<TypedSubRange<T>> {
+        if self.inner.is_none() {
+            return None;
+        }
+        return Some(TypedSubRange {
+            inner: self.inner.unwrap(),
+            _phantom: PhantomData,
+        });
     }
 }
 

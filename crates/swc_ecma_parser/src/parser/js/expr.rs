@@ -423,7 +423,7 @@ impl<I: Tokens> Parser<I> {
         // };
 
         if let Expr::New(new) = callee
-            && new.args(&self.ast).is_empty()
+            && new.args(&self.ast).is_none()
         {
             // If this is parsed using 'NewExpression' rule, just return it.
             // Because it's not left-recursive.
@@ -435,7 +435,6 @@ impl<I: Tokens> Parser<I> {
                 self.input().cur() != Token::LParen,
                 "parse_new_expr() should eat paren if it exists"
             );
-            // return Ok(NewExpr { type_args, ..ne }.into());
             return Ok(Expr::New(new));
         }
         // 'CallExpr' rule contains 'MemberExpr (...)',
@@ -1529,7 +1528,7 @@ impl<I: Tokens> Parser<I> {
             if !is_new_expr || self.input().is(Token::LParen) {
                 // Parsed with 'MemberExpression' production.
                 let args = self.parse_args(false)?;
-                let new_expr = self.ast.expr_new_expr(self.span(start), callee, args);
+                let new_expr = self.ast.expr_new_expr(self.span(start), callee, Some(args));
 
                 // We should parse subscripts for MemberExpression.
                 // Because it's left recursive.
@@ -1538,9 +1537,7 @@ impl<I: Tokens> Parser<I> {
 
             // Parsed with 'NewExpression' production.
 
-            return Ok(self
-                .ast
-                .expr_new_expr(self.span(start), callee, TypedSubRange::empty()));
+            return Ok(self.ast.expr_new_expr(self.span(start), callee, None));
         }
 
         if self.input_mut().eat(Token::Super) {

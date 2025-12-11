@@ -60,10 +60,14 @@ fn generate_build_function_for_struct(ast: &AstStruct, schema: &Schema) -> Token
         let field_name = format_ident!("{}", field.name);
 
         let field_ty = &schema.types[field.type_id];
-        let extra_data_field = map_field_type_to_extra_field(field_ty);
+        let extra_data_field = map_field_type_to_extra_field(field_ty, schema);
         let field_value = match field_ty {
-            AstType::Option(_) => {
-                quote!(#field_name.map(|n| n.node_id()).into())
+            AstType::Option(ast_option) => {
+                let inner_ty = &schema.types[ast_option.inner_type_id];
+                match inner_ty {
+                    AstType::Vec(_) => quote!(#field_name.map(|n| n.inner).into()),
+                    _ => quote!(#field_name.map(|n| n.node_id()).into()),
+                }
             }
             AstType::Struct(_) | AstType::Enum(_) => {
                 quote!( #field_name.node_id() )

@@ -1350,7 +1350,7 @@ impl Ast {
         &mut self,
         span: Span,
         callee: Expr,
-        args: TypedSubRange<ExprOrSpread>,
+        args: Option<TypedSubRange<ExprOrSpread>>,
     ) -> ForHead {
         ForHead::Pat(Pat::Expr(Expr::New(
             self.new_expr(span, callee, args).into(),
@@ -1682,7 +1682,7 @@ impl Ast {
         &mut self,
         span: Span,
         callee: Expr,
-        args: TypedSubRange<ExprOrSpread>,
+        args: Option<TypedSubRange<ExprOrSpread>>,
     ) -> VarDeclOrExpr {
         VarDeclOrExpr::Expr(Expr::New(self.new_expr(span, callee, args).into()))
     }
@@ -2107,7 +2107,7 @@ impl Ast {
         &mut self,
         span: Span,
         callee: Expr,
-        args: TypedSubRange<ExprOrSpread>,
+        args: Option<TypedSubRange<ExprOrSpread>>,
     ) -> Expr {
         Expr::New(self.new_expr(span, callee, args).into())
     }
@@ -2563,13 +2563,13 @@ impl Ast {
         &mut self,
         span: Span,
         callee: Expr,
-        args: TypedSubRange<ExprOrSpread>,
+        args: Option<TypedSubRange<ExprOrSpread>>,
     ) -> NewExpr {
         let _f0 = self.add_extra(ExtraData {
             node: callee.node_id(),
         });
         let _f1 = self.add_extra(ExtraData {
-            sub_range: args.into(),
+            optional_sub_range: args.map(|n| n.inner).into(),
         });
         NewExpr(self.add_node(AstNode {
             span,
@@ -2844,7 +2844,7 @@ impl Ast {
         &mut self,
         span: Span,
         callee: Expr,
-        args: TypedSubRange<ExprOrSpread>,
+        args: Option<TypedSubRange<ExprOrSpread>>,
     ) -> Callee {
         Callee::Expr(Expr::New(self.new_expr(span, callee, args).into()))
     }
@@ -3193,7 +3193,7 @@ impl Ast {
         &mut self,
         span: Span,
         callee: Expr,
-        args: TypedSubRange<ExprOrSpread>,
+        args: Option<TypedSubRange<ExprOrSpread>>,
     ) -> BlockStmtOrExpr {
         BlockStmtOrExpr::Expr(Expr::New(self.new_expr(span, callee, args).into()))
     }
@@ -4307,7 +4307,7 @@ impl Ast {
         &mut self,
         span: Span,
         callee: Expr,
-        args: TypedSubRange<ExprOrSpread>,
+        args: Option<TypedSubRange<ExprOrSpread>>,
     ) -> Pat {
         Pat::Expr(Expr::New(self.new_expr(span, callee, args).into()))
     }
@@ -4932,7 +4932,7 @@ impl Ast {
         &mut self,
         span: Span,
         callee: Expr,
-        args: TypedSubRange<ExprOrSpread>,
+        args: Option<TypedSubRange<ExprOrSpread>>,
     ) -> JSXExpr {
         JSXExpr::Expr(Expr::New(self.new_expr(span, callee, args).into()))
     }

@@ -66,15 +66,20 @@ pub fn ast_visitor(schema: &Schema) -> RawOutput {
                     let field_ty = &schema.types[field.type_id];
                     let field_ty_ident = field_ty.repr_ident(schema);
 
-                    let extra_data_name = map_field_type_to_extra_field(field_ty);
+                    let extra_data_name = map_field_type_to_extra_field(field_ty, schema);
                     let extra_data_name = format_ident!("{extra_data_name}");
                     let cast_expr = match &field_ty {
                         AstType::Vec(_) => quote!(unsafe { ret.cast_to_typed() }),
-                        AstType::Option(ast) => {
-                            let field_inner_ident =
-                                schema.types[ast.inner_type_id].repr_ident(schema);
-                            quote!( ret.map(|id| unsafe { #field_inner_ident::from_node_id_unchecked(id, visitor.ast()) }) )
-                        }
+                        AstType::Option(ast) => match &schema.types[ast.inner_type_id] {
+                            AstType::Vec(_) => {
+                                quote!(unsafe { ret.cast_to_typed().to_option() })
+                            }
+                            _ => {
+                                let field_inner_ident =
+                                    schema.types[ast.inner_type_id].repr_ident(schema);
+                                quote!( ret.map(|id| unsafe { #field_inner_ident::from_node_id_unchecked(id, visitor.ast()) }) )
+                            }
+                        },
                         AstType::Struct(_) | AstType::Enum(_) => {
                             let field_inner_ty = field_ty.repr_ident(schema);
                             quote!( unsafe { #field_inner_ty::from_node_id_unchecked(ret, visitor.ast()) })
@@ -188,10 +193,28 @@ pub fn ast_visitor(schema: &Schema) -> RawOutput {
             }
             AstType::Option(ast) => {
                 let inner_type = &schema.types[ast.inner_type_id];
-                let fn_name =
-                    format_ident!("visit_opt_{}", &inner_type.name().to_case(Case::Snake));
-                let fn_mut_name =
-                    format_ident!("visit_mut_opt_{}", &inner_type.name().to_case(Case::Snake));
+                let (fn_name, fn_mut_name) = match inner_type {
+                    AstType::Vec(vec) => {
+                        let inner_type = &schema.types[vec.inner_type_id];
+                        let fn_name =
+                            format_ident!("visit_opt_{}s", &inner_type.name().to_case(Case::Snake));
+                        let fn_mut_name = format_ident!(
+                            "visit_mut_opt_{}s",
+                            &inner_type.name().to_case(Case::Snake)
+                        );
+                        (fn_name, fn_mut_name)
+                    }
+                    _ => {
+                        let fn_name =
+                            format_ident!("visit_opt_{}", &inner_type.name().to_case(Case::Snake));
+                        let fn_mut_name = format_ident!(
+                            "visit_mut_opt_{}",
+                            &inner_type.name().to_case(Case::Snake)
+                        );
+                        (fn_name, fn_mut_name)
+                    }
+                };
+
                 let ty_ident = ty.repr_ident(schema);
 
                 // Visit/VisitMut
@@ -243,10 +266,12 @@ pub fn ast_visitor(schema: &Schema) -> RawOutput {
                 let (fn_name, fn_mut_name) = match inner_type {
                     AstType::Option(opt) => {
                         let inner_type = &schema.types[opt.inner_type_id];
-                        let fn_name =
-                            format_ident!("visit_opt_{}s", &inner_type.name().to_case(Case::Snake));
+                        let fn_name = format_ident!(
+                            "visit_opt_vec_{}s",
+                            &inner_type.name().to_case(Case::Snake)
+                        );
                         let fn_mut_name = format_ident!(
-                            "visit_mut_opt_{}s",
+                            "visit_mut_opt_vec_{}s",
                             &inner_type.name().to_case(Case::Snake)
                         );
                         (fn_name, fn_mut_name)

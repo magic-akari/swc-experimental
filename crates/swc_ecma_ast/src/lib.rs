@@ -31,7 +31,7 @@ pub use node_id::{
     SubRange, TypedSubRange, Utf8Ref, Wtf8Ref,
 };
 
-use crate::{ast_list::NodeList, string_allocator::StringAllocator};
+use crate::{ast_list::NodeList, node_id::OptionalSubRange, string_allocator::StringAllocator};
 
 /// AST context that stores everything about the flattening AST.
 pub struct Ast {
@@ -109,6 +109,7 @@ pub union ExtraData {
     bool: bool,
     number: f64,
     sub_range: SubRange,
+    optional_sub_range: OptionalSubRange,
 
     /// Any other data (usually enum) that can be representated within 8 bytes
     other: u64,

@@ -35,11 +35,17 @@ pub fn safe_ident(name: &str) -> Ident {
     }
 }
 
-pub fn map_field_type_to_extra_field(ast: &AstType) -> &str {
+pub fn map_field_type_to_extra_field<'a>(ast: &'a AstType, schema: &'a Schema) -> &'a str {
     match ast {
         AstType::Struct(_) | AstType::Enum(_) => "node",
         AstType::Vec(_) => "sub_range",
-        AstType::Option(_) => "optional_node",
+        AstType::Option(ast_option) => {
+            let inner_ty = &schema.types[ast_option.inner_type_id];
+            match inner_ty {
+                AstType::Vec(_) => "optional_sub_range",
+                _ => "optional_node",
+            }
+        }
         AstType::Primitive(ast_primitive) => match ast_primitive.name {
             "Span" => "span",
             "Utf8Ref" => "utf8",
