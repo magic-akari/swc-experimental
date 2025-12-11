@@ -5,7 +5,9 @@ use swc_experimental_ecma_parser::{EsSyntax, Parser, StringSource, Syntax};
 use swc_experimental_ecma_visit::{Visit, VisitWith};
 
 fn main() {
-    let source = include_str!("../files/typescript.js");
+    let source = include_str!(
+        "/Users/bytedance/Projects/rspack_experimental_swc/tasks/testsuite/fixtures/misc-parser/pass/experimental-new-expr-args-type.js"
+    );
     let syntax = Syntax::Es(EsSyntax {
         jsx: true,
         ..Default::default()

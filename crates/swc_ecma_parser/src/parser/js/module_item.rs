@@ -804,6 +804,8 @@ impl<I: Tokens> Parser<I> {
                 let is_defer = local_sym == "defer";
 
                 if self.input().syntax().typescript() && local_sym == "type" {
+                    self.ast.free_node(local.node_id());
+
                     let cur = self.input().cur();
                     if cur == Token::LBrace || cur == Token::Asterisk {
                         type_only = true;
@@ -834,6 +836,8 @@ impl<I: Tokens> Parser<I> {
                 // }
 
                 if is_source || is_defer {
+                    self.ast.free_node(local.node_id());
+
                     let new_phase = if is_source {
                         ImportPhase::Source
                     } else {
