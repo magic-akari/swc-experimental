@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, hash_map::Entry};
 
 use colored::Colorize;
 use swc_core::common::comments::SingleThreadedComments;
@@ -12,7 +12,7 @@ pub struct NoMemoryHoleRunner;
 impl NoMemoryHoleRunner {
     pub fn run<C: Case>(args: &AppArgs, cases: &[C]) -> Vec<TestResult> {
         let mut results = Vec::with_capacity(cases.len());
-        for case in cases.iter() {
+        'outer: for case in cases.iter() {
             if args.debug {
                 println!("[{}] {:?}", "Debug".green(), case.relative_path());
             }
@@ -49,7 +49,7 @@ impl NoMemoryHoleRunner {
 
             let mut use_visitor = Use {
                 ast: &ret.ast,
-                used: HashSet::new(),
+                used: Default::default(),
             };
 
             use_visitor.visit_program(ret.root);
@@ -57,13 +57,24 @@ impl NoMemoryHoleRunner {
             if use_visitor.used.len() != ret.ast.nodes_len() as usize {
                 results.push(TestResult::Failed {
                     path: case.path().to_owned(),
-                    error: "Memory hole detected".to_string(),
+                    error: "Memory hole is detected".to_string(),
                 });
-            } else {
-                results.push(TestResult::Passed {
-                    path: case.path().to_owned(),
-                });
+                continue;
             }
+
+            for values in use_visitor.used.values() {
+                if *values != 1 {
+                    results.push(TestResult::Failed {
+                        path: case.path().to_owned(),
+                        error: "Shared node is detected".to_string(),
+                    });
+                    continue 'outer;
+                }
+            }
+
+            results.push(TestResult::Passed {
+                path: case.path().to_owned(),
+            });
         }
         results
     }
@@ -71,7 +82,7 @@ impl NoMemoryHoleRunner {
 
 struct Use<'a> {
     ast: &'a Ast,
-    used: HashSet<NodeId>,
+    used: HashMap<NodeId, u32>,
 }
 
 impl Visit for Use<'_> {
@@ -80,6 +91,11 @@ impl Visit for Use<'_> {
     }
 
     fn enter_node(&mut self, node_id: NodeId) {
-        self.used.insert(node_id);
+        match self.used.entry(node_id) {
+            Entry::Occupied(mut occupied_entry) => *occupied_entry.get_mut() += 1,
+            Entry::Vacant(vacant_entry) => {
+                vacant_entry.insert(1);
+            }
+        }
     }
 }
