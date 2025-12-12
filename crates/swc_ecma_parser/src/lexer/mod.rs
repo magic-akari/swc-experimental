@@ -486,7 +486,12 @@ impl Lexer<'_> {
                 }
                 cooked_slice_start = self.cur_pos();
             } else {
-                self.bump(1);
+                if c <= 0x7f {
+                    self.bump(1);
+                } else {
+                    let char = self.input.peek_char().unwrap();
+                    self.bump(char.len_utf8());
+                };
             }
         }
 
