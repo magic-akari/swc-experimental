@@ -36,3 +36,7 @@ name    = "semantic_compare"
 [[bench]]
 harness = false
 name    = "ast_compat"
+
+[[bench]]
+harness = false
+name    = "transform"

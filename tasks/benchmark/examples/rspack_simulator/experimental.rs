@@ -25,7 +25,7 @@ fn run_parse(src: &str, comments: &SingleThreadedComments) -> (Program, Ast, Vec
     let parser_lexer = Lexer::new(
         Syntax::Es(Default::default()),
         Default::default(),
-        StringSource::new(&src),
+        StringSource::new(src),
         Some(comments),
     );
 

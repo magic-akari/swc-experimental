@@ -17,6 +17,7 @@ jobs:
           - parser
           - visit_compare
           - semantic
+          - transform
     steps:
       - uses: actions/checkout@v6
 
