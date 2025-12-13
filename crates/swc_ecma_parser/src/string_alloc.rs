@@ -180,7 +180,9 @@ impl Wtf8Builder {
 
     #[inline]
     pub(crate) fn finish(self, alloc: &mut StringAllocator) -> MaybeSubWtf8 {
-        MaybeSubWtf8::new_from_allocated(self.start as u32, alloc.allocated_wtf8.len() as u32)
+        let end = alloc.allocated_wtf8.len() as u32;
+        alloc.allocated_wtf8.push_char('\u{FFFD}'); // Append a separator to avoid two codepoints being merged
+        MaybeSubWtf8::new_from_allocated(self.start as u32, end)
     }
 
     #[inline]
