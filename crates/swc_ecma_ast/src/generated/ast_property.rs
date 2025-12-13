@@ -5082,9 +5082,8 @@ impl MetaPropExpr {
     #[inline]
     pub fn kind(&self, ast: &crate::Ast) -> MetaPropKind {
         let node = unsafe { ast.nodes.get_unchecked(self.0) };
-        let u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
-        let _b0 = u32_bytes[0usize];
-        MetaPropKind::from_extra_data(_b0 as u64)
+        let raw = unsafe { node.data.inline_data };
+        unsafe { std::mem::transmute::<u8, MetaPropKind>(raw as u8) }
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -5095,10 +5094,7 @@ impl MetaPropExpr {
     #[inline]
     pub fn set_kind(&self, ast: &mut crate::Ast, kind: MetaPropKind) {
         let node = unsafe { ast.nodes.get_unchecked_mut(self.0) };
-        let field_bytes = [(kind.to_extra_data() & 0xFF) as u8];
-        let mut u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
-        u32_bytes[0usize] = field_bytes[0usize];
-        node.data.inline_data = u32::from_ne_bytes(u32_bytes);
+        node.data.inline_data = kind as u32;
     }
 }
 impl AwaitExpr {
@@ -5479,9 +5475,8 @@ impl Import {
     #[inline]
     pub fn phase(&self, ast: &crate::Ast) -> ImportPhase {
         let node = unsafe { ast.nodes.get_unchecked(self.0) };
-        let u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
-        let _b0 = u32_bytes[0usize];
-        ImportPhase::from_extra_data(_b0 as u64)
+        let raw = unsafe { node.data.inline_data };
+        unsafe { std::mem::transmute::<u8, ImportPhase>(raw as u8) }
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -5492,10 +5487,7 @@ impl Import {
     #[inline]
     pub fn set_phase(&self, ast: &mut crate::Ast, phase: ImportPhase) {
         let node = unsafe { ast.nodes.get_unchecked_mut(self.0) };
-        let field_bytes = [(phase.to_extra_data() & 0xFF) as u8];
-        let mut u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
-        u32_bytes[0usize] = field_bytes[0usize];
-        node.data.inline_data = u32::from_ne_bytes(u32_bytes);
+        node.data.inline_data = phase as u32;
     }
 }
 impl ExprOrSpread {
@@ -8770,9 +8762,8 @@ impl Bool {
     #[inline]
     pub fn value(&self, ast: &crate::Ast) -> bool {
         let node = unsafe { ast.nodes.get_unchecked(self.0) };
-        let u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
-        let _b0 = u32_bytes[0usize];
-        _b0 != 0
+        let raw = unsafe { node.data.inline_data };
+        raw != 0
     }
     #[inline]
     pub fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
@@ -8783,10 +8774,7 @@ impl Bool {
     #[inline]
     pub fn set_value(&self, ast: &mut crate::Ast, value: bool) {
         let node = unsafe { ast.nodes.get_unchecked_mut(self.0) };
-        let field_bytes = [value as u8];
-        let mut u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
-        u32_bytes[0usize] = field_bytes[0usize];
-        node.data.inline_data = u32::from_ne_bytes(u32_bytes);
+        node.data.inline_data = value as u32;
     }
 }
 impl Null {

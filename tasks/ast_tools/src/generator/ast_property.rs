@@ -99,8 +99,8 @@ fn generate_inline_property_accessors(
         let getter_name = safe_ident(&field.name.to_case(Case::Snake));
         let ret_ty = field_ty.repr_ident(schema);
 
-        // Optimization: single 4-byte field at offset 0 can directly use u32
-        let is_direct_u32 = byte_offset == 0 && byte_size == 4
+        // Optimization: single field at offset 0 (1-4 bytes) can directly use u32
+        let is_direct_u32 = byte_offset == 0 && byte_size <= 4
             && layout.mode == InlineStorageMode::FourBytes;
 
         if is_direct_u32 {
@@ -116,7 +116,7 @@ fn generate_inline_property_accessors(
             });
 
             // Generate optimized setter (direct u32 write)
-            let to_u32_expr = generate_type_to_u32(field_ty, &field_name);
+            let to_u32_expr = generate_type_to_u32(field_ty, &field_name, schema);
             let setter_name = format_ident!("set_{}", field_name);
             field_setters.extend(quote! {
                 #[inline]
@@ -166,18 +166,41 @@ fn generate_u32_to_type(field_ty: &AstType, schema: &Schema) -> TokenStream {
                 opt.map(|id| unsafe { #field_inner_ident::from_node_id_unchecked(id, ast) })
             }
         }
-        AstType::Primitive(prim) => match prim.name {
-            "u32" => quote! { raw },
-            "i32" => quote! { raw as i32 },
-            "BigIntId" => quote! { crate::BigIntId::from_usize(raw as usize) },
-            _ => unreachable!("Unexpected 4-byte primitive: {}", prim.name),
-        },
+        AstType::Primitive(prim) => {
+            let ty_ident = format_ident!("{}", prim.name);
+            match prim.name {
+                // 4-byte types
+                "u32" => quote! { raw },
+                "i32" => quote! { raw as i32 },
+                "BigIntId" => quote! { crate::BigIntId::from_usize(raw as usize) },
+                // 2-byte types
+                "u16" => quote! { raw as u16 },
+                "i16" => quote! { raw as i16 },
+                // 1-byte types
+                "bool" => quote! { raw != 0 },
+                "u8" => quote! { raw as u8 },
+                "i8" => quote! { raw as i8 },
+                // Enums with #[repr(uN)] - transmute from the appropriate size
+                name => {
+                    if let Some(&size) = schema.repr_sizes.get(name) {
+                        match size {
+                            1 => quote! { unsafe { std::mem::transmute::<u8, #ty_ident>(raw as u8) } },
+                            2 => quote! { unsafe { std::mem::transmute::<u16, #ty_ident>(raw as u16) } },
+                            4 => quote! { unsafe { std::mem::transmute::<u32, #ty_ident>(raw) } },
+                            _ => unreachable!("Unsupported repr size: {}", size),
+                        }
+                    } else {
+                        unreachable!("Unexpected primitive in u32 read: {}", prim.name)
+                    }
+                }
+            }
+        }
         _ => unreachable!(),
     }
 }
 
 /// Generate expression to convert target type directly to u32 (optimized path)
-fn generate_type_to_u32(field_ty: &AstType, field_name: &syn::Ident) -> TokenStream {
+fn generate_type_to_u32(field_ty: &AstType, field_name: &syn::Ident, schema: &Schema) -> TokenStream {
     match field_ty {
         AstType::Struct(_) | AstType::Enum(_) => {
             quote!(#field_name.node_id().index() as u32)
@@ -186,10 +209,23 @@ fn generate_type_to_u32(field_ty: &AstType, field_name: &syn::Ident) -> TokenStr
             quote!(crate::OptionalNodeId::from(#field_name.map(|n| n.node_id())).into_raw())
         }
         AstType::Primitive(prim) => match prim.name {
+            // 4-byte types
             "u32" => quote!(#field_name),
             "i32" => quote!(#field_name as u32),
             "BigIntId" => quote!(#field_name.index() as u32),
-            _ => unreachable!("Unexpected 4-byte primitive: {}", prim.name),
+            // 2-byte types
+            "u16" | "i16" => quote!(#field_name as u32),
+            // 1-byte types
+            "bool" => quote!(#field_name as u32),
+            "u8" | "i8" => quote!(#field_name as u32),
+            // Enums with #[repr(uN)] - just cast to u32
+            name => {
+                if schema.repr_sizes.contains_key(name) {
+                    quote!(#field_name as u32)
+                } else {
+                    unreachable!("Unexpected primitive in u32 write: {}", prim.name)
+                }
+            }
         },
         _ => unreachable!(),
     }

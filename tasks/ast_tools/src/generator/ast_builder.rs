@@ -89,12 +89,12 @@ fn generate_build_function_inline(
         };
     }
 
-    // Optimization: if FourBytes mode with a single 4-byte field at offset 0,
+    // Optimization: if FourBytes mode with a single field at offset 0 (1-4 bytes),
     // we can directly assign the u32 value without byte conversion
     let is_single_u32_field = layout.mode == InlineStorageMode::FourBytes
         && layout.fields.len() == 1
-        && layout.fields[0].1 == 0  // byte_offset == 0
-        && layout.fields[0].2 == 4; // byte_size == 4
+        && layout.fields[0].1 == 0   // byte_offset == 0
+        && layout.fields[0].2 <= 4;  // byte_size <= 4
 
     if is_single_u32_field {
         let (field_idx, _, _) = layout.fields[0];
@@ -103,7 +103,7 @@ fn generate_build_function_inline(
         let field_ty = &schema.types[field.type_id];
 
         // Generate direct u32 value
-        let u32_value = generate_field_to_u32(field_ty, &field_name);
+        let u32_value = generate_field_to_u32(field_ty, &field_name, schema);
 
         return quote! {
             #[inline]
@@ -190,8 +190,8 @@ fn generate_build_function_inline(
     tokens
 }
 
-/// Generate expression to convert a field value directly to u32 (for single 4-byte field optimization)
-fn generate_field_to_u32(field_ty: &AstType, field_name: &syn::Ident) -> TokenStream {
+/// Generate expression to convert a field value directly to u32 (for single field optimization, 1-4 bytes)
+fn generate_field_to_u32(field_ty: &AstType, field_name: &syn::Ident, schema: &Schema) -> TokenStream {
     match field_ty {
         AstType::Struct(_) | AstType::Enum(_) => {
             quote!(#field_name.node_id().index() as u32)
@@ -200,10 +200,23 @@ fn generate_field_to_u32(field_ty: &AstType, field_name: &syn::Ident) -> TokenSt
             quote!(crate::OptionalNodeId::from(#field_name.map(|n| n.node_id())).into_raw())
         }
         AstType::Primitive(prim) => match prim.name {
+            // 4-byte types
             "u32" => quote!(#field_name),
             "i32" => quote!(#field_name as u32),
             "BigIntId" => quote!(#field_name.index() as u32),
-            _ => unreachable!("Unexpected 4-byte primitive: {}", prim.name),
+            // 2-byte types
+            "u16" | "i16" => quote!(#field_name as u32),
+            // 1-byte types
+            "bool" => quote!(#field_name as u32),
+            "u8" | "i8" => quote!(#field_name as u32),
+            // Enums with #[repr(uN)] - just cast to u32
+            name => {
+                if schema.repr_sizes.contains_key(name) {
+                    quote!(#field_name as u32)
+                } else {
+                    unreachable!("Unexpected primitive in u32 conversion: {}", prim.name)
+                }
+            }
         },
         _ => unreachable!(),
     }

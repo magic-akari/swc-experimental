@@ -2681,14 +2681,12 @@ impl Ast {
     }
     #[inline]
     pub fn meta_prop_expr(&mut self, span: Span, kind: MetaPropKind) -> MetaPropExpr {
-        let mut inline_bytes = [0u8; 4];
-        inline_bytes[0usize] = [(kind.to_extra_data() & 0xFF) as u8][0usize];
         MetaPropExpr(self.add_node(AstNode {
             span,
             kind: NodeKind::MetaPropExpr,
             inline_data: [0, 0, 0],
             data: NodeData {
-                inline_data: u32::from_ne_bytes(inline_bytes),
+                inline_data: kind as u32,
             },
         }))
     }
@@ -3075,14 +3073,12 @@ impl Ast {
     }
     #[inline]
     pub fn import(&mut self, span: Span, phase: ImportPhase) -> Import {
-        let mut inline_bytes = [0u8; 4];
-        inline_bytes[0usize] = [(phase.to_extra_data() & 0xFF) as u8][0usize];
         Import(self.add_node(AstNode {
             span,
             kind: NodeKind::Import,
             inline_data: [0, 0, 0],
             data: NodeData {
-                inline_data: u32::from_ne_bytes(inline_bytes),
+                inline_data: phase as u32,
             },
         }))
     }
@@ -4756,14 +4752,12 @@ impl Ast {
     }
     #[inline]
     pub fn bool(&mut self, span: Span, value: bool) -> Bool {
-        let mut inline_bytes = [0u8; 4];
-        inline_bytes[0usize] = [value as u8][0usize];
         Bool(self.add_node(AstNode {
             span,
             kind: NodeKind::Bool,
             inline_data: [0, 0, 0],
             data: NodeData {
-                inline_data: u32::from_ne_bytes(inline_bytes),
+                inline_data: value as u32,
             },
         }))
     }

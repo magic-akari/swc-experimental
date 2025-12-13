@@ -38,20 +38,18 @@ pub fn field_byte_size(ty: &AstType, schema: &Schema) -> Option<usize> {
                 _ => Some(4),
             }
         }
-        AstType::Primitive(prim) => match prim.name {
-            "bool" => Some(1),
-            "u8" | "i8" => Some(1),
-            "u16" | "i16" => Some(2),
-            "u32" | "i32" => Some(4),
-            "BigIntId" => Some(4),
-            // Small enums (1 byte)
-            "UnaryOp" | "BinaryOp" | "AssignOp" | "UpdateOp" | "MetaPropKind" | "MethodKind" => {
-                Some(1)
+        AstType::Primitive(prim) => {
+            // Check built-in Rust primitives first
+            match prim.name {
+                "bool" => Some(1),
+                "u8" | "i8" => Some(1),
+                "u16" | "i16" => Some(2),
+                "u32" | "i32" => Some(4),
+                "BigIntId" => Some(4),
+                // For other types, check if they have #[repr(uN)] in schema
+                name => schema.repr_sizes.get(name).copied(),
             }
-            "VarDeclKind" | "ImportPhase" => Some(1),
-            // These are too big for inline storage
-            _ => None,
-        },
+        }
     }
 }
 
