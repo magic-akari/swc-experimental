@@ -211,7 +211,8 @@ fn generate_field_to_u32(field_ty: &AstType, field_name: &syn::Ident, schema: &S
             "u8" | "i8" => quote!(#field_name as u32),
             // Enums with #[repr(uN)] - just cast to u32
             name => {
-                if schema.repr_sizes.contains_key(name) {
+                if let Some(&size) = schema.repr_sizes.get(name) {
+                    assert!(size <= 4, "Cannot cast #[repr(u{})] enum to u32", size * 8);
                     quote!(#field_name as u32)
                 } else {
                     unreachable!("Unexpected primitive in u32 conversion: {}", prim.name)
