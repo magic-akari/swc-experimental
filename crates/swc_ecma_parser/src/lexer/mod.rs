@@ -1665,7 +1665,7 @@ impl<'a> Lexer<'a> {
             _ => c,
         };
 
-        self.bump(1);
+        self.bump(c.len_utf8());
         Ok(CodePoint::from_u32(c as u32))
     }
 
