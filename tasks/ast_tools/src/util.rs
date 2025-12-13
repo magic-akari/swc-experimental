@@ -8,9 +8,9 @@ use syn::Ident;
 use crate::schema::{self, AstEnum, AstStruct, AstType, Schema};
 
 /// Maximum bytes for inline storage
-pub const INLINE_DATA_U32_SIZE: usize = 4; // NodeData.inline_data (u32)
-pub const INLINE_DATA_BYTES_SIZE: usize = 3; // AstNode.inline_data ([u8; 3])
-pub const INLINE_TOTAL_SIZE: usize = INLINE_DATA_U32_SIZE + INLINE_DATA_BYTES_SIZE; // 7 bytes
+pub const INLINE_DATA_U32_SIZE: usize = std::mem::size_of::<u32>(); // NodeData.inline_data (u32)
+pub const INLINE_DATA_U24_SIZE: usize = std::mem::size_of::<[u8; 3]>(); // AstNode.inline_data (U24)
+pub const INLINE_TOTAL_SIZE: usize = INLINE_DATA_U32_SIZE + INLINE_DATA_U24_SIZE; // 7 bytes
 
 /// Inline storage mode for a struct
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -141,6 +141,86 @@ pub fn map_field_type_to_extra_field<'a>(ast: &'a AstType, schema: &'a Schema) -
             "f64" => "number",
             _ => "other",
         },
+    }
+}
+
+/// Generate expression to convert a field value to u32 (for inline storage)
+pub fn generate_field_to_u32(
+    field_ty: &AstType,
+    field_name: &syn::Ident,
+    schema: &Schema,
+) -> TokenStream {
+    match field_ty {
+        AstType::Struct(_) | AstType::Enum(_) => {
+            quote!(#field_name.node_id().index() as u32)
+        }
+        AstType::Option(_) => {
+            quote!(crate::OptionalNodeId::from(#field_name.map(|n| n.node_id())).into_raw())
+        }
+        AstType::Primitive(prim) => match prim.name {
+            "u32" => quote!(#field_name),
+            "i32" => quote!(#field_name as u32),
+            "BigIntId" => quote!(#field_name.index() as u32),
+            "u16" | "i16" => quote!(#field_name as u32),
+            "bool" => quote!(#field_name as u32),
+            "u8" | "i8" => quote!(#field_name as u32),
+            // Enums with #[repr(uN)] - just cast to u32
+            name => {
+                if let Some(&size) = schema.repr_sizes.get(name) {
+                    assert!(size <= 4, "Cannot cast #[repr(u{})] enum to u32", size * 8);
+                    quote!(#field_name as u32)
+                } else {
+                    unreachable!("Unexpected primitive in u32 conversion: {}", prim.name)
+                }
+            }
+        },
+        _ => unreachable!(),
+    }
+}
+
+/// Generate expression to convert u32 to a field type (for inline storage)
+pub fn generate_u32_to_field(field_ty: &AstType, schema: &Schema) -> TokenStream {
+    match field_ty {
+        AstType::Struct(_) | AstType::Enum(_) => {
+            let field_inner_ty = field_ty.repr_ident(schema);
+            quote! {
+                unsafe { #field_inner_ty::from_node_id_unchecked(crate::NodeId::from_usize(raw as usize), ast) }
+            }
+        }
+        AstType::Option(ast_option) => {
+            let inner_ty = &schema.types[ast_option.inner_type_id];
+            let field_inner_ident = inner_ty.repr_ident(schema);
+            quote! {
+                let opt = crate::OptionalNodeId::from_raw(raw);
+                opt.map(|id| unsafe { #field_inner_ident::from_node_id_unchecked(id, ast) })
+            }
+        }
+        AstType::Primitive(prim) => match prim.name {
+            "bool" => quote! { raw != 0 },
+            "u8" => quote! { raw as u8 },
+            "i8" => quote! { raw as i8 },
+            "u16" => quote! { raw as u16 },
+            "i16" => quote! { raw as i16 },
+            "u32" => quote! { raw },
+            "i32" => quote! { raw as i32 },
+            "BigIntId" => quote! { crate::BigIntId::from_usize(raw as usize) },
+            // Enums with #[repr(uN)]
+            name => {
+                let prim_ty = format_ident!("{}", name);
+                if let Some(&size) = schema.repr_sizes.get(name) {
+                    match size {
+                        1 => quote! { unsafe { std::mem::transmute::<u8, #prim_ty>(raw as u8) } },
+                        2 => quote! { unsafe { std::mem::transmute::<u16, #prim_ty>(raw as u16) } },
+                        4 => quote! { unsafe { std::mem::transmute::<u32, #prim_ty>(raw) } },
+                        _ => unreachable!("Unsupported repr size: {}", size),
+                    }
+                } else {
+                    // Fallback to from_extra_data for unrecognized types
+                    quote! { #prim_ty::from_extra_data(raw as u64) }
+                }
+            }
+        },
+        _ => unreachable!(),
     }
 }
 

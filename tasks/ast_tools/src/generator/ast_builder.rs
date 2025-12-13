@@ -6,7 +6,10 @@ use crate::{
     AST_CRATE_PATH,
     output::{RawOutput, RustOutput, output_path},
     schema::{AstEnum, AstStruct, AstType, Schema},
-    util::{InlineStorageMode, calculate_inline_layout, map_field_type_to_extra_field, safe_ident},
+    util::{
+        INLINE_DATA_U32_SIZE, InlineStorageMode, calculate_inline_layout, generate_field_to_u32,
+        map_field_type_to_extra_field, safe_ident,
+    },
 };
 
 pub fn ast_builder(schema: &Schema) -> RawOutput {
@@ -82,7 +85,7 @@ fn generate_build_function_inline(
                 #ret_ty(self.add_node(AstNode {
                     span,
                     kind: NodeKind::#ret_ty,
-                    inline_data: [0, 0, 0],
+                    inline_data: 0u32.into(),
                     data: NodeData { empty: () },
                 }))
             }
@@ -94,7 +97,7 @@ fn generate_build_function_inline(
     let is_single_u32_field = layout.mode == InlineStorageMode::FourBytes
         && layout.fields.len() == 1
         && layout.fields[0].1 == 0   // byte_offset == 0
-        && layout.fields[0].2 <= 4;  // byte_size <= 4
+        && layout.fields[0].2 <= INLINE_DATA_U32_SIZE;  // byte_size <= 4
 
     if is_single_u32_field {
         let (field_idx, _, _) = layout.fields[0];
@@ -112,7 +115,7 @@ fn generate_build_function_inline(
                     self.add_node(AstNode {
                         span,
                         kind: NodeKind::#ret_ty,
-                        inline_data: [0, 0, 0],
+                        inline_data: 0u32.into(),
                         data: NodeData {
                             inline_data: #u32_value,
                         },
@@ -122,48 +125,64 @@ fn generate_build_function_inline(
         };
     }
 
-    // General case: pack fields into bytes
-    let mut pack_code = TokenStream::new();
+    // General case: pack fields using bit operations
+    // inline_u32: bytes 0-3 (node.data.inline_data)
+    // inline_u24: bytes 4-6 (node.inline_data as U24)
+    let mut pack_u32 = TokenStream::new();
+    let mut pack_u24 = TokenStream::new();
 
     for &(field_idx, byte_offset, byte_size) in &layout.fields {
         let field = &ast.fields[field_idx];
         let field_name = format_ident!("{}", field.name);
         let field_ty = &schema.types[field.type_id];
 
-        // Generate bytes for this field
-        let bytes_expr = generate_field_to_bytes(field_ty, &field_name, byte_size);
+        // Generate u32 value for this field
+        let field_u32 = generate_field_to_u32(field_ty, &field_name, schema);
+        let bit_offset = byte_offset * 8;
+        let field_end = byte_offset + byte_size;
 
-        // Store bytes in a temporary variable to avoid repeated evaluation
-        let tmp_var = format_ident!("{}_bytes", field.name);
-        pack_code.extend(quote! {
-            let #tmp_var = #bytes_expr;
-        });
+        if field_end <= INLINE_DATA_U32_SIZE {
+            // Field entirely in bytes 0-3 (inline_u32)
+            if byte_offset == 0 {
+                pack_u32.extend(quote! { | #field_u32 });
+            } else {
+                pack_u32.extend(quote! { | ((#field_u32) << #bit_offset) });
+            }
+        } else if byte_offset >= INLINE_DATA_U32_SIZE {
+            // Field entirely in bytes 4-6 (inline_u24)
+            let u24_bit_offset = (byte_offset - INLINE_DATA_U32_SIZE) * 8;
+            if u24_bit_offset == 0 {
+                pack_u24.extend(quote! { | #field_u32 });
+            } else {
+                pack_u24.extend(quote! { | ((#field_u32) << #u24_bit_offset) });
+            }
+        } else {
+            // Field spans the boundary (bytes in both u32 and u24)
+            // Split: lower bits go to u32, upper bits go to u24
+            let bits_in_u32 = (INLINE_DATA_U32_SIZE - byte_offset) * 8;
+            let mask_u32 = (1u32 << bits_in_u32) - 1;
 
-        // Write bytes to inline_bytes array at the correct offset
-        for i in 0..byte_size {
-            let dst_idx = byte_offset + i;
-            pack_code.extend(quote! {
-                inline_bytes[#dst_idx] = #tmp_var[#i];
-            });
+            if byte_offset == 0 {
+                pack_u32.extend(quote! { | ((#field_u32) & #mask_u32) });
+            } else {
+                pack_u32.extend(quote! { | (((#field_u32) & #mask_u32) << #bit_offset) });
+            }
+            pack_u24.extend(quote! { | ((#field_u32) >> #bits_in_u32) });
         }
     }
 
     let tokens = match layout.mode {
         InlineStorageMode::FourBytes => {
-            // Multiple small fields fit in the u32
             quote! {
                 #[inline]
                 pub fn #fn_name(&mut self, span: Span, #fn_params) -> #ret_ty {
-                    let mut inline_bytes = [0u8; 4];
-                    #pack_code
-
                     #ret_ty(
                         self.add_node(AstNode {
                             span,
                             kind: NodeKind::#ret_ty,
-                            inline_data: [0, 0, 0],
+                            inline_data: 0u32.into(),
                             data: NodeData {
-                                inline_data: u32::from_le_bytes(inline_bytes),
+                                inline_data: 0u32 #pack_u32,
                             },
                         })
                     )
@@ -171,20 +190,16 @@ fn generate_build_function_inline(
             }
         }
         InlineStorageMode::Full => {
-            // Use all 7 bytes
             quote! {
                 #[inline]
                 pub fn #fn_name(&mut self, span: Span, #fn_params) -> #ret_ty {
-                    let mut inline_bytes = [0u8; 7];
-                    #pack_code
-
                     #ret_ty(
                         self.add_node(AstNode {
                             span,
                             kind: NodeKind::#ret_ty,
-                            inline_data: [inline_bytes[4], inline_bytes[5], inline_bytes[6]],
+                            inline_data: (0u32 #pack_u24).into(),
                             data: NodeData {
-                                inline_data: u32::from_le_bytes([inline_bytes[0], inline_bytes[1], inline_bytes[2], inline_bytes[3]]),
+                                inline_data: 0u32 #pack_u32,
                             },
                         })
                     )
@@ -194,66 +209,6 @@ fn generate_build_function_inline(
     };
 
     tokens
-}
-
-/// Generate expression to convert a field value directly to u32 (for single field optimization, 1-4 bytes)
-fn generate_field_to_u32(field_ty: &AstType, field_name: &syn::Ident, schema: &Schema) -> TokenStream {
-    match field_ty {
-        AstType::Struct(_) | AstType::Enum(_) => {
-            quote!(#field_name.node_id().index() as u32)
-        }
-        AstType::Option(_) => {
-            quote!(crate::OptionalNodeId::from(#field_name.map(|n| n.node_id())).into_raw())
-        }
-        AstType::Primitive(prim) => match prim.name {
-            // 4-byte types
-            "u32" => quote!(#field_name),
-            "i32" => quote!(#field_name as u32),
-            "BigIntId" => quote!(#field_name.index() as u32),
-            // 2-byte types
-            "u16" | "i16" => quote!(#field_name as u32),
-            // 1-byte types
-            "bool" => quote!(#field_name as u32),
-            "u8" | "i8" => quote!(#field_name as u32),
-            // Enums with #[repr(uN)] - just cast to u32
-            name => {
-                if let Some(&size) = schema.repr_sizes.get(name) {
-                    assert!(size <= 4, "Cannot cast #[repr(u{})] enum to u32", size * 8);
-                    quote!(#field_name as u32)
-                } else {
-                    unreachable!("Unexpected primitive in u32 conversion: {}", prim.name)
-                }
-            }
-        },
-        _ => unreachable!(),
-    }
-}
-
-/// Generate expression to convert a field value to bytes
-fn generate_field_to_bytes(
-    field_ty: &AstType,
-    field_name: &syn::Ident,
-    _byte_size: usize,
-) -> TokenStream {
-    match field_ty {
-        AstType::Struct(_) | AstType::Enum(_) => {
-            quote!((#field_name.node_id().index() as u32).to_le_bytes())
-        }
-        AstType::Option(_) => {
-            quote!(crate::OptionalNodeId::from(#field_name.map(|n| n.node_id())).into_raw().to_le_bytes())
-        }
-        AstType::Primitive(prim) => match prim.name {
-            "bool" => quote!([#field_name as u8]),
-            "u8" => quote!([#field_name]),
-            "i8" => quote!([#field_name as u8]),
-            "u16" | "i16" => quote!(#field_name.to_le_bytes()),
-            "u32" | "i32" => quote!(#field_name.to_le_bytes()),
-            "BigIntId" => quote!((#field_name.index() as u32).to_le_bytes()),
-            // Small enums (1 byte)
-            _ => quote!([(#field_name.to_extra_data() & 0xFF) as u8]),
-        },
-        _ => unreachable!("Unexpected field type for inline storage"),
-    }
 }
 
 /// Generate build function using extra_data storage (for large nodes)
@@ -306,7 +261,7 @@ fn generate_build_function_extra_data(
                 self.add_node(AstNode {
                     span,
                     kind: NodeKind::#ret_ty,
-                    inline_data: [0, 0, 0],
+                    inline_data: 0u32.into(),
                     data: NodeData {
                         #node_data
                     },
