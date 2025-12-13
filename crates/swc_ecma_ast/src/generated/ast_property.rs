@@ -3972,19 +3972,19 @@ impl UnaryExpr {
     #[inline]
     pub fn op(&self, ast: &crate::Ast) -> UnaryOp {
         let node = unsafe { ast.nodes.get_unchecked(self.0) };
-        let u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+        let u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         let _b0 = u32_bytes[0usize];
         UnaryOp::from_extra_data(_b0 as u64)
     }
     #[inline]
     pub fn arg(&self, ast: &crate::Ast) -> Expr {
         let node = unsafe { ast.nodes.get_unchecked(self.0) };
-        let u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+        let u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         let _b0 = u32_bytes[1usize];
         let _b1 = u32_bytes[2usize];
         let _b2 = u32_bytes[3usize];
         let _b3 = node.inline_data[0usize];
-        let raw = u32::from_ne_bytes([_b0, _b1, _b2, _b3]);
+        let raw = u32::from_le_bytes([_b0, _b1, _b2, _b3]);
         unsafe { Expr::from_node_id_unchecked(crate::NodeId::from_usize(raw as usize), ast) }
     }
     #[inline]
@@ -3997,19 +3997,19 @@ impl UnaryExpr {
     pub fn set_op(&self, ast: &mut crate::Ast, op: UnaryOp) {
         let node = unsafe { ast.nodes.get_unchecked_mut(self.0) };
         let field_bytes = [(op.to_extra_data() & 0xFF) as u8];
-        let mut u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+        let mut u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         u32_bytes[0usize] = field_bytes[0usize];
-        node.data.inline_data = u32::from_ne_bytes(u32_bytes);
+        node.data.inline_data = u32::from_le_bytes(u32_bytes);
     }
     #[inline]
     pub fn set_arg(&self, ast: &mut crate::Ast, arg: Expr) {
         let node = unsafe { ast.nodes.get_unchecked_mut(self.0) };
-        let field_bytes = (arg.node_id().index() as u32).to_ne_bytes();
-        let mut u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+        let field_bytes = (arg.node_id().index() as u32).to_le_bytes();
+        let mut u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         u32_bytes[1usize] = field_bytes[0usize];
         u32_bytes[2usize] = field_bytes[1usize];
         u32_bytes[3usize] = field_bytes[2usize];
-        node.data.inline_data = u32::from_ne_bytes(u32_bytes);
+        node.data.inline_data = u32::from_le_bytes(u32_bytes);
         node.inline_data[0usize] = field_bytes[3usize];
     }
 }
@@ -4029,26 +4029,26 @@ impl UpdateExpr {
     #[inline]
     pub fn op(&self, ast: &crate::Ast) -> UpdateOp {
         let node = unsafe { ast.nodes.get_unchecked(self.0) };
-        let u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+        let u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         let _b0 = u32_bytes[0usize];
         UpdateOp::from_extra_data(_b0 as u64)
     }
     #[inline]
     pub fn prefix(&self, ast: &crate::Ast) -> bool {
         let node = unsafe { ast.nodes.get_unchecked(self.0) };
-        let u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+        let u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         let _b0 = u32_bytes[1usize];
         _b0 != 0
     }
     #[inline]
     pub fn arg(&self, ast: &crate::Ast) -> Expr {
         let node = unsafe { ast.nodes.get_unchecked(self.0) };
-        let u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+        let u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         let _b0 = u32_bytes[2usize];
         let _b1 = u32_bytes[3usize];
         let _b2 = node.inline_data[0usize];
         let _b3 = node.inline_data[1usize];
-        let raw = u32::from_ne_bytes([_b0, _b1, _b2, _b3]);
+        let raw = u32::from_le_bytes([_b0, _b1, _b2, _b3]);
         unsafe { Expr::from_node_id_unchecked(crate::NodeId::from_usize(raw as usize), ast) }
     }
     #[inline]
@@ -4061,26 +4061,26 @@ impl UpdateExpr {
     pub fn set_op(&self, ast: &mut crate::Ast, op: UpdateOp) {
         let node = unsafe { ast.nodes.get_unchecked_mut(self.0) };
         let field_bytes = [(op.to_extra_data() & 0xFF) as u8];
-        let mut u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+        let mut u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         u32_bytes[0usize] = field_bytes[0usize];
-        node.data.inline_data = u32::from_ne_bytes(u32_bytes);
+        node.data.inline_data = u32::from_le_bytes(u32_bytes);
     }
     #[inline]
     pub fn set_prefix(&self, ast: &mut crate::Ast, prefix: bool) {
         let node = unsafe { ast.nodes.get_unchecked_mut(self.0) };
         let field_bytes = [prefix as u8];
-        let mut u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+        let mut u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         u32_bytes[1usize] = field_bytes[0usize];
-        node.data.inline_data = u32::from_ne_bytes(u32_bytes);
+        node.data.inline_data = u32::from_le_bytes(u32_bytes);
     }
     #[inline]
     pub fn set_arg(&self, ast: &mut crate::Ast, arg: Expr) {
         let node = unsafe { ast.nodes.get_unchecked_mut(self.0) };
-        let field_bytes = (arg.node_id().index() as u32).to_ne_bytes();
-        let mut u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+        let field_bytes = (arg.node_id().index() as u32).to_le_bytes();
+        let mut u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         u32_bytes[2usize] = field_bytes[0usize];
         u32_bytes[3usize] = field_bytes[1usize];
-        node.data.inline_data = u32::from_ne_bytes(u32_bytes);
+        node.data.inline_data = u32::from_le_bytes(u32_bytes);
         node.inline_data[0usize] = field_bytes[2usize];
         node.inline_data[1usize] = field_bytes[3usize];
     }
@@ -5024,19 +5024,19 @@ impl YieldExpr {
     #[inline]
     pub fn arg(&self, ast: &crate::Ast) -> Option<Expr> {
         let node = unsafe { ast.nodes.get_unchecked(self.0) };
-        let u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+        let u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         let _b0 = u32_bytes[0usize];
         let _b1 = u32_bytes[1usize];
         let _b2 = u32_bytes[2usize];
         let _b3 = u32_bytes[3usize];
-        let raw = u32::from_ne_bytes([_b0, _b1, _b2, _b3]);
+        let raw = u32::from_le_bytes([_b0, _b1, _b2, _b3]);
         let opt = crate::OptionalNodeId::from_raw(raw);
         opt.map(|id| unsafe { Expr::from_node_id_unchecked(id, ast) })
     }
     #[inline]
     pub fn delegate(&self, ast: &crate::Ast) -> bool {
         let node = unsafe { ast.nodes.get_unchecked(self.0) };
-        let u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+        let u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         let _b0 = node.inline_data[0usize];
         _b0 != 0
     }
@@ -5051,13 +5051,13 @@ impl YieldExpr {
         let node = unsafe { ast.nodes.get_unchecked_mut(self.0) };
         let field_bytes = crate::OptionalNodeId::from(arg.map(|n| n.node_id()))
             .into_raw()
-            .to_ne_bytes();
-        let mut u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+            .to_le_bytes();
+        let mut u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         u32_bytes[0usize] = field_bytes[0usize];
         u32_bytes[1usize] = field_bytes[1usize];
         u32_bytes[2usize] = field_bytes[2usize];
         u32_bytes[3usize] = field_bytes[3usize];
-        node.data.inline_data = u32::from_ne_bytes(u32_bytes);
+        node.data.inline_data = u32::from_le_bytes(u32_bytes);
     }
     #[inline]
     pub fn set_delegate(&self, ast: &mut crate::Ast, delegate: bool) {
@@ -5841,19 +5841,19 @@ impl OptChainExpr {
     #[inline]
     pub fn optional(&self, ast: &crate::Ast) -> bool {
         let node = unsafe { ast.nodes.get_unchecked(self.0) };
-        let u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+        let u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         let _b0 = u32_bytes[0usize];
         _b0 != 0
     }
     #[inline]
     pub fn base(&self, ast: &crate::Ast) -> OptChainBase {
         let node = unsafe { ast.nodes.get_unchecked(self.0) };
-        let u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+        let u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         let _b0 = u32_bytes[1usize];
         let _b1 = u32_bytes[2usize];
         let _b2 = u32_bytes[3usize];
         let _b3 = node.inline_data[0usize];
-        let raw = u32::from_ne_bytes([_b0, _b1, _b2, _b3]);
+        let raw = u32::from_le_bytes([_b0, _b1, _b2, _b3]);
         unsafe {
             OptChainBase::from_node_id_unchecked(crate::NodeId::from_usize(raw as usize), ast)
         }
@@ -5868,19 +5868,19 @@ impl OptChainExpr {
     pub fn set_optional(&self, ast: &mut crate::Ast, optional: bool) {
         let node = unsafe { ast.nodes.get_unchecked_mut(self.0) };
         let field_bytes = [optional as u8];
-        let mut u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+        let mut u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         u32_bytes[0usize] = field_bytes[0usize];
-        node.data.inline_data = u32::from_ne_bytes(u32_bytes);
+        node.data.inline_data = u32::from_le_bytes(u32_bytes);
     }
     #[inline]
     pub fn set_base(&self, ast: &mut crate::Ast, base: OptChainBase) {
         let node = unsafe { ast.nodes.get_unchecked_mut(self.0) };
-        let field_bytes = (base.node_id().index() as u32).to_ne_bytes();
-        let mut u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+        let field_bytes = (base.node_id().index() as u32).to_le_bytes();
+        let mut u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
         u32_bytes[1usize] = field_bytes[0usize];
         u32_bytes[2usize] = field_bytes[1usize];
         u32_bytes[3usize] = field_bytes[2usize];
-        node.data.inline_data = u32::from_ne_bytes(u32_bytes);
+        node.data.inline_data = u32::from_le_bytes(u32_bytes);
         node.inline_data[0usize] = field_bytes[3usize];
     }
 }

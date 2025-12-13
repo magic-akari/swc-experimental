@@ -157,7 +157,7 @@ fn generate_build_function_inline(
                             kind: NodeKind::#ret_ty,
                             inline_data: [0, 0, 0],
                             data: NodeData {
-                                inline_data: u32::from_ne_bytes(inline_bytes),
+                                inline_data: u32::from_le_bytes(inline_bytes),
                             },
                         })
                     )
@@ -178,7 +178,7 @@ fn generate_build_function_inline(
                             kind: NodeKind::#ret_ty,
                             inline_data: [inline_bytes[4], inline_bytes[5], inline_bytes[6]],
                             data: NodeData {
-                                inline_data: u32::from_ne_bytes([inline_bytes[0], inline_bytes[1], inline_bytes[2], inline_bytes[3]]),
+                                inline_data: u32::from_le_bytes([inline_bytes[0], inline_bytes[1], inline_bytes[2], inline_bytes[3]]),
                             },
                         })
                     )
@@ -230,18 +230,18 @@ fn generate_field_to_bytes(
 ) -> TokenStream {
     match field_ty {
         AstType::Struct(_) | AstType::Enum(_) => {
-            quote!((#field_name.node_id().index() as u32).to_ne_bytes())
+            quote!((#field_name.node_id().index() as u32).to_le_bytes())
         }
         AstType::Option(_) => {
-            quote!(crate::OptionalNodeId::from(#field_name.map(|n| n.node_id())).into_raw().to_ne_bytes())
+            quote!(crate::OptionalNodeId::from(#field_name.map(|n| n.node_id())).into_raw().to_le_bytes())
         }
         AstType::Primitive(prim) => match prim.name {
             "bool" => quote!([#field_name as u8]),
             "u8" => quote!([#field_name]),
             "i8" => quote!([#field_name as u8]),
-            "u16" | "i16" => quote!(#field_name.to_ne_bytes()),
-            "u32" | "i32" => quote!(#field_name.to_ne_bytes()),
-            "BigIntId" => quote!((#field_name.index() as u32).to_ne_bytes()),
+            "u16" | "i16" => quote!(#field_name.to_le_bytes()),
+            "u32" | "i32" => quote!(#field_name.to_le_bytes()),
+            "BigIntId" => quote!((#field_name.index() as u32).to_le_bytes()),
             // Small enums (1 byte)
             _ => quote!([(#field_name.to_extra_data() & 0xFF) as u8]),
         },

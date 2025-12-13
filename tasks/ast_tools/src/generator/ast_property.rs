@@ -258,7 +258,7 @@ fn generate_read_bytes(byte_offset: usize, byte_size: usize, mode: &InlineStorag
         InlineStorageMode::FourBytes => {
             // All data is in node.data.inline_data (u32)
             reads.extend(quote! {
-                let u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+                let u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
             });
             for i in 0..byte_size {
                 let var_name = format_ident!("_b{}", i);
@@ -271,7 +271,7 @@ fn generate_read_bytes(byte_offset: usize, byte_size: usize, mode: &InlineStorag
         InlineStorageMode::Full => {
             // Bytes 0-3 in node.data.inline_data, bytes 4-6 in node.inline_data
             reads.extend(quote! {
-                let u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+                let u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
             });
             for i in 0..byte_size {
                 let var_name = format_ident!("_b{}", i);
@@ -298,7 +298,7 @@ fn generate_bytes_to_type(field_ty: &AstType, schema: &Schema, _byte_size: usize
         AstType::Struct(_) | AstType::Enum(_) => {
             let field_inner_ty = field_ty.repr_ident(schema);
             quote! {
-                let raw = u32::from_ne_bytes([_b0, _b1, _b2, _b3]);
+                let raw = u32::from_le_bytes([_b0, _b1, _b2, _b3]);
                 unsafe { #field_inner_ty::from_node_id_unchecked(crate::NodeId::from_usize(raw as usize), ast) }
             }
         }
@@ -306,7 +306,7 @@ fn generate_bytes_to_type(field_ty: &AstType, schema: &Schema, _byte_size: usize
             let inner_ty = &schema.types[ast_option.inner_type_id];
             let field_inner_ident = inner_ty.repr_ident(schema);
             quote! {
-                let raw = u32::from_ne_bytes([_b0, _b1, _b2, _b3]);
+                let raw = u32::from_le_bytes([_b0, _b1, _b2, _b3]);
                 let opt = crate::OptionalNodeId::from_raw(raw);
                 opt.map(|id| unsafe { #field_inner_ident::from_node_id_unchecked(id, ast) })
             }
@@ -315,12 +315,12 @@ fn generate_bytes_to_type(field_ty: &AstType, schema: &Schema, _byte_size: usize
             "bool" => quote! { _b0 != 0 },
             "u8" => quote! { _b0 },
             "i8" => quote! { _b0 as i8 },
-            "u16" => quote! { u16::from_ne_bytes([_b0, _b1]) },
-            "i16" => quote! { i16::from_ne_bytes([_b0, _b1]) },
-            "u32" => quote! { u32::from_ne_bytes([_b0, _b1, _b2, _b3]) },
-            "i32" => quote! { i32::from_ne_bytes([_b0, _b1, _b2, _b3]) as i32 },
+            "u16" => quote! { u16::from_le_bytes([_b0, _b1]) },
+            "i16" => quote! { i16::from_le_bytes([_b0, _b1]) },
+            "u32" => quote! { u32::from_le_bytes([_b0, _b1, _b2, _b3]) },
+            "i32" => quote! { i32::from_le_bytes([_b0, _b1, _b2, _b3]) as i32 },
             "BigIntId" => quote! {
-                crate::BigIntId::from_usize(u32::from_ne_bytes([_b0, _b1, _b2, _b3]) as usize)
+                crate::BigIntId::from_usize(u32::from_le_bytes([_b0, _b1, _b2, _b3]) as usize)
             },
             // Small enums (1 byte)
             _ => {
@@ -355,18 +355,18 @@ fn generate_inline_write(
 fn generate_type_to_bytes(field_ty: &AstType, field_name: &syn::Ident) -> TokenStream {
     match field_ty {
         AstType::Struct(_) | AstType::Enum(_) => {
-            quote!(let field_bytes = (#field_name.node_id().index() as u32).to_ne_bytes();)
+            quote!(let field_bytes = (#field_name.node_id().index() as u32).to_le_bytes();)
         }
         AstType::Option(_) => {
-            quote!(let field_bytes = crate::OptionalNodeId::from(#field_name.map(|n| n.node_id())).into_raw().to_ne_bytes();)
+            quote!(let field_bytes = crate::OptionalNodeId::from(#field_name.map(|n| n.node_id())).into_raw().to_le_bytes();)
         }
         AstType::Primitive(prim) => match prim.name {
             "bool" => quote!(let field_bytes = [#field_name as u8];),
             "u8" => quote!(let field_bytes = [#field_name];),
             "i8" => quote!(let field_bytes = [#field_name as u8];),
-            "u16" | "i16" => quote!(let field_bytes = #field_name.to_ne_bytes();),
-            "u32" | "i32" => quote!(let field_bytes = #field_name.to_ne_bytes();),
-            "BigIntId" => quote!(let field_bytes = (#field_name.index() as u32).to_ne_bytes();),
+            "u16" | "i16" => quote!(let field_bytes = #field_name.to_le_bytes();),
+            "u32" | "i32" => quote!(let field_bytes = #field_name.to_le_bytes();),
+            "BigIntId" => quote!(let field_bytes = (#field_name.index() as u32).to_le_bytes();),
             // Small enums (1 byte)
             _ => quote!(let field_bytes = [(#field_name.to_extra_data() & 0xFF) as u8];),
         },
@@ -387,9 +387,9 @@ fn generate_write_bytes(byte_offset: usize, byte_size: usize, mode: &InlineStora
                 });
             }
             quote! {
-                let mut u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+                let mut u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
                 #update_bytes
-                node.data.inline_data = u32::from_ne_bytes(u32_bytes);
+                node.data.inline_data = u32::from_le_bytes(u32_bytes);
             }
         }
         InlineStorageMode::Full => {
@@ -409,9 +409,9 @@ fn generate_write_bytes(byte_offset: usize, byte_size: usize, mode: &InlineStora
                     });
                 }
                 quote! {
-                    let mut u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+                    let mut u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
                     #update_bytes
-                    node.data.inline_data = u32::from_ne_bytes(u32_bytes);
+                    node.data.inline_data = u32::from_le_bytes(u32_bytes);
                 }
             } else if in_bytes_only {
                 // Field is entirely in inline_data[0..3]
@@ -441,9 +441,9 @@ fn generate_write_bytes(byte_offset: usize, byte_size: usize, mode: &InlineStora
                     }
                 }
                 quote! {
-                    let mut u32_bytes = unsafe { node.data.inline_data }.to_ne_bytes();
+                    let mut u32_bytes = unsafe { node.data.inline_data }.to_le_bytes();
                     #update_u32
-                    node.data.inline_data = u32::from_ne_bytes(u32_bytes);
+                    node.data.inline_data = u32::from_le_bytes(u32_bytes);
                     #update_bytes
                 }
             }

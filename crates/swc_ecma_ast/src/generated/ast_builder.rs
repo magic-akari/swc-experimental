@@ -2366,16 +2366,16 @@ impl Ast {
     pub fn unary_expr(&mut self, span: Span, op: UnaryOp, arg: Expr) -> UnaryExpr {
         let mut inline_bytes = [0u8; 7];
         inline_bytes[0usize] = [(op.to_extra_data() & 0xFF) as u8][0usize];
-        inline_bytes[1usize] = (arg.node_id().index() as u32).to_ne_bytes()[0usize];
-        inline_bytes[2usize] = (arg.node_id().index() as u32).to_ne_bytes()[1usize];
-        inline_bytes[3usize] = (arg.node_id().index() as u32).to_ne_bytes()[2usize];
-        inline_bytes[4usize] = (arg.node_id().index() as u32).to_ne_bytes()[3usize];
+        inline_bytes[1usize] = (arg.node_id().index() as u32).to_le_bytes()[0usize];
+        inline_bytes[2usize] = (arg.node_id().index() as u32).to_le_bytes()[1usize];
+        inline_bytes[3usize] = (arg.node_id().index() as u32).to_le_bytes()[2usize];
+        inline_bytes[4usize] = (arg.node_id().index() as u32).to_le_bytes()[3usize];
         UnaryExpr(self.add_node(AstNode {
             span,
             kind: NodeKind::UnaryExpr,
             inline_data: [inline_bytes[4], inline_bytes[5], inline_bytes[6]],
             data: NodeData {
-                inline_data: u32::from_ne_bytes([
+                inline_data: u32::from_le_bytes([
                     inline_bytes[0],
                     inline_bytes[1],
                     inline_bytes[2],
@@ -2389,16 +2389,16 @@ impl Ast {
         let mut inline_bytes = [0u8; 7];
         inline_bytes[0usize] = [(op.to_extra_data() & 0xFF) as u8][0usize];
         inline_bytes[1usize] = [prefix as u8][0usize];
-        inline_bytes[2usize] = (arg.node_id().index() as u32).to_ne_bytes()[0usize];
-        inline_bytes[3usize] = (arg.node_id().index() as u32).to_ne_bytes()[1usize];
-        inline_bytes[4usize] = (arg.node_id().index() as u32).to_ne_bytes()[2usize];
-        inline_bytes[5usize] = (arg.node_id().index() as u32).to_ne_bytes()[3usize];
+        inline_bytes[2usize] = (arg.node_id().index() as u32).to_le_bytes()[0usize];
+        inline_bytes[3usize] = (arg.node_id().index() as u32).to_le_bytes()[1usize];
+        inline_bytes[4usize] = (arg.node_id().index() as u32).to_le_bytes()[2usize];
+        inline_bytes[5usize] = (arg.node_id().index() as u32).to_le_bytes()[3usize];
         UpdateExpr(self.add_node(AstNode {
             span,
             kind: NodeKind::UpdateExpr,
             inline_data: [inline_bytes[4], inline_bytes[5], inline_bytes[6]],
             data: NodeData {
-                inline_data: u32::from_ne_bytes([
+                inline_data: u32::from_le_bytes([
                     inline_bytes[0],
                     inline_bytes[1],
                     inline_bytes[2],
@@ -2654,23 +2654,23 @@ impl Ast {
         let mut inline_bytes = [0u8; 7];
         inline_bytes[0usize] = crate::OptionalNodeId::from(arg.map(|n| n.node_id()))
             .into_raw()
-            .to_ne_bytes()[0usize];
+            .to_le_bytes()[0usize];
         inline_bytes[1usize] = crate::OptionalNodeId::from(arg.map(|n| n.node_id()))
             .into_raw()
-            .to_ne_bytes()[1usize];
+            .to_le_bytes()[1usize];
         inline_bytes[2usize] = crate::OptionalNodeId::from(arg.map(|n| n.node_id()))
             .into_raw()
-            .to_ne_bytes()[2usize];
+            .to_le_bytes()[2usize];
         inline_bytes[3usize] = crate::OptionalNodeId::from(arg.map(|n| n.node_id()))
             .into_raw()
-            .to_ne_bytes()[3usize];
+            .to_le_bytes()[3usize];
         inline_bytes[4usize] = [delegate as u8][0usize];
         YieldExpr(self.add_node(AstNode {
             span,
             kind: NodeKind::YieldExpr,
             inline_data: [inline_bytes[4], inline_bytes[5], inline_bytes[6]],
             data: NodeData {
-                inline_data: u32::from_ne_bytes([
+                inline_data: u32::from_le_bytes([
                     inline_bytes[0],
                     inline_bytes[1],
                     inline_bytes[2],
@@ -3604,16 +3604,16 @@ impl Ast {
     ) -> OptChainExpr {
         let mut inline_bytes = [0u8; 7];
         inline_bytes[0usize] = [optional as u8][0usize];
-        inline_bytes[1usize] = (base.node_id().index() as u32).to_ne_bytes()[0usize];
-        inline_bytes[2usize] = (base.node_id().index() as u32).to_ne_bytes()[1usize];
-        inline_bytes[3usize] = (base.node_id().index() as u32).to_ne_bytes()[2usize];
-        inline_bytes[4usize] = (base.node_id().index() as u32).to_ne_bytes()[3usize];
+        inline_bytes[1usize] = (base.node_id().index() as u32).to_le_bytes()[0usize];
+        inline_bytes[2usize] = (base.node_id().index() as u32).to_le_bytes()[1usize];
+        inline_bytes[3usize] = (base.node_id().index() as u32).to_le_bytes()[2usize];
+        inline_bytes[4usize] = (base.node_id().index() as u32).to_le_bytes()[3usize];
         OptChainExpr(self.add_node(AstNode {
             span,
             kind: NodeKind::OptChainExpr,
             inline_data: [inline_bytes[4], inline_bytes[5], inline_bytes[6]],
             data: NodeData {
-                inline_data: u32::from_ne_bytes([
+                inline_data: u32::from_le_bytes([
                     inline_bytes[0],
                     inline_bytes[1],
                     inline_bytes[2],
