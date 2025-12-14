@@ -35,7 +35,10 @@ pub fn field_byte_size(ty: &AstType, schema: &Schema) -> Option<usize> {
                 // Option<Vec<T>> needs OptionalSubRange - too big
                 AstType::Vec(_) => None,
                 // Option<Struct/Enum> is OptionalNodeId (4 bytes)
-                _ => Some(4),
+                AstType::Struct(_) | AstType::Enum(_) => Some(4),
+                // Option<Primitive> not supported for inline storage
+                // (would need proper niche optimization handling)
+                _ => None,
             }
         }
         AstType::Primitive(prim) => {
@@ -208,6 +211,11 @@ pub fn generate_u32_to_field(field_ty: &AstType, schema: &Schema) -> TokenStream
             name => {
                 let prim_ty = format_ident!("{}", name);
                 if let Some(&size) = schema.repr_sizes.get(name) {
+                    // SAFETY: The raw value was originally obtained from a valid enum discriminant
+                    // during storage via `as u32` cast. Transmuting back is safe because:
+                    // 1. The enum has #[repr(uN)] ensuring stable discriminant values
+                    // 2. The value was validated when the enum was originally constructed
+                    // 3. Inline storage is only used for AST nodes built through typed APIs
                     match size {
                         1 => quote! { unsafe { std::mem::transmute::<u8, #prim_ty>(raw as u8) } },
                         2 => quote! { unsafe { std::mem::transmute::<u16, #prim_ty>(raw as u16) } },

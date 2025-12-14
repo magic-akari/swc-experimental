@@ -190,18 +190,25 @@ impl Parser {
 }
 
 /// Parse #[repr(uN)] attribute and return the size in bytes
+/// Handles whitespace and multiple repr arguments (e.g., `#[repr(C, u8)]`)
 fn parse_repr_size(attrs: &[Attribute]) -> Option<usize> {
     for attr in attrs {
         if let Meta::List(meta_list) = &attr.meta {
             if meta_list.path.is_ident("repr") {
-                let repr_str = meta_list.tokens.to_string();
-                return match repr_str.as_str() {
-                    "u8" => Some(1),
-                    "u16" => Some(2),
-                    "u32" => Some(4),
-                    "u64" => Some(8),
-                    _ => None,
-                };
+                // Parse as comma-separated identifiers to handle `#[repr(C, u8)]`
+                if let Ok(args) =
+                    meta_list.parse_args_with(Punctuated::<Ident, Comma>::parse_terminated)
+                {
+                    for arg in args {
+                        match arg.to_string().as_str() {
+                            "u8" => return Some(1),
+                            "u16" => return Some(2),
+                            "u32" => return Some(4),
+                            "u64" => return Some(8),
+                            _ => continue,
+                        }
+                    }
+                }
             }
         }
     }
