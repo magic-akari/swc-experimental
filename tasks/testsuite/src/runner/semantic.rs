@@ -1,57 +1,41 @@
 use colored::Colorize;
-use swc_core::common::comments::SingleThreadedComments;
-use swc_experimental_ecma_ast::Program;
-use swc_experimental_ecma_parser::{Lexer, Parser, StringSource};
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use swc_experimental_ecma_semantic::resolver::resolver;
 
-use crate::{AppArgs, cases::Case, suite::TestResult};
+use crate::{
+    AppArgs,
+    cases::Case,
+    runner::{ParseResult, parse},
+    suite::TestResult,
+};
 
 pub struct SemanticRunner;
 
 impl SemanticRunner {
     pub fn run<C: Case>(args: &AppArgs, cases: &[C]) -> Vec<TestResult> {
-        let mut results = Vec::with_capacity(cases.len());
-        for case in cases.iter() {
-            if args.debug {
-                println!("[{}] {:?}", "Debug".green(), case.relative_path());
-            }
-
-            if case.should_fail() {
-                continue;
-            }
-
-            let syntax = case.syntax();
-            let input = StringSource::new(case.code());
-            let comments = SingleThreadedComments::default();
-            let lexer = Lexer::new(syntax, Default::default(), input, Some(&comments));
-            let parser = Parser::new_from(lexer);
-            let ret = match case.ext().as_str() {
-                "js" | "jsx" => parser.parse_program(),
-                "cjs" => parser
-                    .parse_script()
-                    .map(|ret| ret.map_root(Program::Script)),
-                "mjs" => parser
-                    .parse_module()
-                    .map(|ret| ret.map_root(Program::Module)),
-                "ts" | "tsx" => {
-                    results.push(TestResult::Ignored {
-                        path: case.path().to_owned(),
-                    });
-                    continue;
+        cases
+            .par_iter()
+            .filter_map(|case| {
+                if args.debug {
+                    println!("[{}] {:?}", "Debug".green(), case.relative_path());
                 }
-                _ => unreachable!(),
-            };
 
-            let Ok(ret) = ret else {
-                continue;
-            };
+                if case.should_ignore() {
+                    return Some(TestResult::Ignored {
+                        path: case.relative_path().to_owned(),
+                    });
+                }
 
-            let _semantic = resolver(ret.root, &ret.ast);
+                let (root, ast) = match parse(case) {
+                    ParseResult::Succ(ret) => ret,
+                    _ => return None,
+                };
 
-            results.push(TestResult::Passed {
-                path: case.path().to_owned(),
-            });
-        }
-        results
+                let _semantic = resolver(root, &ast);
+                Some(TestResult::Passed {
+                    path: case.path().to_owned(),
+                })
+            })
+            .collect()
     }
 }

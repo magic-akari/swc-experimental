@@ -15,6 +15,7 @@ either           = "1.10.0"
 indexmap         = "2.12.0"
 num-bigint       = "0.4.6"
 oxc_index        = "4.1.0"
+rayon            = "1.11.0"
 rustc-hash       = "2"
 seq-macro        = "0.3.6"
 smartstring      = "1.0.1"
@@ -52,8 +53,10 @@ swc_experimental_ecma_visit           = { version = "0.3.0", path = "crates/swc_
 # Dev
 colored   = "3.0.0"
 criterion = { package = "codspeed-criterion-compat", version = "*" }
+jwalk     = "0.6"
 mimalloc  = "0.1.48"
 pico-args = "0.5.0"
+saphyr    = "0.0.6"
 
 [profile.bench]
 codegen-units = 1
