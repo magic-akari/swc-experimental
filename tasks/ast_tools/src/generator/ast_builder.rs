@@ -35,7 +35,7 @@ pub fn ast_builder(schema: &Schema) -> RawOutput {
     }
 
     let output = quote! {
-            #![allow(unused, clippy::useless_conversion)]
+            #![allow(unused, clippy::useless_conversion, clippy::identity_op)]
             use swc_core::common::Span;
 
             use crate::{Ast, AstNode, ExtraData, NodeData, NodeKind, ast::*, node_id::*};
@@ -97,7 +97,7 @@ fn generate_build_function_inline(
     let is_single_u32_field = layout.mode == InlineStorageMode::FourBytes
         && layout.fields.len() == 1
         && layout.fields[0].1 == 0   // byte_offset == 0
-        && layout.fields[0].2 <= INLINE_DATA_U32_SIZE;  // byte_size <= 4
+        && layout.fields[0].2 <= INLINE_DATA_U32_SIZE; // byte_size <= 4
 
     if is_single_u32_field {
         let (field_idx, _, _) = layout.fields[0];
@@ -171,7 +171,7 @@ fn generate_build_function_inline(
         }
     }
 
-    let tokens = match layout.mode {
+    match layout.mode {
         InlineStorageMode::FourBytes => {
             quote! {
                 #[inline]
@@ -206,9 +206,7 @@ fn generate_build_function_inline(
                 }
             }
         }
-    };
-
-    tokens
+    }
 }
 
 /// Generate build function using extra_data storage (for large nodes)

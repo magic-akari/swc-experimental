@@ -1,4 +1,7 @@
-use std::{collections::{HashMap, HashSet}, fs};
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+};
 
 use indexmap::IndexSet;
 use oxc_index::IndexVec;
@@ -193,20 +196,20 @@ impl Parser {
 /// Handles whitespace and multiple repr arguments (e.g., `#[repr(C, u8)]`)
 fn parse_repr_size(attrs: &[Attribute]) -> Option<usize> {
     for attr in attrs {
-        if let Meta::List(meta_list) = &attr.meta {
-            if meta_list.path.is_ident("repr") {
-                // Parse as comma-separated identifiers to handle `#[repr(C, u8)]`
-                if let Ok(args) =
-                    meta_list.parse_args_with(Punctuated::<Ident, Comma>::parse_terminated)
-                {
-                    for arg in args {
-                        match arg.to_string().as_str() {
-                            "u8" => return Some(1),
-                            "u16" => return Some(2),
-                            "u32" => return Some(4),
-                            "u64" => return Some(8),
-                            _ => continue,
-                        }
+        if let Meta::List(meta_list) = &attr.meta
+            && meta_list.path.is_ident("repr")
+        {
+            // Parse as comma-separated identifiers to handle `#[repr(C, u8)]`
+            if let Ok(args) =
+                meta_list.parse_args_with(Punctuated::<Ident, Comma>::parse_terminated)
+            {
+                for arg in args {
+                    match arg.to_string().as_str() {
+                        "u8" => return Some(1),
+                        "u16" => return Some(2),
+                        "u32" => return Some(4),
+                        "u64" => return Some(8),
+                        _ => continue,
                     }
                 }
             }

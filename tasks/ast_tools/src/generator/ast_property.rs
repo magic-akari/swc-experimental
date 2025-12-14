@@ -25,7 +25,7 @@ pub fn ast_property(schema: &Schema) -> RawOutput {
     }
 
     let output = quote! {
-            #![allow(unused, clippy::useless_conversion)]
+            #![allow(unused, clippy::useless_conversion, clippy::identity_op, clippy::erasing_op)]
             use crate::{node_id::*, ast::*};
 
             #impls
@@ -68,7 +68,13 @@ fn generate_property_for_struct(ast: &AstStruct, schema: &Schema) -> TokenStream
 
     // Check if this struct uses inline storage
     if let Some(layout) = calculate_inline_layout(ast, schema) {
-        generate_inline_property_accessors(ast, schema, &mut field_getters, &mut field_setters, &layout);
+        generate_inline_property_accessors(
+            ast,
+            schema,
+            &mut field_getters,
+            &mut field_setters,
+            &layout,
+        );
     } else {
         generate_extra_data_property_accessors(ast, schema, &mut field_getters, &mut field_setters);
     }
@@ -100,8 +106,8 @@ fn generate_inline_property_accessors(
         let ret_ty = field_ty.repr_ident(schema);
 
         // Optimization: single field at offset 0 (1-4 bytes) can directly use u32
-        let is_direct_u32 = byte_offset == 0 && byte_size <= 4
-            && layout.mode == InlineStorageMode::FourBytes;
+        let is_direct_u32 =
+            byte_offset == 0 && byte_size <= 4 && layout.mode == InlineStorageMode::FourBytes;
 
         if is_direct_u32 {
             // Generate optimized getter (direct u32 read)
@@ -127,7 +133,8 @@ fn generate_inline_property_accessors(
             });
         } else {
             // General case: use byte packing/unpacking
-            let read_expr = generate_inline_read(field_ty, schema, byte_offset, byte_size, &layout.mode);
+            let read_expr =
+                generate_inline_read(field_ty, schema, byte_offset, byte_size, &layout.mode);
             field_getters.extend(quote! {
                 #[inline]
                 pub fn #getter_name(&self, ast: &crate::Ast) -> #ret_ty {
@@ -137,7 +144,14 @@ fn generate_inline_property_accessors(
             });
 
             let setter_name = format_ident!("set_{}", field_name);
-            let write_expr = generate_inline_write(field_ty, &field_name, byte_offset, byte_size, &layout.mode, schema);
+            let write_expr = generate_inline_write(
+                field_ty,
+                &field_name,
+                byte_offset,
+                byte_size,
+                &layout.mode,
+                schema,
+            );
             field_setters.extend(quote! {
                 #[inline]
                 pub fn #setter_name(&self, ast: &mut crate::Ast, #field_name: #ret_ty) {
@@ -169,13 +183,21 @@ fn generate_inline_read(
 }
 
 /// Generate code to extract a field value as u32 using bit operations
-fn generate_extract_bits(byte_offset: usize, byte_size: usize, mode: &InlineStorageMode) -> TokenStream {
+fn generate_extract_bits(
+    byte_offset: usize,
+    byte_size: usize,
+    mode: &InlineStorageMode,
+) -> TokenStream {
     let bit_offset = byte_offset * 8;
     let bit_size = byte_size * 8;
     let field_end = byte_offset + byte_size;
 
     // Create mask for the field
-    let mask: u32 = if bit_size >= 32 { u32::MAX } else { (1u32 << bit_size) - 1 };
+    let mask: u32 = if bit_size >= 32 {
+        u32::MAX
+    } else {
+        (1u32 << bit_size) - 1
+    };
 
     match mode {
         InlineStorageMode::FourBytes => {
@@ -250,13 +272,21 @@ fn generate_inline_write(
 }
 
 /// Generate code to insert a field value using bit operations (read-modify-write)
-fn generate_insert_bits(byte_offset: usize, byte_size: usize, mode: &InlineStorageMode) -> TokenStream {
+fn generate_insert_bits(
+    byte_offset: usize,
+    byte_size: usize,
+    mode: &InlineStorageMode,
+) -> TokenStream {
     let bit_offset = byte_offset * 8;
     let bit_size = byte_size * 8;
     let field_end = byte_offset + byte_size;
 
     // Create mask for the field
-    let mask: u32 = if bit_size >= 32 { u32::MAX } else { (1u32 << bit_size) - 1 };
+    let mask: u32 = if bit_size >= 32 {
+        u32::MAX
+    } else {
+        (1u32 << bit_size) - 1
+    };
 
     match mode {
         InlineStorageMode::FourBytes => {
