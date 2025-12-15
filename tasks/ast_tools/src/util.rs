@@ -89,24 +89,26 @@ pub fn calculate_inline_layout(ast: &AstStruct, schema: &Schema) -> Option<Inlin
     }
 
     // Step 2: Find optimal partition using subset-sum DP
-    let (box1_indices, box2_indices) = find_optimal_partition(&field_sizes, total_size);
+    let box1_mask = find_optimal_partition(&field_sizes, total_size);
 
     // Step 3: Build the layout with optimized field order
     let mut fields: Vec<(usize, usize, usize)> = Vec::new();
     let mut current_offset = 0usize;
 
     // First, place fields assigned to box1 (bytes 0-3)
-    for &field_idx in &box1_indices {
-        let (original_idx, size) = field_sizes[field_idx];
-        fields.push((original_idx, current_offset, size));
-        current_offset += size;
+    for (i, &(original_idx, size)) in field_sizes.iter().enumerate() {
+        if box1_mask & (1 << i) != 0 {
+            fields.push((original_idx, current_offset, size));
+            current_offset += size;
+        }
     }
 
     // Then, place fields assigned to box2 (bytes 4-6)
-    for &field_idx in &box2_indices {
-        let (original_idx, size) = field_sizes[field_idx];
-        fields.push((original_idx, current_offset, size));
-        current_offset += size;
+    for (i, &(original_idx, size)) in field_sizes.iter().enumerate() {
+        if box1_mask & (1 << i) == 0 {
+            fields.push((original_idx, current_offset, size));
+            current_offset += size;
+        }
     }
 
     let mode = if current_offset <= INLINE_DATA_U32_SIZE {
@@ -121,25 +123,21 @@ pub fn calculate_inline_layout(ast: &AstStruct, schema: &Schema) -> Option<Inlin
 /// Find the optimal partition of fields into two boxes (4 bytes and 3 bytes)
 /// using subset-sum dynamic programming.
 ///
-/// Returns (box1_field_indices, box2_field_indices) where indices refer to
-/// positions in the input `field_sizes` array.
+/// Returns a bitmask where bit `i` is set if field `i` belongs to box1.
 ///
 /// Goal: Minimize boundary crossings by finding a subset that fits in box1 (≤4 bytes)
 /// with the remainder fitting in box2 (≤3 bytes).
-fn find_optimal_partition(
-    field_sizes: &[(usize, usize)],
-    total_size: usize,
-) -> (Vec<usize>, Vec<usize>) {
+fn find_optimal_partition(field_sizes: &[(usize, usize)], total_size: usize) -> u32 {
     let n = field_sizes.len();
 
     // Special case: all fits in box1
     if total_size <= INLINE_DATA_U32_SIZE {
-        return ((0..n).collect(), Vec::new());
+        return (1 << n) - 1;
     }
 
     // Special case: empty
     if n == 0 {
-        return (Vec::new(), Vec::new());
+        return 0;
     }
 
     // DP to find all achievable subset sums ≤ 4
@@ -165,33 +163,20 @@ fn find_optimal_partition(
     let min_box1_sum = total_size.saturating_sub(INLINE_DATA_U24_SIZE);
 
     // Find the smallest valid box1_sum (to leave more room for future optimizations)
-    // or any valid one
-    let best_mask = (min_box1_sum..=INLINE_DATA_U32_SIZE).find_map(|sum| dp[sum]);
-
-    match best_mask {
-        Some(mask) => {
-            // Partition based on the mask
-            let box1: Vec<usize> = (0..n).filter(|&i| mask & (1 << i) != 0).collect();
-            let box2: Vec<usize> = (0..n).filter(|&i| mask & (1 << i) == 0).collect();
-            (box1, box2)
-        }
-        None => {
-            // No perfect partition exists - fall back to sequential order
-            // This means at least one field will cross the boundary
-            // Find the best split point
-            find_minimal_split_partition(field_sizes)
-        }
-    }
+    dp[min_box1_sum..=INLINE_DATA_U32_SIZE]
+        .iter()
+        .find_map(|&x| x)
+        .unwrap_or_else(|| find_minimal_split_partition(field_sizes))
 }
 
 /// Fallback when no perfect partition exists.
 /// Place the largest field at offset 0 (crossing the boundary),
 /// then all remaining fields follow in box2.
 #[inline]
-fn find_minimal_split_partition(field_sizes: &[(usize, usize)]) -> (Vec<usize>, Vec<usize>) {
+fn find_minimal_split_partition(field_sizes: &[(usize, usize)]) -> u32 {
     let n = field_sizes.len();
     let large_idx = (0..n).max_by_key(|&i| field_sizes[i].1).unwrap_or(0);
-    (vec![large_idx], (0..n).filter(|&i| i != large_idx).collect())
+    1 << large_idx
 }
 
 /// Reserved word in Rust.
