@@ -69,19 +69,43 @@ pub struct InlineLayout {
 
 /// Calculate the inline layout for a struct
 /// Returns None if the struct cannot be inlined
+///
+/// This function uses a subset-sum DP algorithm to find an optimal field arrangement
+/// that minimizes boundary crossings between the 4-byte and 3-byte storage regions.
 pub fn calculate_inline_layout(ast: &AstStruct, schema: &Schema) -> Option<InlineLayout> {
-    let mut fields: Vec<(usize, usize, usize)> = Vec::new();
-    let mut current_offset = 0usize;
+    // Step 1: Collect field sizes
+    let mut field_sizes: Vec<(usize, usize)> = Vec::new(); // (field_index, byte_size)
+    let mut total_size = 0usize;
 
     for (index, field) in ast.fields.iter().enumerate() {
         let field_ty = &schema.types[field.type_id];
         let size = field_byte_size(field_ty, schema)?;
+        field_sizes.push((index, size));
+        total_size += size;
+    }
 
-        if current_offset + size > INLINE_TOTAL_SIZE {
-            return None; // Exceeds 7 bytes
-        }
+    if total_size > INLINE_TOTAL_SIZE {
+        return None; // Exceeds 7 bytes
+    }
 
-        fields.push((index, current_offset, size));
+    // Step 2: Find optimal partition using subset-sum DP
+    let (box1_indices, box2_indices) = find_optimal_partition(&field_sizes, total_size);
+
+    // Step 3: Build the layout with optimized field order
+    let mut fields: Vec<(usize, usize, usize)> = Vec::new();
+    let mut current_offset = 0usize;
+
+    // First, place fields assigned to box1 (bytes 0-3)
+    for &field_idx in &box1_indices {
+        let (original_idx, size) = field_sizes[field_idx];
+        fields.push((original_idx, current_offset, size));
+        current_offset += size;
+    }
+
+    // Then, place fields assigned to box2 (bytes 4-6)
+    for &field_idx in &box2_indices {
+        let (original_idx, size) = field_sizes[field_idx];
+        fields.push((original_idx, current_offset, size));
         current_offset += size;
     }
 
@@ -92,6 +116,207 @@ pub fn calculate_inline_layout(ast: &AstStruct, schema: &Schema) -> Option<Inlin
     };
 
     Some(InlineLayout { mode, fields })
+}
+
+/// Find the optimal partition of fields into two boxes (4 bytes and 3 bytes)
+/// using subset-sum dynamic programming.
+///
+/// Returns (box1_field_indices, box2_field_indices) where indices refer to
+/// positions in the input `field_sizes` array.
+///
+/// Goal: Minimize boundary crossings by finding a subset that fits in box1 (≤4 bytes)
+/// with the remainder fitting in box2 (≤3 bytes).
+fn find_optimal_partition(
+    field_sizes: &[(usize, usize)],
+    total_size: usize,
+) -> (Vec<usize>, Vec<usize>) {
+    let n = field_sizes.len();
+
+    // Special case: all fits in box1
+    if total_size <= INLINE_DATA_U32_SIZE {
+        return ((0..n).collect(), Vec::new());
+    }
+
+    // Special case: empty
+    if n == 0 {
+        return (Vec::new(), Vec::new());
+    }
+
+    // DP to find all achievable subset sums ≤ 4
+    // dp[sum] = Some(bitmask) means we can achieve `sum` with the fields in `bitmask`
+    // We use Option<u32> since n is small (typically ≤ 6 fields)
+    let mut dp: Vec<Option<u32>> = vec![None; INLINE_DATA_U32_SIZE + 1];
+    dp[0] = Some(0); // Empty subset has sum 0
+
+    for (i, &(_, size)) in field_sizes.iter().enumerate() {
+        // Iterate in reverse to avoid using the same field twice
+        for sum in (size..=INLINE_DATA_U32_SIZE).rev() {
+            if let Some(prev_mask) = dp[sum - size]
+                && dp[sum].is_none()
+            {
+                dp[sum] = Some(prev_mask | (1 << i));
+            }
+        }
+    }
+
+    // Find the best valid partition:
+    // We need box1_sum ≤ 4 and box2_sum = (total - box1_sum) ≤ 3
+    // This means: box1_sum ≥ total - 3
+    let min_box1_sum = total_size.saturating_sub(INLINE_DATA_U24_SIZE);
+
+    // Find the smallest valid box1_sum (to leave more room for future optimizations)
+    // or any valid one
+    let best_mask = (min_box1_sum..=INLINE_DATA_U32_SIZE).find_map(|sum| dp[sum]);
+
+    match best_mask {
+        Some(mask) => {
+            // Partition based on the mask
+            let box1: Vec<usize> = (0..n).filter(|&i| mask & (1 << i) != 0).collect();
+            let box2: Vec<usize> = (0..n).filter(|&i| mask & (1 << i) == 0).collect();
+            (box1, box2)
+        }
+        None => {
+            // No perfect partition exists - fall back to sequential order
+            // This means at least one field will cross the boundary
+            // Find the best split point
+            find_minimal_split_partition(field_sizes, total_size)
+        }
+    }
+}
+
+/// Fallback when no perfect partition exists: find the partition that
+/// minimizes the number of boundary-crossing fields.
+fn find_minimal_split_partition(
+    field_sizes: &[(usize, usize)],
+    _total_size: usize,
+) -> (Vec<usize>, Vec<usize>) {
+    let n = field_sizes.len();
+
+    // Strategy: try to fit as many complete fields as possible in box1,
+    // then let one field cross the boundary, and put the rest in box2.
+    //
+    // We enumerate which single field will cross the boundary.
+    // For each choice, we use DP to check if the remaining fields can be
+    // perfectly partitioned.
+
+    let mut best_solution: Option<(Vec<usize>, Vec<usize>)> = None;
+    let mut best_wasted_space = usize::MAX;
+
+    // Try each field as the potential boundary-crossing field
+    for cross_idx in 0..n {
+        let cross_size = field_sizes[cross_idx].1;
+
+        // Remaining fields (excluding the crossing one)
+        let remaining: Vec<(usize, usize)> = field_sizes
+            .iter()
+            .enumerate()
+            .filter(|&(i, _)| i != cross_idx)
+            .map(|(i, &(orig, size))| (i, orig, size))
+            .collect::<Vec<_>>()
+            .into_iter()
+            .map(|(i, _, size)| (i, size))
+            .collect();
+
+        let remaining_total: usize = remaining.iter().map(|(_, s)| s).sum();
+
+        // The crossing field will occupy some bytes in box1 and some in box2
+        // We need to find how to arrange remaining fields around it
+
+        // For simplicity, try placing crossing field to start at various offsets
+        // and see if remaining fields fit
+
+        for cross_start in 0..=INLINE_DATA_U32_SIZE {
+            let cross_end = cross_start + cross_size;
+            if cross_end > INLINE_TOTAL_SIZE {
+                continue;
+            }
+
+            // Space available in box1 before the crossing field
+            let box1_available = cross_start;
+            // Space available in box2 after the crossing field
+            let box2_available = INLINE_TOTAL_SIZE - cross_end;
+
+            if box1_available + box2_available < remaining_total {
+                continue;
+            }
+
+            // Check if we can partition remaining fields into these two spaces
+            if let Some((before, after)) =
+                try_partition_remaining(&remaining, box1_available, box2_available)
+            {
+                let wasted = (box1_available + box2_available) - remaining_total;
+                if wasted < best_wasted_space {
+                    best_wasted_space = wasted;
+
+                    // Reconstruct the full solution
+                    // Order: fields before crossing, crossing field, fields after crossing
+                    let mut box1 = before;
+                    box1.push(cross_idx);
+                    best_solution = Some((box1, after));
+                }
+            }
+        }
+    }
+
+    best_solution.unwrap_or_else(|| {
+        // Ultimate fallback: just use sequential order
+        ((0..n).collect(), Vec::new())
+    })
+}
+
+/// Try to partition remaining fields into two spaces of given sizes
+fn try_partition_remaining(
+    remaining: &[(usize, usize)], // (original_idx_in_field_sizes, size)
+    space1: usize,
+    space2: usize,
+) -> Option<(Vec<usize>, Vec<usize>)> {
+    let n = remaining.len();
+    if n == 0 {
+        return Some((Vec::new(), Vec::new()));
+    }
+
+    // DP to find subset that fits in space1
+    let mut dp: Vec<Option<u32>> = vec![None; space1 + 1];
+    dp[0] = Some(0);
+
+    for (i, &(_, size)) in remaining.iter().enumerate() {
+        for sum in (size..=space1).rev() {
+            if let Some(prev_mask) = dp[sum - size]
+                && dp[sum].is_none()
+            {
+                dp[sum] = Some(prev_mask | (1 << i));
+            }
+        }
+    }
+
+    // Find any valid partition
+    (0..=space1).find_map(|sum| {
+        let mask = dp[sum]?;
+        let remaining_sum: usize = remaining
+            .iter()
+            .enumerate()
+            .filter(|&(i, _)| mask & (1 << i) == 0)
+            .map(|(_, (_, size))| size)
+            .sum();
+
+        if remaining_sum <= space2 {
+            let part1: Vec<usize> = remaining
+                .iter()
+                .enumerate()
+                .filter(|&(i, _)| mask & (1 << i) != 0)
+                .map(|(_, &(orig_idx, _))| orig_idx)
+                .collect();
+            let part2: Vec<usize> = remaining
+                .iter()
+                .enumerate()
+                .filter(|&(i, _)| mask & (1 << i) == 0)
+                .map(|(_, &(orig_idx, _))| orig_idx)
+                .collect();
+            Some((part1, part2))
+        } else {
+            None
+        }
+    })
 }
 
 /// Reserved word in Rust.
