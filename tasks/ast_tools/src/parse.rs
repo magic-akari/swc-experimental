@@ -1,4 +1,7 @@
-use std::{collections::HashSet, fs};
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+};
 
 use indexmap::IndexSet;
 use oxc_index::IndexVec;
@@ -41,6 +44,8 @@ pub fn parse_files(file_paths: &[&str]) -> Schema {
     // Collect declared enums and structs ahead of time and create their types
     let mut type_names = IndexSet::new();
     let mut prototypes = Vec::new();
+    let mut repr_sizes = HashMap::new();
+
     for source in file_paths {
         let content =
             fs::read_to_string(source).unwrap_or_else(|_| panic!("Cannot not find {source}"));
@@ -63,6 +68,11 @@ pub fn parse_files(file_paths: &[&str]) -> Schema {
                     }));
                 }
                 Item::Enum(item) => {
+                    // Collect #[repr(uN)] sizes for all enums (not just #[ast] enums)
+                    if let Some(size) = parse_repr_size(&item.attrs) {
+                        repr_sizes.insert(item.ident.to_string(), size);
+                    }
+
                     // Filter enums with #[ast]
                     let Some(attrs) = parse_attrs(&item.attrs) else {
                         continue;
@@ -109,7 +119,7 @@ pub fn parse_files(file_paths: &[&str]) -> Schema {
     }
 
     types.extend(parser.extra_types);
-    Schema { types }
+    Schema { types, repr_sizes }
 }
 
 impl Parser {
@@ -180,6 +190,32 @@ impl Parser {
         };
         self.create_new_type(type_def)
     }
+}
+
+/// Parse #[repr(uN)] attribute and return the size in bytes
+/// Handles whitespace and multiple repr arguments (e.g., `#[repr(C, u8)]`)
+fn parse_repr_size(attrs: &[Attribute]) -> Option<usize> {
+    for attr in attrs {
+        if let Meta::List(meta_list) = &attr.meta
+            && meta_list.path.is_ident("repr")
+        {
+            // Parse as comma-separated identifiers to handle `#[repr(C, u8)]`
+            if let Ok(args) =
+                meta_list.parse_args_with(Punctuated::<Ident, Comma>::parse_terminated)
+            {
+                for arg in args {
+                    match arg.to_string().as_str() {
+                        "u8" => return Some(1),
+                        "u16" => return Some(2),
+                        "u32" => return Some(4),
+                        "u64" => return Some(8),
+                        _ => continue,
+                    }
+                }
+            }
+        }
+    }
+    None
 }
 
 fn parse_attrs(attrs: &[Attribute]) -> Option<AstAttrs> {
