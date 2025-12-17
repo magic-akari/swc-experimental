@@ -1,7 +1,6 @@
 use std::fmt::Display;
 
-use num_bigint::BigInt;
-use swc_core::common::Span;
+use swc_core::common::{BytePos, Span};
 use swc_experimental_ecma_ast::AssignOp;
 
 use super::LexResult;
@@ -16,28 +15,13 @@ use crate::{
 pub enum TokenValue {
     /// unknown ident, jsx name and shebang
     Word(MaybeSubUtf8),
-    Template {
-        raw: MaybeSubUtf8,
-        cooked: LexResult<MaybeSubWtf8>,
-    },
+    Template(LexResult<MaybeSubWtf8>),
     // string, jsx text
-    Str {
-        value: MaybeSubWtf8,
-        raw: MaybeSubUtf8,
-    },
+    Str(MaybeSubWtf8),
     // regexp
-    Regex {
-        value: MaybeSubUtf8,
-        flags: MaybeSubUtf8,
-    },
-    Num {
-        value: f64,
-        raw: MaybeSubUtf8,
-    },
-    BigInt {
-        value: Box<num_bigint::BigInt>,
-        raw: MaybeSubUtf8,
-    },
+    Regex(BytePos),
+    Num(f64),
+    BigInt(Box<num_bigint::BigInt>),
     Error(crate::error::Error),
 }
 
@@ -340,47 +324,32 @@ impl<'a> Token {
     }
 
     #[inline(always)]
-    pub fn str(value: MaybeSubWtf8, raw: MaybeSubUtf8, lexer: &mut crate::Lexer<'a>) -> Self {
-        lexer.set_token_value(Some(TokenValue::Str { value, raw }));
+    pub fn str(value: MaybeSubWtf8, lexer: &mut crate::Lexer<'a>) -> Self {
+        lexer.set_token_value(Some(TokenValue::Str(value)));
         Token::Str
     }
 
     #[inline(always)]
-    pub fn template(
-        cooked: LexResult<MaybeSubWtf8>,
-        raw: MaybeSubUtf8,
-        lexer: &mut crate::Lexer<'a>,
-    ) -> Self {
-        lexer.set_token_value(Some(TokenValue::Template { cooked, raw }));
+    pub fn template(cooked: LexResult<MaybeSubWtf8>, lexer: &mut crate::Lexer<'a>) -> Self {
+        lexer.set_token_value(Some(TokenValue::Template(cooked)));
         Token::Template
     }
 
     #[inline(always)]
-    pub fn regexp(
-        content: MaybeSubUtf8,
-        flags: MaybeSubUtf8,
-        lexer: &mut crate::Lexer<'a>,
-    ) -> Self {
-        lexer.set_token_value(Some(TokenValue::Regex {
-            value: content,
-            flags,
-        }));
+    pub fn regexp(exp_end: BytePos, lexer: &mut crate::Lexer<'a>) -> Self {
+        lexer.set_token_value(Some(TokenValue::Regex(exp_end)));
         Token::Regex
     }
 
     #[inline(always)]
-    pub fn num(value: f64, raw: MaybeSubUtf8, lexer: &mut crate::Lexer<'a>) -> Self {
-        lexer.set_token_value(Some(TokenValue::Num { value, raw }));
+    pub fn num(value: f64, lexer: &mut crate::Lexer<'a>) -> Self {
+        lexer.set_token_value(Some(TokenValue::Num(value)));
         Self::Num
     }
 
     #[inline(always)]
-    pub fn bigint(
-        value: Box<num_bigint::BigInt>,
-        raw: MaybeSubUtf8,
-        lexer: &mut crate::Lexer<'a>,
-    ) -> Self {
-        lexer.set_token_value(Some(TokenValue::BigInt { value, raw }));
+    pub fn bigint(value: Box<num_bigint::BigInt>, lexer: &mut crate::Lexer<'a>) -> Self {
+        lexer.set_token_value(Some(TokenValue::BigInt(value)));
         Self::BigInt
     }
 
@@ -393,21 +362,6 @@ impl<'a> Token {
     #[inline(always)]
     pub fn take_error<I: Tokens>(self, buffer: &mut Buffer<I>) -> Error {
         buffer.expect_error_token_value()
-    }
-
-    #[inline(always)]
-    pub fn take_str<I: Tokens>(self, buffer: &mut Buffer<I>) -> (MaybeSubWtf8, MaybeSubUtf8) {
-        buffer.expect_string_token_value()
-    }
-
-    #[inline(always)]
-    pub fn take_num<I: Tokens>(self, buffer: &mut Buffer<I>) -> (f64, MaybeSubUtf8) {
-        buffer.expect_number_token_value()
-    }
-
-    #[inline(always)]
-    pub fn take_bigint<I: Tokens>(self, buffer: &mut Buffer<I>) -> (Box<BigInt>, MaybeSubUtf8) {
-        buffer.expect_bigint_token_value()
     }
 
     #[inline]
@@ -427,29 +381,9 @@ impl<'a> Token {
     }
 
     #[inline(always)]
-    pub fn take_template<I: Tokens>(
-        self,
-        buffer: &mut Buffer<I>,
-    ) -> (LexResult<MaybeSubWtf8>, MaybeSubUtf8) {
-        buffer.expect_template_token_value()
-    }
-
-    #[inline(always)]
-    pub fn jsx_text(value: MaybeSubWtf8, raw: MaybeSubUtf8, lexer: &mut Lexer) -> Self {
-        lexer.set_token_value(Some(TokenValue::Str { value, raw }));
+    pub fn jsx_text(value: MaybeSubWtf8, lexer: &mut Lexer) -> Self {
+        lexer.set_token_value(Some(TokenValue::Str(value)));
         Token::JSXText
-    }
-
-    #[inline(always)]
-    pub fn take_jsx_text<I: Tokens>(self, buffer: &mut Buffer<I>) -> (MaybeSubWtf8, MaybeSubUtf8) {
-        let (value, raw) = buffer.expect_string_token_value();
-        // SAFETY: We set value as Atom in `jsx_text` method.
-        (value, raw)
-    }
-
-    #[inline(always)]
-    pub fn take_regexp<I: Tokens>(self, buffer: &mut Buffer<I>) -> (MaybeSubUtf8, MaybeSubUtf8) {
-        buffer.expect_regex_token_value()
     }
 
     #[inline(always)]
@@ -779,8 +713,8 @@ impl Display for Token {
             Token::DotDotDot => "...",
             Token::PlusPlus => "++",
             Token::MinusMinus => "--",
-            Token::PlusEq => "+",
-            Token::MinusEq => "-",
+            Token::PlusEq => "+=",
+            Token::MinusEq => "-=",
             Token::MulEq => "*",
             Token::DivEq => "/=",
             Token::ModEq => "%=",

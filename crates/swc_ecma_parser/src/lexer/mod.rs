@@ -4,6 +4,7 @@ use std::{borrow::Cow, char, iter::FusedIterator};
 
 use either::Either::{self, Left, Right};
 use num_bigint::BigInt as BigIntValue;
+use rustc_hash::FxHashMap;
 use smartstring::{LazyCompact, SmartString};
 use swc_core::atoms::{Atom, wtf8::CodePoint};
 use swc_core::common::{
@@ -105,7 +106,7 @@ impl From<UnicodeEscape> for CodePoint {
 }
 
 pub type LexResult<T> = Result<T, crate::error::Error>;
-type NumberEither = Either<(f64, MaybeSubUtf8), (Box<BigIntValue>, MaybeSubUtf8)>;
+type NumberEither = Either<f64, Box<BigIntValue>>;
 
 fn remove_underscore(s: &str, has_underscore: bool) -> Cow<'_, str> {
     if has_underscore {
@@ -398,7 +399,6 @@ impl Lexer<'_> {
         let mut cooked = Ok(self.string_allocator.alloc_wtf8());
         self.bump(1); // `}` or `\``
         let mut cooked_slice_start = self.cur_pos();
-        let raw_slice_start = cooked_slice_start;
         macro_rules! consume_cooked {
             () => {{
                 if let Ok(cooked) = &mut cooked {
@@ -417,27 +417,25 @@ impl Lexer<'_> {
             if c == b'`' {
                 consume_cooked!();
                 let cooked = cooked.map(|cooked| cooked.finish(&mut self.string_allocator));
-                let raw = MaybeSubUtf8::new_from_source(raw_slice_start, self.cur_pos());
                 self.bump(1);
                 return Ok(if started_with_backtick {
-                    self.set_token_value(Some(TokenValue::Template { raw, cooked }));
+                    self.set_token_value(Some(TokenValue::Template(cooked)));
                     Token::NoSubstitutionTemplateLiteral
                 } else {
-                    self.set_token_value(Some(TokenValue::Template { raw, cooked }));
+                    self.set_token_value(Some(TokenValue::Template(cooked)));
                     Token::TemplateTail
                 });
             } else if c == b'$' && self.input.peek_2() == Some(b'{') {
                 consume_cooked!();
                 let cooked = cooked.map(|cooked| cooked.finish(&mut self.string_allocator));
-                let raw = MaybeSubUtf8::new_from_source(raw_slice_start, self.cur_pos());
 
                 // Safety: `self.input.peek_2() == Some(b'{')`
                 self.bump(2);
                 return Ok(if started_with_backtick {
-                    self.set_token_value(Some(TokenValue::Template { raw, cooked }));
+                    self.set_token_value(Some(TokenValue::Template(cooked)));
                     Token::TemplateHead
                 } else {
-                    self.set_token_value(Some(TokenValue::Template { raw, cooked }));
+                    self.set_token_value(Some(TokenValue::Template(cooked)));
                     Token::TemplateMiddle
                 });
             } else if c == b'\\' {
@@ -1008,9 +1006,8 @@ impl<'a> Lexer<'a> {
             if (!START_WITH_ZERO || lazy_integer.end - lazy_integer.start == BytePos(1))
                 && self.eat(b'n')
             {
-                let raw = MaybeSubUtf8::new_from_source(start, self.cur_pos());
                 let bigint_value = num_bigint::BigInt::parse_bytes(s.as_bytes(), 10).unwrap();
-                return Ok(Either::Right((Box::new(bigint_value), raw)));
+                return Ok(Either::Right(Box::new(bigint_value)));
             }
 
             if START_WITH_ZERO {
@@ -1024,10 +1021,7 @@ impl<'a> Lexer<'a> {
                     //
                     // e.g. `000` is octal
                     if start.0 != self.last_pos().0 - 1 {
-                        let raw = MaybeSubUtf8::new_from_source(start, self.cur_pos());
-                        return self
-                            .make_legacy_octal(start, 0f64)
-                            .map(|value| Either::Left((value, raw)));
+                        return self.make_legacy_octal(start, 0f64).map(Either::Left);
                     }
                 } else if lazy_integer.not_octal {
                     // if it contains '8' or '9', it's decimal.
@@ -1036,10 +1030,7 @@ impl<'a> Lexer<'a> {
                     // It's Legacy octal, and we should reinterpret value.
                     let s = remove_underscore(s, lazy_integer.has_underscore);
                     let val = parse_integer::<8>(&s);
-                    let raw = MaybeSubUtf8::new_from_source(start, self.cur_pos());
-                    return self
-                        .make_legacy_octal(start, val)
-                        .map(|value| Either::Left((value, raw)));
+                    return self.make_legacy_octal(start, val).map(Either::Left);
                 }
             }
 
@@ -1105,8 +1096,7 @@ impl<'a> Lexer<'a> {
 
         self.ensure_not_ident()?;
 
-        let raw_str = MaybeSubUtf8::new_from_source(start, self.cur_pos());
-        Ok(Either::Left((val, raw_str)))
+        Ok(Either::Left(val))
     }
 
     fn read_int_u32<const RADIX: u8>(&mut self, len: u8) -> LexResult<Option<u32>> {
@@ -1144,7 +1134,6 @@ impl<'a> Lexer<'a> {
             RADIX == 2 || RADIX == 8 || RADIX == 16,
             "radix should be one of 2, 8, 16, but got {RADIX}"
         );
-        let start = self.cur_pos();
 
         debug_assert_eq!(self.peek(), Some(b'0'));
         self.bump(1);
@@ -1163,17 +1152,15 @@ impl<'a> Lexer<'a> {
             self.input_slice_to_cur(lazy_integer.start)
         };
         if self.eat(b'n') {
-            let raw = MaybeSubUtf8::new_from_source(start, self.cur_pos());
             let bigint_value = num_bigint::BigInt::parse_bytes(s.as_bytes(), RADIX as _).unwrap();
-            return Ok(Either::Right((Box::new(bigint_value), raw)));
+            return Ok(Either::Right(Box::new(bigint_value)));
         }
         let s = remove_underscore(s, has_underscore);
         let val = parse_integer::<RADIX>(&s);
 
         self.ensure_not_ident()?;
 
-        let raw = MaybeSubUtf8::new_from_source(start, self.cur_pos());
-        Ok(Either::Left((val, raw)))
+        Ok(Either::Left(val))
     }
 
     /// Consume pending comments.
@@ -1380,8 +1367,7 @@ impl<'a> Lexer<'a> {
             self.bump(1);
         }
 
-        let raw = MaybeSubUtf8::new_from_source(start, self.cur_pos());
-        Ok(Token::str(value, raw, self))
+        Ok(Token::str(value, self))
     }
 
     // Modified based on <https://github.com/oxc-project/oxc/blob/f0e1510b44efdb1b0d9a09f950181b0e4c435abe/crates/oxc_parser/src/lexer/unicode.rs#L237>
@@ -1672,7 +1658,7 @@ impl<'a> Lexer<'a> {
     /// Expects current char to be '/'
     fn read_regexp(&mut self, start: BytePos) -> LexResult<Token> {
         unsafe {
-            // Safety: start is valid position, and cur() is Some('/')
+            // Safety: start is valid position, and peek() is Some('/')
             self.input_mut().reset_to(start);
         }
 
@@ -1681,8 +1667,6 @@ impl<'a> Lexer<'a> {
         let start = self.cur_pos();
 
         self.bump(1); // bump '/'
-
-        let slice_start = self.cur_pos();
 
         let (mut escaped, mut in_class) = (false, false);
 
@@ -1715,12 +1699,11 @@ impl<'a> Lexer<'a> {
             self.bump(c.len_utf8());
         }
 
-        let content = MaybeSubUtf8::new_from_source(slice_start, self.cur_pos());
+        let exp_end = self.cur_pos();
 
         // input is terminated without following `/`
         if !self.is(b'/') {
             let span = self.span(start);
-
             return Err(crate::error::Error::new(
                 span,
                 SyntaxError::UnterminatedRegExp,
@@ -1742,7 +1725,33 @@ impl<'a> Lexer<'a> {
             }
         }?;
 
-        Ok(Token::regexp(content, flags, self))
+        let flags = self.get_maybe_sub_utf8(flags);
+        if !flags.is_empty() {
+            let mut flags_count =
+                flags
+                    .chars()
+                    .fold(FxHashMap::<char, usize>::default(), |mut map, flag| {
+                        let key = match flag {
+                            // https://tc39.es/ecma262/#sec-isvalidregularexpressionliteral
+                            'd' | 'g' | 'i' | 'm' | 's' | 'u' | 'v' | 'y' => flag,
+                            _ => '\u{0000}', // special marker for unknown flags
+                        };
+                        map.entry(key).and_modify(|count| *count += 1).or_insert(1);
+                        map
+                    });
+
+            if flags_count.remove(&'\u{0000}').is_some() {
+                let span = self.span(start);
+                self.emit_error_span(span, SyntaxError::UnknownRegExpFlags);
+            }
+
+            if let Some((flag, _)) = flags_count.iter().find(|(_, count)| **count > 1) {
+                let span = self.span(start);
+                self.emit_error_span(span, SyntaxError::DuplicatedRegExpFlags(*flag));
+            }
+        }
+
+        Ok(Token::regexp(exp_end, self))
     }
 
     /// This method is optimized for texts without escape sequences.
@@ -1926,7 +1935,7 @@ impl<'a> Lexer<'a> {
         };
         if next.is_ascii_digit() {
             return self.read_number::<true, false>().map(|v| match v {
-                Left((value, raw)) => Token::num(value, raw, self),
+                Left(value) => Token::num(value, self),
                 Right(_) => unreachable!("read_number should not return bigint for leading dot"),
             });
         }
@@ -1980,15 +1989,15 @@ impl<'a> Lexer<'a> {
             Some(b'b') | Some(b'B') => self.read_radix_number::<2>(),
             _ => {
                 return self.read_number::<false, true>().map(|v| match v {
-                    Left((value, raw)) => Token::num(value, raw, self),
-                    Right((value, raw)) => Token::bigint(value, raw, self),
+                    Left(value) => Token::num(value, self),
+                    Right(value) => Token::bigint(value, self),
                 });
             }
         };
 
         bigint.map(|v| match v {
-            Left((value, raw)) => Token::num(value, raw, self),
-            Right((value, raw)) => Token::bigint(value, raw, self),
+            Left(value) => Token::num(value, self),
+            Right(value) => Token::bigint(value, self),
         })
     }
 
@@ -2137,9 +2146,7 @@ impl<'a> Lexer<'a> {
 
                     self.emit_error(start, SyntaxError::UnterminatedStrLit);
 
-                    let end = self.cur_pos();
-                    let raw = MaybeSubUtf8::new_from_source(start, end);
-                    return Ok(Token::str(s, raw, self));
+                    return Ok(Token::str(s, self));
                 },
             };
             // dbg!(char::from_u32(fast_path_result as u32));
@@ -2164,9 +2171,7 @@ impl<'a> Lexer<'a> {
 
                     self.bump(1);
 
-                    let end = self.cur_pos();
-                    let raw = MaybeSubUtf8::new_from_source(start, end);
-                    return Ok(Token::str(value, raw, self));
+                    return Ok(Token::str(value, self));
                 }
                 b'\\' => {
                     let end = self.cur_pos();
@@ -2201,10 +2206,7 @@ impl<'a> Lexer<'a> {
 
                     self.emit_error(start, SyntaxError::UnterminatedStrLit);
 
-                    let end = self.cur_pos();
-
-                    let raw = MaybeSubUtf8::new_from_source(start, end);
-                    return Ok(Token::str(s, raw, self));
+                    return Ok(Token::str(s, self));
                 }
                 _ => self.bump(1),
             }
