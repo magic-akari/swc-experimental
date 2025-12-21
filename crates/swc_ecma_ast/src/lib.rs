@@ -82,7 +82,7 @@ impl From<U24> for u32 {
 pub struct AstNode {
     span: Span,
     kind: NodeKind,
-    inline_data: U24,
+    _inline_data: U24,
     data: NodeData,
 }
 
@@ -127,7 +127,7 @@ pub union NodeData {
 /// It is only access the by the property accesses of typed AST node, and the construction of typed AST is
 /// another safety guarantee.
 pub union ExtraData {
-    span: Span,
+    // Ids
     node: NodeId,
     bigint: BigIntId,
     utf8: Utf8Ref,
@@ -136,10 +136,39 @@ pub union ExtraData {
     optional_utf8: OptionalUtf8Ref,
     optional_wtf8: OptionalWtf8Ref,
 
+    // Primitives
+    span: Span,
     bool: bool,
     number: f64,
     sub_range: SubRange,
     optional_sub_range: OptionalSubRange,
+
+    // Typed enums
+    expr: Expr,
+    stmt: Stmt,
+    decl: Decl,
+    pat: Pat,
+    default_decl: DefaultDecl,
+    opt_chain_base: OptChainBase,
+    module_export_name: ModuleExportName,
+    for_head: ForHead,
+    member_prop: MemberProp,
+    super_prop: SuperProp,
+    callee: Callee,
+    block_stmt_or_expr: BlockStmtOrExpr,
+    prop_name: PropName,
+    key: Key,
+    jsx_object: JSXObject,
+    jsx_element_name: JSXElementName,
+    jsx_attr_name: JSXAttrName,
+    jsx_expr: JSXExpr,
+
+    optional_expr: Option<Expr>,
+    optional_pat: Option<Pat>,
+    optional_stmt: Option<Stmt>,
+    optional_module_export_name: Option<ModuleExportName>,
+    optional_var_decl_or_expr: Option<VarDeclOrExpr>,
+    optional_jsx_attr_value: Option<JSXAttrValue>,
 
     /// Any other data (usually enum) that can be representated within 8 bytes
     other: u64,
@@ -469,7 +498,9 @@ impl Ast {
 
     #[inline]
     pub fn replace_node<T: NodeIdTrait>(&mut self, dest: T, source: T) {
-        self.nodes.replace_node(dest.node_id(), source.node_id());
+        if source.node_id() != dest.node_id() {
+            self.nodes.replace_node(dest.node_id(), source.node_id());
+        }
     }
 
     #[inline]

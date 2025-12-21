@@ -85,7 +85,7 @@ fn generate_build_function_inline(
                 #ret_ty(self.add_node(AstNode {
                     span,
                     kind: NodeKind::#ret_ty,
-                    inline_data: 0u32.into(),
+                    _inline_data: 0u32.into(),
                     data: NodeData { empty: () },
                 }))
             }
@@ -115,7 +115,7 @@ fn generate_build_function_inline(
                     self.add_node(AstNode {
                         span,
                         kind: NodeKind::#ret_ty,
-                        inline_data: 0u32.into(),
+                        _inline_data: 0u32.into(),
                         data: NodeData {
                             inline_data: #u32_value,
                         },
@@ -180,7 +180,7 @@ fn generate_build_function_inline(
                         self.add_node(AstNode {
                             span,
                             kind: NodeKind::#ret_ty,
-                            inline_data: 0u32.into(),
+                            _inline_data: 0u32.into(),
                             data: NodeData {
                                 inline_data: 0u32 #pack_u32,
                             },
@@ -197,7 +197,7 @@ fn generate_build_function_inline(
                         self.add_node(AstNode {
                             span,
                             kind: NodeKind::#ret_ty,
-                            inline_data: (0u32 #pack_u24).into(),
+                            _inline_data: (0u32 #pack_u24).into(),
                             data: NodeData {
                                 inline_data: 0u32 #pack_u32,
                             },
@@ -229,12 +229,17 @@ fn generate_build_function_extra_data(
                 let inner_ty = &schema.types[ast_option.inner_type_id];
                 match inner_ty {
                     AstType::Vec(_) => quote!(#field_name.map(|n| n.inner).into()),
+                    AstType::Enum(_) => quote!(#field_name),
                     _ => quote!(#field_name.map(|n| n.node_id()).into()),
                 }
             }
-            AstType::Struct(_) | AstType::Enum(_) => {
+            AstType::Struct(_) => {
                 quote!( #field_name.node_id() )
             }
+            AstType::Enum(ast_enum) if ast_enum.name == "AssignTarget" => {
+                quote!( #field_name.node_id().into() )
+            }
+            AstType::Enum(_) => quote!( #field_name ),
             _ if extra_data_field == "other" => quote!( #field_name.to_extra_data() ),
             _ => quote!( #field_name.into() ),
         };
@@ -259,7 +264,7 @@ fn generate_build_function_extra_data(
                 self.add_node(AstNode {
                     span,
                     kind: NodeKind::#ret_ty,
-                    inline_data: 0u32.into(),
+                    _inline_data: 0u32.into(),
                     data: NodeData {
                         #node_data
                     },

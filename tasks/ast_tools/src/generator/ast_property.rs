@@ -25,7 +25,7 @@ pub fn ast_property(schema: &Schema) -> RawOutput {
     }
 
     let output = quote! {
-            #![allow(unused, clippy::useless_conversion, clippy::identity_op, clippy::erasing_op)]
+            #![allow(unused, clippy::useless_conversion, clippy::identity_op, clippy::erasing_op, clippy::let_and_return)]
             use crate::{node_id::*, ast::*};
 
             #impls
@@ -378,6 +378,9 @@ fn generate_extra_data_property_accessors(
                     AstType::Vec(_) => {
                         quote!(unsafe { ret.cast_to_typed().to_option() })
                     }
+                    AstType::Enum(_) => {
+                        quote!(ret)
+                    }
                     _ => {
                         let field_inner_ident = schema.types[ast.inner_type_id].repr_ident(schema);
                         quote!( ret.map(|id| unsafe { #field_inner_ident::from_node_id_unchecked(id, ast) }) )
@@ -385,12 +388,23 @@ fn generate_extra_data_property_accessors(
                 };
                 (option_field_ident, cast_expr)
             }
-            AstType::Struct(_) | AstType::Enum(_) => {
+            AstType::Struct(_) => {
                 let field_inner_ty = field_ty.repr_ident(schema);
                 (
                     field_inner_ty.clone(),
                     quote!( unsafe { #field_inner_ty::from_node_id_unchecked(ret, ast) }),
                 )
+            }
+            AstType::Enum(ast_enum) if ast_enum.name == "AssignTarget" => {
+                let field_inner_ty = field_ty.repr_ident(schema);
+                (
+                    field_inner_ty.clone(),
+                    quote!( unsafe { #field_inner_ty::from_node_id_unchecked(ret, ast) }),
+                )
+            }
+            AstType::Enum(_) => {
+                let field_inner_ty = field_ty.repr_ident(schema);
+                (field_inner_ty.clone(), quote!(ret))
             }
             _ if extra_data_name == "other" => {
                 let field_ty = field_ty.repr_ident(schema);
@@ -417,10 +431,15 @@ fn generate_extra_data_property_accessors(
                 let inner_ty = &schema.types[ast_option.inner_type_id];
                 match inner_ty {
                     AstType::Vec(_) => quote!(#field_name.map(|n| n.inner).into()),
+                    AstType::Enum(_) => quote!(#field_name),
                     _ => quote!(#field_name.map(|n| n.node_id()).into()),
                 }
             }
-            AstType::Struct(_) | AstType::Enum(_) => quote!(#field_name.node_id().into()),
+            AstType::Struct(_) => quote!(#field_name.node_id().into()),
+            AstType::Enum(ast_enum) if ast_enum.name == "AssignTarget" => {
+                quote!(#field_name.node_id().into())
+            }
+            AstType::Enum(_) => quote!(#field_name),
             _ if extra_data_name == "other" => {
                 quote!(#field_name.to_extra_data())
             }
