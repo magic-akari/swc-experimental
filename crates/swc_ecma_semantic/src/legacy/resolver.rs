@@ -125,22 +125,46 @@ const LOG: bool = false && cfg!(debug_assertions);
 /// both of them have the same name, so the `(Atom, SyntaxContext)` pair will
 /// be also identical.
 pub fn resolver<'ast, N: VisitWith<Resolver<'ast>>>(root: N, ast: &'ast Ast) -> Semantic {
-    let top_level_scope = Scope::new(ScopeKind::Fn, None);
-    let mut scopes = IndexVec::default();
-    // Empty scope for unresolved placeholder
-    let unresolved_scope_id = scopes.push(Scope::new(ScopeKind::Fn, None));
-    let top_level_scope_id = scopes.push(top_level_scope);
-
+    // Count ast nodes
     let node_cap = ast.nodes_capacity();
     let mut parent_ids = IndexVec::with_capacity(node_cap);
     parent_ids.resize(node_cap, NodeId::from_raw(0));
+
+    // Count the specified nodes to preallocate maps
+    let mut symbol_count = 0;
+    let mut block_count = 0;
+    let mut scope_count = 0;
+    for (_, node) in ast.nodes() {
+        match node.kind() {
+            NodeKind::Ident => symbol_count += 1,
+            NodeKind::Function => block_count += 1,
+            NodeKind::BlockStmt => {
+                block_count += 1;
+                scope_count += 1;
+            }
+            NodeKind::Class
+            | NodeKind::ForInStmt
+            | NodeKind::ForOfStmt
+            | NodeKind::ForStmt
+            | NodeKind::ObjectLit
+            | NodeKind::SwitchStmt => scope_count += 1,
+            _ => {}
+        }
+    }
+
+    let top_level_scope = Scope::new(ScopeKind::Fn, None);
+    let mut scopes = IndexVec::with_capacity(scope_count);
+
+    // Empty scope for unresolved placeholder
+    let unresolved_scope_id = scopes.push(Scope::new(ScopeKind::Fn, None));
+    let top_level_scope_id = scopes.push(top_level_scope);
 
     let mut resolver = Resolver {
         ast,
         current_node_id: NodeId::from_raw(0),
         parent_ids,
-        symbol_scopes: FxHashMap::default(),
-        block_scopes: FxHashMap::default(),
+        symbol_scopes: FxHashMap::with_capacity_and_hasher(symbol_count, Default::default()),
+        block_scopes: FxHashMap::with_capacity_and_hasher(block_count, Default::default()),
         scopes,
 
         top_level_scope_id,
