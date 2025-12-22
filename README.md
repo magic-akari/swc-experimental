@@ -13,9 +13,9 @@ See [codspeed](https://codspeed.io/CPunisher/swc-experimental/benchmarks) for co
 
 Local benchmark results with M3Pro:
 
-- Parser: **1.35x-1.60x** faster.
-- Pre-order visit: **0.45-0.70x** slower.
-- Post-order visit: Compared to legacy pre-order visitor, **7-40x** faster.
+- Parser: **1.2x-1.5x** faster.
+- Pre-order visit: **0.8x** slower.
+- Post-order visit: Compared to legacy pre-order visitor, **20x** faster.
 
 ## Roadmap
 
