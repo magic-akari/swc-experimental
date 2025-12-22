@@ -6,7 +6,7 @@ keywords.workspace    = true
 license.workspace     = true
 name                  = "swc_experimental_ecma_ast"
 repository.workspace  = true
-version               = "0.3.3"
+version               = "0.3.4"
 
 [dependencies]
 num-bigint       = { workspace = true }
