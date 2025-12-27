@@ -10,6 +10,7 @@ mod visit;
 mod generated {
     mod ast_builder;
     mod ast_clone_in;
+    pub(crate) mod ast_extra_compact;
     mod ast_node_id;
     mod ast_property;
     pub(crate) mod ast_visitor;
@@ -27,8 +28,8 @@ pub use common::*;
 pub use derive::*;
 pub use generated::ast_visitor::*;
 pub use node_id::{
-    BigIntId, ExtraDataId, NodeId, NodeIdTrait, OptionalNodeId, OptionalUtf8Ref, OptionalWtf8Ref,
-    SubRange, TypedSubRange, Utf8Ref, Wtf8Ref,
+    BigIntId, ExtraDataCompact, ExtraDataId, NodeId, NodeIdTrait, OptionalNodeId, OptionalUtf8Ref,
+    OptionalWtf8Ref, SubRange, TypedSubRange, Utf8Ref, Wtf8Ref,
 };
 
 use crate::{ast_list::NodeList, node_id::OptionalSubRange, string_allocator::StringAllocator};
@@ -126,6 +127,7 @@ pub union NodeData {
 /// # Safety:
 /// It is only access the by the property accesses of typed AST node, and the construction of typed AST is
 /// another safety guarantee.
+#[derive(Clone, Copy)]
 pub union ExtraData {
     // Ids
     node: NodeId,
@@ -144,6 +146,8 @@ pub union ExtraData {
     optional_sub_range: OptionalSubRange,
 
     // Typed enums
+    program: Program,
+    module_decl: ModuleDecl,
     expr: Expr,
     stmt: Stmt,
     decl: Decl,
@@ -162,6 +166,20 @@ pub union ExtraData {
     jsx_element_name: JSXElementName,
     jsx_attr_name: JSXAttrName,
     jsx_expr: JSXExpr,
+    var_decl_or_expr: VarDeclOrExpr,
+    import_specifier: ImportSpecifier,
+    export_specifier: ExportSpecifier,
+    prop_or_spread: PropOrSpread,
+    assign_target_pat: AssignTargetPat,
+    simple_assign_target: SimpleAssignTarget,
+    param_or_ts_param_prop: ParamOrTsParamProp,
+    class_member: ClassMember,
+    prop: Prop,
+    object_pat_prop: ObjectPatProp,
+    lit: Lit,
+    jsx_attr_or_spread: JSXAttrOrSpread,
+    jsx_attr_value: JSXAttrValue,
+    jsx_element_child: JSXElementChild,
 
     optional_expr: Option<Expr>,
     optional_pat: Option<Pat>,
@@ -405,27 +423,13 @@ impl Ast {
     }
 
     #[inline]
-    pub fn add_typed_sub_range<N: NodeIdTrait>(&mut self, range: &[NodeId]) -> TypedSubRange<N> {
-        let start = self.extra_data.next_idx();
-        self.extra_data
-            .extend(range.iter().map(|n| ExtraData { node: *n }));
-        TypedSubRange {
-            inner: SubRange {
-                start,
-                end: self.extra_data.next_idx(),
-            },
-            _phantom: PhantomData,
-        }
-    }
-
-    #[inline]
-    pub fn add_typed_opt_sub_range<N: NodeIdTrait>(
+    pub fn add_typed_sub_range<N: ExtraDataCompact, I: IntoIterator<Item = N>>(
         &mut self,
-        range: &[OptionalNodeId],
-    ) -> TypedSubRange<Option<N>> {
+        iter: I,
+    ) -> TypedSubRange<N> {
         let start = self.extra_data.next_idx();
         self.extra_data
-            .extend(range.iter().map(|n| ExtraData { optional_node: *n }));
+            .extend(iter.into_iter().map(|n| n.to_extra_data()));
         TypedSubRange {
             inner: SubRange {
                 start,

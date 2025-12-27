@@ -1,6 +1,9 @@
 use std::{marker::PhantomData, ops::Deref};
 
-use crate::{Ast, AstNode, NodeIdTrait, node_id::ExtraDataId};
+use crate::{
+    Ast, AstNode,
+    node_id::{ExtraDataCompact, ExtraDataId},
+};
 
 pub const EMPTY_SUB_RANGE: SubRange = SubRange {
     start: ExtraDataId::from_raw(0),
@@ -25,11 +28,6 @@ impl SubRange {
             _phantom: PhantomData,
         }
     }
-
-    #[inline]
-    pub fn is_empty(&self) -> bool {
-        self.start == self.end
-    }
 }
 
 /// An 8 bytes optimized version of `Option<SubRange>` (12 bytes).
@@ -42,12 +40,10 @@ pub struct OptionalSubRange {
 }
 
 impl OptionalSubRange {
-    /// # Safety:
-    /// 1. The caller should make sure that the nodes in the range are all of type `T`.
-    pub(crate) unsafe fn cast_to_typed<T>(self) -> OptionalTypedSubRange<T> {
-        OptionalTypedSubRange {
-            inner: self,
-            _phantom: PhantomData,
+    pub const fn new_some(sub_range: SubRange) -> Self {
+        Self {
+            start: sub_range.start,
+            end: sub_range.end,
         }
     }
 
@@ -58,34 +54,21 @@ impl OptionalSubRange {
         }
     }
 
-    pub const fn is_none(&self) -> bool {
-        self.end.raw() == u32::MAX
-    }
-
-    pub const fn unwrap(self) -> SubRange {
-        assert!(!self.is_none());
-        SubRange {
+    pub const fn to_option(self) -> Option<SubRange> {
+        if self.end.raw() == u32::MAX {
+            return None;
+        }
+        Some(SubRange {
             start: self.start,
             end: self.end,
-        }
+        })
     }
-}
 
-impl From<SubRange> for OptionalSubRange {
-    fn from(value: SubRange) -> Self {
-        Self {
-            start: value.start,
-            end: value.end,
-        }
-    }
-}
-
-impl From<Option<SubRange>> for OptionalSubRange {
-    fn from(value: Option<SubRange>) -> Self {
-        match value {
-            Some(value) => value.into(),
-            None => OptionalSubRange::new_none(),
-        }
+    /// # Safety:
+    /// 1. The caller should make sure that the nodes in the range are all of type `T`.
+    pub(crate) unsafe fn cast_to_typed<T>(self) -> Option<TypedSubRange<T>> {
+        self.to_option()
+            .map(|sub_range| unsafe { sub_range.cast_to_typed() })
     }
 }
 
@@ -187,37 +170,11 @@ impl<T> TypedSubRange<T> {
     }
 }
 
-impl<T> From<TypedSubRange<T>> for SubRange {
-    fn from(value: TypedSubRange<T>) -> Self {
-        value.inner
-    }
-}
 impl<T> Deref for TypedSubRange<T> {
     type Target = SubRange;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
-    }
-}
-
-/// An 8 bytes optimized version of `Option<TypedSubRange<T>>` (12 bytes).
-///
-/// We regard it as `None` if `OptionalTypedSubRange::end` is `u32::MAX`.
-#[derive(Debug, Clone, Copy, Hash)]
-pub struct OptionalTypedSubRange<T> {
-    pub(crate) inner: OptionalSubRange,
-    pub(crate) _phantom: PhantomData<T>,
-}
-
-impl<T> OptionalTypedSubRange<T> {
-    pub const fn to_option(&self) -> Option<TypedSubRange<T>> {
-        if self.inner.is_none() {
-            return None;
-        }
-        Some(TypedSubRange {
-            inner: self.inner.unwrap(),
-            _phantom: PhantomData,
-        })
     }
 }
 
@@ -227,7 +184,7 @@ pub struct TypedSubRangeIterator<T> {
     _phantom: PhantomData<T>,
 }
 
-impl<T: NodeIdTrait> Iterator for TypedSubRangeIterator<T> {
+impl<T: ExtraDataCompact> Iterator for TypedSubRangeIterator<T> {
     type Item = NodeExtraDataId<T>;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -248,47 +205,7 @@ impl<T: NodeIdTrait> Iterator for TypedSubRangeIterator<T> {
     }
 }
 
-impl<T: NodeIdTrait> DoubleEndedIterator for TypedSubRangeIterator<T> {
-    fn next_back(&mut self) -> Option<Self::Item> {
-        if self.cur == self.end {
-            return None;
-        }
-
-        self.end = ExtraDataId::from_usize_unchecked(self.end.index().wrapping_sub(1));
-        debug_assert!(self.cur <= self.end);
-
-        let next = self.end;
-        debug_assert!(next >= self.cur);
-
-        Some(NodeExtraDataId {
-            inner: next,
-            _phantom: PhantomData,
-        })
-    }
-}
-
-impl<T: NodeIdTrait> Iterator for TypedSubRangeIterator<Option<T>> {
-    type Item = NodeExtraDataId<Option<T>>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.cur == self.end {
-            return None;
-        }
-
-        let next = self.cur;
-        debug_assert!(next < self.end);
-
-        self.cur = ExtraDataId::from_usize_unchecked(self.cur.index().wrapping_add(1));
-        debug_assert!(self.cur <= self.end);
-
-        Some(NodeExtraDataId {
-            inner: next,
-            _phantom: PhantomData,
-        })
-    }
-}
-
-impl<T: NodeIdTrait> DoubleEndedIterator for TypedSubRangeIterator<Option<T>> {
+impl<T: ExtraDataCompact> DoubleEndedIterator for TypedSubRangeIterator<T> {
     fn next_back(&mut self) -> Option<Self::Item> {
         if self.cur == self.end {
             return None;
@@ -316,19 +233,9 @@ pub struct NodeExtraDataId<T> {
 }
 
 impl Ast {
-    pub fn get_node_in_sub_range<T: NodeIdTrait>(&self, id: NodeExtraDataId<T>) -> T {
-        let node_id = unsafe { self.extra_data[id.inner].node };
-
+    pub fn get_node_in_sub_range<T: ExtraDataCompact>(&self, id: NodeExtraDataId<T>) -> T {
         // Safety: `NodeExtraDataId<T>` should always be valid
-        unsafe { T::from_node_id_unchecked(node_id, self) }
-    }
-
-    pub fn get_opt_node_in_sub_range<T: NodeIdTrait>(
-        &self,
-        id: NodeExtraDataId<Option<T>>,
-    ) -> Option<T> {
-        let opt_node_id = unsafe { self.extra_data[id.inner].optional_node };
-        opt_node_id.map(|node_id| unsafe { T::from_node_id_unchecked(node_id, self) })
+        unsafe { T::from_extra_data(self.extra_data[id.inner], self) }
     }
 
     pub fn get_raw_node_in_sub_range<T>(&self, id: NodeExtraDataId<T>) -> &AstNode {
