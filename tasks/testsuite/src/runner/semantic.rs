@@ -13,29 +13,33 @@ pub struct SemanticRunner;
 
 impl SemanticRunner {
     pub fn run<C: Case>(args: &AppArgs, cases: &[C]) -> Vec<TestResult> {
-        cases
-            .par_iter()
-            .filter_map(|case| {
-                if args.debug {
-                    println!("[{}] {:?}", "Debug".green(), case.relative_path());
-                }
+        #[cfg(not(miri))]
+        let iter = cases.par_iter();
 
-                if case.should_ignore() {
-                    return Some(TestResult::Ignored {
-                        path: case.relative_path().to_owned(),
-                    });
-                }
+        #[cfg(miri)]
+        let iter = cases.iter();
 
-                let (root, ast) = match parse(case) {
-                    ParseResult::Succ(ret) => ret,
-                    _ => return None,
-                };
+        iter.filter_map(|case| {
+            if args.debug {
+                println!("[{}] {:?}", "Debug".green(), case.relative_path());
+            }
 
-                let _semantic = resolver(root, &ast);
-                Some(TestResult::Passed {
-                    path: case.path().to_owned(),
-                })
+            if case.should_ignore() {
+                return Some(TestResult::Ignored {
+                    path: case.relative_path().to_owned(),
+                });
+            }
+
+            let (root, ast) = match parse(case) {
+                ParseResult::Succ(ret) => ret,
+                _ => return None,
+            };
+
+            let _semantic = resolver(root, &ast);
+            Some(TestResult::Passed {
+                path: case.path().to_owned(),
             })
-            .collect()
+        })
+        .collect()
     }
 }

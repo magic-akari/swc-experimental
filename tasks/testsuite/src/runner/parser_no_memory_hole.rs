@@ -15,52 +15,56 @@ pub struct NoMemoryHoleRunner;
 
 impl NoMemoryHoleRunner {
     pub fn run<C: Case>(args: &AppArgs, cases: &[C]) -> Vec<TestResult> {
-        cases
-            .par_iter()
-            .filter_map(|case| {
-                if args.debug {
-                    println!("[{}] {:?}", "Debug".green(), case.relative_path());
-                }
+        #[cfg(not(miri))]
+        let iter = cases.par_iter();
 
-                if case.should_ignore() {
-                    return Some(TestResult::Ignored {
-                        path: case.relative_path().to_owned(),
-                    });
-                }
+        #[cfg(miri)]
+        let iter = cases.iter();
 
-                let (root, ast) = match parse(case) {
-                    ParseResult::Succ(ret) => ret,
-                    _ => return None,
-                };
+        iter.filter_map(|case| {
+            if args.debug {
+                println!("[{}] {:?}", "Debug".green(), case.relative_path());
+            }
 
-                let mut use_visitor = Use {
-                    ast: &ast,
-                    used: Default::default(),
-                };
+            if case.should_ignore() {
+                return Some(TestResult::Ignored {
+                    path: case.relative_path().to_owned(),
+                });
+            }
 
-                use_visitor.visit_program(root);
+            let (root, ast) = match parse(case) {
+                ParseResult::Succ(ret) => ret,
+                _ => return None,
+            };
 
-                if use_visitor.used.len() != ast.nodes_len() as usize {
+            let mut use_visitor = Use {
+                ast: &ast,
+                used: Default::default(),
+            };
+
+            use_visitor.visit_program(root);
+
+            if use_visitor.used.len() != ast.nodes_len() as usize {
+                return Some(TestResult::Failed {
+                    path: case.path().to_owned(),
+                    error: "Memory hole is detected".to_string(),
+                });
+            }
+
+            for values in use_visitor.used.values() {
+                if *values != 1 {
                     return Some(TestResult::Failed {
                         path: case.path().to_owned(),
-                        error: "Memory hole is detected".to_string(),
+                        error: "Shared node is detected".to_string(),
                     });
                 }
+            }
 
-                for values in use_visitor.used.values() {
-                    if *values != 1 {
-                        return Some(TestResult::Failed {
-                            path: case.path().to_owned(),
-                            error: "Shared node is detected".to_string(),
-                        });
-                    }
-                }
-
-                Some(TestResult::Passed {
-                    path: case.path().to_owned(),
-                })
+            Some(TestResult::Passed {
+                path: case.path().to_owned(),
             })
-            .collect()
+        })
+        .collect()
     }
 }
 
