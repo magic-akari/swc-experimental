@@ -124,38 +124,28 @@ const LOG: bool = false && cfg!(debug_assertions);
 ///
 /// both of them have the same name, so the `(Atom, SyntaxContext)` pair will
 /// be also identical.
-pub fn resolver<'ast, N: Copy + VisitWith<AstCounter<'ast>> + VisitWith<Resolver<'ast>>>(
-    root: N,
-    ast: &'ast Ast,
-) -> Semantic {
+pub fn resolver<'ast, N: Copy + VisitWith<Resolver<'ast>>>(root: N, ast: &'ast Ast) -> Semantic {
     let node_count = ast.node_count();
-    let mut counter = AstCounter {
-        ast,
-        block_count: 0,
-        scope_count: 0,
-        symbol_count: 0,
-    };
-    root.visit_with(&mut counter);
-
-    let mut parent_ids = IndexVec::with_capacity(node_count);
-    parent_ids.resize(node_count, NodeId::from_raw(0));
 
     let top_level_scope = Scope::new(ScopeKind::Fn, None);
-    let mut scopes = IndexVec::with_capacity(counter.scope_count);
+    let mut scopes = IndexVec::new();
 
     // Empty scope for unresolved placeholder
     let unresolved_scope_id = scopes.push(Scope::new(ScopeKind::Fn, None));
     let top_level_scope_id = scopes.push(top_level_scope);
 
+    // Init symbol scopes
+    let mut symbol_scopes = IndexVec::with_capacity(node_count);
+    symbol_scopes.resize(node_count, unresolved_scope_id);
+
+    // Init block_scopes
+    let mut block_scopes = IndexVec::with_capacity(node_count);
+    block_scopes.resize(node_count, unresolved_scope_id);
+
     let mut resolver = Resolver {
         ast,
-        current_node_id: NodeId::from_raw(0),
-        parent_ids,
-        symbol_scopes: FxHashMap::with_capacity_and_hasher(
-            counter.symbol_count,
-            Default::default(),
-        ),
-        block_scopes: FxHashMap::with_capacity_and_hasher(counter.block_count, Default::default()),
+        symbol_scopes,
+        block_scopes,
         scopes,
 
         top_level_scope_id,
@@ -174,7 +164,6 @@ pub fn resolver<'ast, N: Copy + VisitWith<AstCounter<'ast>> + VisitWith<Resolver
     Semantic {
         top_level_scope_id,
         unresolved_scope_id,
-        parent_ids: resolver.parent_ids,
         symbol_scopes: resolver.symbol_scopes,
         block_scopes: resolver.block_scopes,
     }
@@ -183,33 +172,19 @@ pub fn resolver<'ast, N: Copy + VisitWith<AstCounter<'ast>> + VisitWith<Resolver
 pub struct Semantic {
     top_level_scope_id: ScopeId,
     unresolved_scope_id: ScopeId,
-    parent_ids: IndexVec<NodeId, NodeId>,
-    symbol_scopes: FxHashMap<NodeId, ScopeId>,
-    block_scopes: FxHashMap<NodeId, ScopeId>,
+    symbol_scopes: IndexVec<NodeId, ScopeId>,
+    block_scopes: IndexVec<NodeId, ScopeId>,
 }
 
 impl Semantic {
     #[inline]
-    pub fn parent_node(&self, node: NodeId) -> NodeId {
-        self.parent_ids[node]
-    }
-
-    #[inline]
     pub fn node_scope(&self, ident: Ident) -> ScopeId {
-        let Some(scope_id) = self.symbol_scopes.get(&ident.node_id()).cloned() else {
-            return self.unresolved_scope_id;
-        };
-
-        scope_id
+        self.symbol_scopes[ident.node_id()]
     }
 
     #[inline]
     pub fn body_scope(&self, block: BlockStmt) -> ScopeId {
-        let Some(scope_id) = self.block_scopes.get(&block.node_id()).cloned() else {
-            return self.unresolved_scope_id;
-        };
-
-        scope_id
+        self.symbol_scopes[block.node_id()]
     }
 
     #[inline]
@@ -257,10 +232,8 @@ impl Scope<'_> {
 pub struct Resolver<'ast> {
     // Changed
     ast: &'ast Ast,
-    current_node_id: NodeId,
-    parent_ids: IndexVec<NodeId, NodeId>,
-    symbol_scopes: FxHashMap<NodeId, ScopeId>,
-    block_scopes: FxHashMap<NodeId, ScopeId>,
+    symbol_scopes: IndexVec<NodeId, ScopeId>,
+    block_scopes: IndexVec<NodeId, ScopeId>,
 
     top_level_scope_id: ScopeId,
     unresolved_scope_id: ScopeId,
@@ -385,7 +358,7 @@ impl<'ast> Resolver<'ast> {
     fn modify(&mut self, id: Ident, kind: DeclKind) {
         let node_id = id.node_id();
 
-        if self.symbol_scopes.contains_key(&node_id) {
+        if self.symbol_scopes[node_id] != self.unresolved_scope_id {
             return;
         }
 
@@ -400,16 +373,16 @@ impl<'ast> Resolver<'ast> {
         }
 
         let scope_id = self.current;
-        self.symbol_scopes.insert(node_id, scope_id);
+        self.symbol_scopes[node_id] = scope_id;
     }
 
     fn mark_block(&mut self, node_id: NodeId) {
-        if self.block_scopes.contains_key(&node_id) {
+        if self.block_scopes[node_id] != self.unresolved_scope_id {
             return;
         }
 
         let scope_id = self.current;
-        self.block_scopes.insert(node_id, scope_id);
+        self.block_scopes[node_id] = scope_id;
     }
 
     // fn try_resolving_as_type(&mut self, i: &mut Ident) {
@@ -571,15 +544,6 @@ impl<'ast> Visit for Resolver<'ast> {
 
     fn ast(&self) -> &Ast {
         self.ast
-    }
-
-    fn enter_node(&mut self, node_id: NodeId) {
-        self.parent_ids[node_id] = self.current_node_id;
-        self.current_node_id = node_id;
-    }
-
-    fn leave_node(&mut self, node_id: NodeId) {
-        self.current_node_id = self.parent_ids[node_id];
     }
 
     fn visit_arrow_expr(&mut self, e: ArrowExpr) {
@@ -1115,7 +1079,7 @@ impl<'ast> Visit for Resolver<'ast> {
     fn visit_ident(&mut self, i: Ident) {
         self.enter_node(i.node_id());
 
-        if self.symbol_scopes.contains_key(&i.node_id()) {
+        if self.symbol_scopes[i.node_id()] != self.unresolved_scope_id {
             self.leave_node(i.node_id());
             return;
         }
@@ -1131,7 +1095,7 @@ impl<'ast> Visit for Resolver<'ast> {
                     // if cfg!(debug_assertions) && LOG {
                     //     debug!("\t -> {:?}", ctxt);
                     // }
-                    self.symbol_scopes.insert(i.node_id(), scope_id);
+                    self.symbol_scopes[i.node_id()] = scope_id;
                 } else {
                     // if cfg!(debug_assertions) && LOG {
                     //     debug!("\t -> Unresolved");
@@ -1141,8 +1105,7 @@ impl<'ast> Visit for Resolver<'ast> {
                     //     debug!("\t -> {:?}", ctxt);
                     // }
 
-                    self.symbol_scopes
-                        .insert(i.node_id(), self.unresolved_scope_id);
+                    self.symbol_scopes[i.node_id()] = self.unresolved_scope_id;
                     // Support hoisting
                     self.modify(i, self.decl_kind)
                 }
@@ -2248,39 +2211,6 @@ impl<'resolver, 'ast> Visit for Hoister<'resolver, 'ast> {
 
         for other_stmt in others {
             other_stmt.visit_with(self);
-        }
-    }
-}
-
-/// Count the specified nodes to preallocate maps
-pub struct AstCounter<'ast> {
-    ast: &'ast Ast,
-    symbol_count: usize,
-    block_count: usize,
-    scope_count: usize,
-}
-
-impl<'ast> Visit for AstCounter<'ast> {
-    fn ast(&self) -> &Ast {
-        self.ast
-    }
-
-    #[inline]
-    fn enter_node(&mut self, node_id: NodeId) {
-        match unsafe { self.ast.get_node_unchecked(node_id).kind() } {
-            NodeKind::Ident => self.symbol_count += 1,
-            NodeKind::Function => self.block_count += 1,
-            NodeKind::BlockStmt => {
-                self.block_count += 1;
-                self.scope_count += 1;
-            }
-            NodeKind::Class
-            | NodeKind::ForInStmt
-            | NodeKind::ForOfStmt
-            | NodeKind::ForStmt
-            | NodeKind::ObjectLit
-            | NodeKind::SwitchStmt => self.scope_count += 1,
-            _ => {}
         }
     }
 }
