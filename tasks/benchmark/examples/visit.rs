@@ -1,5 +1,4 @@
 use swc_core::common::BytePos;
-use swc_experimental_ecma_ast::NodeKind;
 
 fn test_legacy(src: &str) -> usize {
     use swc_core::ecma::parser::{Parser, StringInput, Syntax, lexer::Lexer};
@@ -68,8 +67,10 @@ fn test_new(src: &str) -> usize {
     counter.count
 }
 
-fn test_post_order(src: &str) -> usize {
+fn test_new_mut(src: &str) -> usize {
+    use swc_experimental_ecma_ast::Ast;
     use swc_experimental_ecma_parser::{Lexer, Parser, StringSource};
+    use swc_experimental_ecma_visit::VisitMutWith;
 
     let input = StringSource::new(src);
     let lexer = Lexer::new(
@@ -79,23 +80,41 @@ fn test_post_order(src: &str) -> usize {
         None,
     );
     let parser = Parser::new_from(lexer);
-    let ret = parser.parse_module().unwrap();
+    let mut ret = parser.parse_module().unwrap();
 
-    let mut counter = 0;
-    for (_, node) in ret.ast.nodes() {
-        if node.kind() == NodeKind::Ident {
-            counter += 1;
+    struct Counter<'a> {
+        ast: &'a mut Ast,
+        count: usize,
+    }
+
+    impl swc_experimental_ecma_visit::VisitMut for Counter<'_> {
+        fn ast(&mut self) -> &mut swc_experimental_ecma_ast::Ast {
+            self.ast
+        }
+
+        fn visit_mut_ident(
+            &mut self,
+            node: swc_experimental_ecma_ast::Ident,
+        ) -> swc_experimental_ecma_ast::Ident {
+            self.count += 1;
+            node
         }
     }
-    counter
+
+    let mut counter = Counter {
+        ast: &mut ret.ast,
+        count: 0,
+    };
+    ret.root.visit_mut_with(&mut counter);
+    counter.count
 }
 
 fn main() {
     let source = include_str!("../files/typescript.js");
     let legacy = test_legacy(source);
     let new = test_new(source);
-    let post_order = test_post_order(source);
+    let new_mut = test_new_mut(source);
 
     assert_eq!(legacy, new);
-    assert_eq!(legacy, post_order);
+    assert_eq!(legacy, new_mut);
 }
