@@ -1,22 +1,19 @@
-use swc_experimental_ecma_ast::{Ast, Expr, Ident, PropName};
+use rustc_hash::FxHashSet;
+use swc_experimental_ecma_ast::{Ast, Expr, Ident, PropName, Utf8Ref};
 use swc_experimental_ecma_visit::{Visit, VisitWith};
 
 pub struct DestructuringFinder<'ast> {
     ast: &'ast Ast,
-    found: Vec<&'ast str>,
+    found: &'ast mut FxHashSet<Utf8Ref>,
 }
 
 pub fn find_pat_ids<'ast, N: VisitWith<DestructuringFinder<'ast>>>(
     ast: &'ast Ast,
     node: N,
-) -> Vec<&'ast str> {
-    let mut v = DestructuringFinder {
-        ast,
-        found: Vec::new(),
-    };
+    found: &'ast mut FxHashSet<Utf8Ref>,
+) {
+    let mut v = DestructuringFinder { ast, found };
     node.visit_with(&mut v);
-
-    v.found
 }
 
 impl<'ast> Visit for DestructuringFinder<'ast> {
@@ -28,7 +25,7 @@ impl<'ast> Visit for DestructuringFinder<'ast> {
     fn visit_expr(&mut self, _: Expr) {}
 
     fn visit_ident(&mut self, i: Ident) {
-        self.found.push(self.ast.get_utf8(i.sym(self.ast)));
+        self.found.insert(i.sym(self.ast));
     }
 
     // fn visit_jsx_member_expr(&mut self, n: &JSXMemberExpr) {

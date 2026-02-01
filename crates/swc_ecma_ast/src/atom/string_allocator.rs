@@ -1,0 +1,138 @@
+use std::cell::UnsafeCell;
+
+use string_interner::{StringInterner, backend::BucketBackend};
+use swc_core::atoms::wtf8::{Wtf8, Wtf8Buf};
+
+use crate::{OptionalUtf8Ref, OptionalWtf8Ref, Utf8Ref, Wtf8Ref};
+
+/// # Safety
+/// [StringAllocatorInner] uses [string_interner::backend::BucketBackend], which has stable string references
+pub struct StringAllocator(UnsafeCell<StringAllocatorInner>);
+
+impl Default for StringAllocator {
+    fn default() -> Self {
+        Self(UnsafeCell::new(StringAllocatorInner::new()))
+    }
+}
+
+impl StringAllocator {
+    /// # Safety
+    /// [StringAllocatorInner] uses [string_interner::backend::BucketBackend], which has stable string references
+    #[allow(clippy::mut_from_ref)]
+    fn inner(&self) -> &mut StringAllocatorInner {
+        unsafe { &mut *self.0.get() }
+    }
+
+    pub fn add_utf8(&self, s: &str) -> Utf8Ref {
+        self.inner().add_utf8(s)
+    }
+
+    pub fn add_optional_utf8(&self, s: Option<&str>) -> OptionalUtf8Ref {
+        self.inner().add_optional_utf8(s)
+    }
+
+    pub fn add_wtf8(&self, s: &Wtf8) -> Wtf8Ref {
+        self.inner().add_wtf8(s)
+    }
+
+    pub fn add_optional_wtf8(&self, s: Option<&Wtf8>) -> OptionalWtf8Ref {
+        self.inner().add_optional_wtf8(s)
+    }
+
+    pub fn get_utf8(&self, id: Utf8Ref) -> &str {
+        self.inner().get_utf8(id)
+    }
+
+    pub fn get_optional_utf8(&self, id: OptionalUtf8Ref) -> Option<&str> {
+        self.inner().get_optional_utf8(id)
+    }
+
+    pub fn get_wtf8(&self, id: Wtf8Ref) -> &Wtf8 {
+        self.inner().get_wtf8(id)
+    }
+
+    pub fn get_optional_wtf8(&self, id: OptionalWtf8Ref) -> Option<&Wtf8> {
+        self.inner().get_optional_wtf8(id)
+    }
+
+    pub fn empty_utf8_ref(&self) -> Utf8Ref {
+        self.inner().empty_utf8_ref()
+    }
+}
+
+/// A string allocator that can be used to allocate strings for the AST.
+/// All the strings are stored in a single buffer to avoid memory fragmentation.
+struct StringAllocatorInner {
+    allocated_utf8: StringInterner<BucketBackend<Utf8Ref>>,
+    allocated_wtf8: Wtf8Buf,
+    empty_utf8: Utf8Ref,
+}
+
+impl StringAllocatorInner {
+    pub fn new() -> Self {
+        let mut allocated_utf8 = StringInterner::new();
+        let empty_utf8 = allocated_utf8.get_or_intern("");
+        Self {
+            allocated_utf8,
+            allocated_wtf8: Wtf8Buf::new(),
+            empty_utf8,
+        }
+    }
+
+    #[inline]
+    pub fn add_utf8(&mut self, s: &str) -> Utf8Ref {
+        self.allocated_utf8.get_or_intern(s)
+    }
+
+    #[inline]
+    pub fn add_optional_utf8(&mut self, s: Option<&str>) -> OptionalUtf8Ref {
+        match s {
+            Some(s) => self.add_utf8(s).into(),
+            None => OptionalUtf8Ref::none(),
+        }
+    }
+
+    #[inline]
+    pub fn add_wtf8(&mut self, s: &Wtf8) -> Wtf8Ref {
+        let lo = self.allocated_wtf8.len() as u32;
+        self.allocated_wtf8.push_wtf8(s);
+        let hi = self.allocated_wtf8.len() as u32;
+        Wtf8Ref::new_ref(lo, hi)
+    }
+
+    #[inline]
+    pub fn add_optional_wtf8(&mut self, s: Option<&Wtf8>) -> OptionalWtf8Ref {
+        match s {
+            Some(s) => self.add_wtf8(s).into(),
+            None => OptionalWtf8Ref::new_none(),
+        }
+    }
+
+    #[inline]
+    pub fn get_utf8(&self, id: Utf8Ref) -> &str {
+        self.allocated_utf8.resolve(id).unwrap()
+    }
+
+    #[inline]
+    pub fn get_optional_utf8(&self, id: OptionalUtf8Ref) -> Option<&str> {
+        let id = id.to_option()?;
+        Some(self.get_utf8(id))
+    }
+
+    #[inline]
+    pub fn get_wtf8(&self, id: Wtf8Ref) -> &Wtf8 {
+        self.allocated_wtf8
+            .slice(id.lo() as usize, id.hi() as usize)
+    }
+
+    #[inline]
+    pub fn get_optional_wtf8(&self, id: OptionalWtf8Ref) -> Option<&Wtf8> {
+        let id = id.to_option()?;
+        Some(self.get_wtf8(id))
+    }
+
+    #[inline]
+    pub fn empty_utf8_ref(&self) -> Utf8Ref {
+        self.empty_utf8
+    }
+}

@@ -1,9 +1,9 @@
 mod assert_layout;
 mod ast;
+mod atom;
 mod common;
 mod derive;
 mod node_id;
-mod string_allocator;
 mod visit;
 
 mod generated {
@@ -15,7 +15,7 @@ mod generated {
     pub(crate) mod ast_visitor;
 }
 
-use std::marker::PhantomData;
+use std::{marker::PhantomData, rc::Rc};
 use swc_core::atoms::wtf8::Wtf8;
 use swc_core::common::BytePos;
 
@@ -23,15 +23,16 @@ use num_bigint::BigInt as BigIntValue;
 use oxc_index::IndexVec;
 
 pub use ast::*;
+pub use atom::*;
 pub use common::*;
 pub use derive::*;
 pub use generated::ast_visitor::*;
 pub use node_id::{
-    BigIntId, ExtraDataCompact, ExtraDataId, NodeId, NodeIdTrait, OptionalNodeId, OptionalUtf8Ref,
-    OptionalWtf8Ref, SubRange, TypedSubRange, Utf8Ref, Wtf8Ref,
+    BigIntId, ExtraDataCompact, ExtraDataId, NodeId, NodeIdTrait, OptionalNodeId, SubRange,
+    TypedSubRange,
 };
 
-use crate::{node_id::OptionalSubRange, string_allocator::StringAllocator};
+use crate::node_id::OptionalSubRange;
 
 /// AST context that stores everything about the flattening AST.
 pub struct Ast {
@@ -46,9 +47,7 @@ pub struct Ast {
     bigint: IndexVec<BigIntId, BigIntValue>,
 
     /// The AST doesn't directly store strings (UTF-8 and WTF-8).
-    /// Instead, it stores the start and the end index of the string in the string allocator.
-    /// See: [StringAllocator]
-    string_allocator: StringAllocator,
+    string_allocator: Rc<StringAllocator>,
 }
 
 /// A 24-bit unsigned integer stored as 3 bytes.
@@ -394,15 +393,14 @@ pub enum NodeKind {
 }
 
 impl Ast {
-    /// Create a new AST with the given source length.
-    /// The source length is used to pre-allocate memory for the string allocator.
-    pub fn new(source_len: usize) -> Self {
+    /// Create a new AST with the given source length and the string allocator.
+    pub fn new(source_len: usize, string_allocator: Rc<StringAllocator>) -> Self {
         let empirical_capacity = (source_len as f64 * 0.15) as usize;
         Self {
             nodes: IndexVec::with_capacity(empirical_capacity),
             extra_data: IndexVec::with_capacity(empirical_capacity * 2),
             bigint: IndexVec::new(),
-            string_allocator: StringAllocator::new(source_len),
+            string_allocator,
         }
     }
 
@@ -484,8 +482,8 @@ impl Ast {
     }
 
     #[inline]
-    pub fn into_string_allocator(self) -> StringAllocator {
-        self.string_allocator
+    pub fn empty_utf8_ref(&self) -> Utf8Ref {
+        self.string_allocator.empty_utf8_ref()
     }
 }
 

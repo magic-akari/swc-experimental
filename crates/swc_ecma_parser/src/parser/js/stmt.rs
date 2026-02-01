@@ -12,7 +12,6 @@ use crate::{
         js::pat::PatType,
         util::{FromStmt, ScratchIndex},
     },
-    string_alloc::MaybeSubUtf8,
 };
 
 #[allow(clippy::enum_variant_names)]
@@ -1195,10 +1194,7 @@ impl<I: Tokens> Parser<I> {
     ) -> PResult<TypedSubRange<Type>> {
         trace_cur!(self, parse_block_body);
 
-        let cur_str = self
-            .input
-            .iter
-            .get_maybe_sub_utf8(MaybeSubUtf8::new_from_span(self.input.cur_span()));
+        let cur_str = self.input.iter.read_string(self.input.cur_span());
         let has_strict_directive =
             allow_directives && (cur_str == "\"use strict\"" || cur_str == "'use strict'");
 
@@ -1251,7 +1247,7 @@ impl<I: Tokens> Parser<I> {
             let atom = self.input_mut().expect_shebang_token_and_bump();
             self.to_utf8_ref(atom).into()
         } else {
-            OptionalUtf8Ref::new_none()
+            OptionalUtf8Ref::none()
         })
     }
 }
