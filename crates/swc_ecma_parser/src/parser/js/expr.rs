@@ -1388,6 +1388,16 @@ impl<I: Tokens> Parser<I> {
 
         if self.input().is(Token::LParen) {
             let args = self.parse_args(true)?;
+
+            // Dynamic import requires exactly one or two arguments
+            if args.is_empty() || args.len() > 2 {
+                syntax_error!(
+                    self,
+                    self.span(start),
+                    SyntaxError::ImportRequiresOneOrTwoArgs
+                );
+            }
+
             let expr = self
                 .ast
                 .expr_call_expr(self.span(start), Callee::Import(lhs), args);
