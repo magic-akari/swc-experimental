@@ -44,13 +44,13 @@ quote        = "1"
 syn          = { version = "2", default-features = false }
 
 # Workspace
-swc_experimental_ast_macros           = { version = "0.4.0", path = "crates/swc_ast_macros" }
-swc_experimental_ecma_ast             = { version = "0.4.0", path = "crates/swc_ecma_ast" }
-swc_experimental_ecma_ast_compat      = { version = "0.4.0", path = "crates/swc_ecma_ast_compat" }
-swc_experimental_ecma_parser          = { version = "0.4.0", path = "crates/swc_ecma_parser" }
-swc_experimental_ecma_semantic        = { version = "0.4.0", path = "crates/swc_ecma_semantic" }
-swc_experimental_ecma_transforms_base = { version = "0.4.0", path = "crates/swc_ecma_transforms_base" }
-swc_experimental_ecma_visit           = { version = "0.4.0", path = "crates/swc_ecma_visit" }
+swc_experimental_ast_macros           = { version = "0.5.0", path = "crates/swc_ast_macros" }
+swc_experimental_ecma_ast             = { version = "0.5.0", path = "crates/swc_ecma_ast" }
+swc_experimental_ecma_ast_compat      = { version = "0.5.0", path = "crates/swc_ecma_ast_compat" }
+swc_experimental_ecma_parser          = { version = "0.5.0", path = "crates/swc_ecma_parser" }
+swc_experimental_ecma_semantic        = { version = "0.5.0", path = "crates/swc_ecma_semantic" }
+swc_experimental_ecma_transforms_base = { version = "0.5.0", path = "crates/swc_ecma_transforms_base" }
+swc_experimental_ecma_visit           = { version = "0.5.0", path = "crates/swc_ecma_visit" }
 
 # Dev
 colored      = "3.1.1"
