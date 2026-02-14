@@ -3,7 +3,7 @@ use crate::NodeIdTrait;
 pub trait Spanned {
     fn span(&self, ast: &crate::Ast) -> crate::Span;
 
-    fn set_span(&self, ast: &mut crate::Ast, span: crate::Span);
+    fn set_span(&mut self, ast: &mut crate::Ast, span: crate::Span);
 
     #[inline]
     fn span_lo(&self, ast: &crate::Ast) -> crate::BytePos {
@@ -23,7 +23,7 @@ impl<T: NodeIdTrait> Spanned for T {
     }
 
     #[inline]
-    fn set_span(&self, ast: &mut crate::Ast, span: crate::Span) {
+    fn set_span(&mut self, ast: &mut crate::Ast, span: crate::Span) {
         unsafe {
             ast.get_node_unchecked_mut(self.node_id()).span = span;
         }
