@@ -5,7 +5,7 @@ use crate::lexer::MaybeSubUtf8;
 use crate::parser::js::is_not_this;
 use crate::{Context, PResult, Parser, error::SyntaxError, input::Tokens, lexer::Token};
 
-impl<I: Tokens> Parser<I> {
+impl<'a, I: Tokens> Parser<'a, I> {
     pub(crate) fn parse_object<Object, ObjectProp: ExtraDataCompact>(
         &mut self,
         parse_prop: impl Fn(&mut Self) -> PResult<ObjectProp>,
@@ -63,7 +63,7 @@ impl<I: Tokens> Parser<I> {
             let value = self.parse_binding_element()?;
 
             return Ok(self.ast.object_pat_prop_key_value_pat_prop(
-                Span::new_with_checked(key.span_lo(&self.ast), key.span_hi(&self.ast)),
+                Span::new_with_checked(key.span_lo(self.ast), key.span_hi(self.ast)),
                 key,
                 value,
             ));
@@ -78,10 +78,10 @@ impl<I: Tokens> Parser<I> {
         } else {
             if self
                 .ctx()
-                .is_reserved_word(self.ast.get_utf8(key.sym(&self.ast)))
+                .is_reserved_word(self.ast.get_utf8(key.sym(self.ast)))
             {
                 self.emit_err(
-                    key.span(&self.ast),
+                    key.span(self.ast),
                     SyntaxError::ReservedWordInObjShorthandOrPat,
                 );
             }
@@ -89,10 +89,8 @@ impl<I: Tokens> Parser<I> {
             None
         };
 
-        let key_ident = self
-            .ast
-            .ident(key.span(&self.ast), key.sym(&self.ast), false);
-        let key_ident = self.ast.binding_ident(key_ident.span(&self.ast), key_ident);
+        let key_ident = self.ast.ident(key.span(self.ast), key.sym(self.ast), false);
+        let key_ident = self.ast.binding_ident(key_ident.span(self.ast), key_ident);
         Ok(self
             .ast
             .object_pat_prop_assign_pat_prop(self.span(start), key_ident, value))
@@ -109,7 +107,7 @@ impl<I: Tokens> Parser<I> {
             let prop = self.ast.get_node_in_sub_range(prop);
             if i == len - 1 {
                 if let ObjectPatProp::Rest(rest) = prop {
-                    match rest.arg(&self.ast) {
+                    match rest.arg(self.ast) {
                         Pat::Ident(..) => {
                             if let Some(trailing_comma) = trailing_comma {
                                 self.emit_err(trailing_comma, SyntaxError::CommaAfterRestElement);
@@ -117,7 +115,7 @@ impl<I: Tokens> Parser<I> {
                         }
                         _ => syntax_error!(
                             self,
-                            prop.span(&self.ast),
+                            prop.span(self.ast),
                             SyntaxError::DotsWithoutIdentifier
                         ),
                     }
@@ -126,7 +124,7 @@ impl<I: Tokens> Parser<I> {
             }
 
             if let ObjectPatProp::Rest(..) = prop {
-                self.emit_err(prop.span(&self.ast), SyntaxError::NonLastRestParam)
+                self.emit_err(prop.span(self.ast), SyntaxError::NonLastRestParam)
             }
         }
 
@@ -189,7 +187,7 @@ impl<I: Tokens> Parser<I> {
                 })
                 .map(|function| {
                     self.ast.prop_or_spread_prop_method_prop(
-                        function.span(&self.ast),
+                        function.span(self.ast),
                         name,
                         function,
                     )
@@ -224,7 +222,7 @@ impl<I: Tokens> Parser<I> {
             self.emit_err(self.input().cur_span(), SyntaxError::TS1005);
             let value = self.ast.invalid(self.span(start));
             return Ok(self.ast.prop_or_spread_prop_key_value_prop(
-                Span::new_with_checked(key.span_lo(&self.ast), self.last_pos()),
+                Span::new_with_checked(key.span_lo(self.ast), self.last_pos()),
                 key,
                 Expr::Invalid(value),
             ));
@@ -236,7 +234,7 @@ impl<I: Tokens> Parser<I> {
         // { a: expr, }
         if self.input_mut().eat(Token::Colon) {
             let value = self.allow_in_expr(Self::parse_assignment_expr)?;
-            let span = Span::new_with_checked(key.span_lo(&self.ast), value.span_hi(&self.ast));
+            let span = Span::new_with_checked(key.span_lo(self.ast), value.span_hi(self.ast));
             return Ok(self
                 .ast
                 .prop_or_spread_prop_key_value_prop(span, key, value));
@@ -260,11 +258,8 @@ impl<I: Tokens> Parser<I> {
                     })
                 })
                 .map(|function| {
-                    self.ast.prop_or_spread_prop_method_prop(
-                        function.span(&self.ast),
-                        key,
-                        function,
-                    )
+                    self.ast
+                        .prop_or_spread_prop_method_prop(function.span(self.ast), key, function)
                 });
         }
 
@@ -273,8 +268,8 @@ impl<I: Tokens> Parser<I> {
             // TODO
             _ => unexpected!(self, "identifier"),
         };
-        let ident_span = ident.span(&self.ast);
-        let ident_sym = ident.sym(&self.ast);
+        let ident_span = ident.span(self.ast);
+        let ident_sym = ident.sym(self.ast);
 
         if self.input_mut().eat(Token::QuestionMark) {
             self.emit_err(self.input().prev_span(), SyntaxError::TS1162);
@@ -315,7 +310,7 @@ impl<I: Tokens> Parser<I> {
 
             let is_generator = is_async && self.input_mut().eat(Token::Asterisk);
             let key = self.parse_prop_name()?;
-            let key_span = key.span(&self.ast);
+            let key_span = key.span(self.ast);
             self.do_inside_of_context(Context::AllowDirectSuper, |p| {
                 p.do_outside_of_context(Context::InClassField, |p| {
                     if is_get {
@@ -328,7 +323,7 @@ impl<I: Tokens> Parser<I> {
                                     let params = p.parse_formal_params()?;
 
                                     if params.iter().any(|param| {
-                                        is_not_this(&p.ast, p.ast.get_node_in_sub_range(param))
+                                        is_not_this(p.ast, p.ast.get_node_in_sub_range(param))
                                     }) {
                                         p.emit_err(key_span, SyntaxError::GetterParam);
                                     }
@@ -345,7 +340,7 @@ impl<I: Tokens> Parser<I> {
                                     p.emit_err(key_span, SyntaxError::TS1056);
                                 }
 
-                                let body = function.body(&p.ast);
+                                let body = function.body(p.ast);
                                 p.ast
                                     .prop_or_spread_prop_getter_prop(p.span(start), key, body)
                             });
@@ -363,7 +358,7 @@ impl<I: Tokens> Parser<I> {
                                     if params
                                         .iter()
                                         .filter(|param| {
-                                            is_not_this(&p.ast, p.ast.get_node_in_sub_range(*param))
+                                            is_not_this(p.ast, p.ast.get_node_in_sub_range(*param))
                                         })
                                         .count()
                                         != 1
@@ -375,9 +370,9 @@ impl<I: Tokens> Parser<I> {
                                         && let Pat::Rest(rest) = p
                                             .ast
                                             .get_node_in_sub_range(params.get(0).unwrap())
-                                            .pat(&p.ast)
+                                            .pat(p.ast)
                                     {
-                                        p.emit_err(rest.span(&p.ast), SyntaxError::RestPatInSetter);
+                                        p.emit_err(rest.span(p.ast), SyntaxError::RestPatInSetter);
                                     }
 
                                     if p.input().syntax().typescript()
@@ -393,12 +388,12 @@ impl<I: Tokens> Parser<I> {
                             )
                             .map(|function| {
                                 let mut this = None;
-                                let mut params = function.params(&p.ast);
+                                let mut params = function.params(p.ast);
                                 if params.len() >= 2 {
                                     this = Some(
                                         p.ast
                                             .get_node_in_sub_range(params.remove_first())
-                                            .pat(&p.ast),
+                                            .pat(p.ast),
                                     );
                                 }
 
@@ -409,7 +404,7 @@ impl<I: Tokens> Parser<I> {
                                 let param = match params.iter().next() {
                                     Some(param) => {
                                         let param = p.ast.get_node_in_sub_range(param);
-                                        param.pat(&p.ast)
+                                        param.pat(p.ast)
                                     }
                                     None => {
                                         p.emit_err(key_span, SyntaxError::SetterParam);
@@ -417,7 +412,7 @@ impl<I: Tokens> Parser<I> {
                                     }
                                 };
 
-                                let body = function.body(&p.ast);
+                                let body = function.body(p.ast);
                                 p.ast.prop_or_spread_prop_setter_prop(
                                     p.span(start),
                                     key,
@@ -439,10 +434,8 @@ impl<I: Tokens> Parser<I> {
                                 is_generator,
                             )
                             .map(|function| {
-                                let span = Span::new_with_checked(
-                                    key.span_lo(&p.ast),
-                                    key.span_hi(&p.ast),
-                                );
+                                let span =
+                                    Span::new_with_checked(key.span_lo(p.ast), key.span_hi(p.ast));
                                 p.ast.prop_or_spread_prop_method_prop(span, key, function)
                             });
                     }

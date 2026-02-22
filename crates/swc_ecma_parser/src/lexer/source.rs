@@ -139,6 +139,11 @@ impl<'a> StringSource<'a> {
         );
         self.cur = to;
     }
+
+    #[inline]
+    pub fn source_len(&self) -> usize {
+        self.source.len()
+    }
 }
 
 /// Return if byte is a UTF-8 continuation byte.

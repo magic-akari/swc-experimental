@@ -10,7 +10,7 @@ use crate::{
     lexer::{MaybeSubUtf8, Token},
 };
 
-impl<I: Tokens> Parser<I> {
+impl<'a, I: Tokens> Parser<'a, I> {
     // https://tc39.es/ecma262/#prod-ModuleExportName
     pub(crate) fn parse_module_export_name(&mut self) -> PResult<ModuleExportName> {
         let cur = self.input().cur();
@@ -112,11 +112,11 @@ impl<I: Tokens> Parser<I> {
         let ident = self.parse_ident(true, true)?;
         let ctx = self.ctx();
         if (ctx.intersects(Context::InAsync.union(Context::InStaticBlock))
-            && self.ast.get_utf8(ident.sym(&self.ast)) == "await")
+            && self.ast.get_utf8(ident.sym(self.ast)) == "await")
             || (ctx.contains(Context::InGenerator)
-                && self.ast.get_utf8(ident.sym(&self.ast)) == "yield")
+                && self.ast.get_utf8(ident.sym(self.ast)) == "yield")
         {
-            self.emit_err(ident.span(&self.ast), SyntaxError::ExpectedIdent);
+            self.emit_err(ident.span(self.ast), SyntaxError::ExpectedIdent);
         }
 
         Ok(ident)
