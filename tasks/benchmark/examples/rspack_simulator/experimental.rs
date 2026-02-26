@@ -1,5 +1,8 @@
 use rustc_hash::FxHashSet;
-use swc_core::common::{BytePos, comments::SingleThreadedComments};
+use swc_core::{
+    atoms::Atom,
+    common::{BytePos, comments::SingleThreadedComments},
+};
 use swc_experimental_ecma_ast::{
     Ast, BreakStmt, ClassMember, ContinueStmt, DebuggerStmt, ExportAll, ExportDefaultExpr,
     ExprStmt, GetSpan, ImportDecl, NamedExport, Program, ReturnStmt, Span, StringAllocator,
@@ -20,7 +23,10 @@ pub fn run(src: &'static str, compat: bool) {
     let semantic = run_resolver(program, &ast);
     let _semi = run_collect_semiconlons(&ast, program, &tokens);
     if compat {
-        let _program = run_compat(program, &ast, &semantic);
+        let program = run_compat(program, &ast, &semantic);
+        run_scan_dependencies_legacy(&program);
+    } else {
+        run_scan_dependencies(program, &ast);
     }
 }
 
@@ -56,8 +62,24 @@ fn run_resolver(root: Program, ast: &Ast) -> Semantic {
 }
 
 #[inline(never)]
+fn run_scan_dependencies(root: Program, ast: &Ast) {
+    root.visit_with(&mut JavascriptParser {
+        ast,
+        idents: Vec::new(),
+    });
+}
+
+#[inline(never)]
 fn run_compat(root: Program, ast: &Ast, semantic: &Semantic) -> swc_core::ecma::ast::Program {
     AstCompat::new(ast, semantic).compat_program(root)
+}
+
+#[inline(never)]
+fn run_scan_dependencies_legacy(program: &swc_core::ecma::ast::Program) {
+    swc_core::ecma::visit::VisitWith::visit_with(
+        program,
+        &mut JavascriptParserLegacy { idents: Vec::new() },
+    );
 }
 
 #[inline(never)]
@@ -220,5 +242,30 @@ impl<'ast> Visit for InsertedSemicolons<'ast> {
             _ => {}
         };
         n.visit_children_with(self);
+    }
+}
+
+struct JavascriptParser<'a> {
+    ast: &'a Ast,
+    idents: Vec<Atom>,
+}
+
+impl<'ast> Visit for JavascriptParser<'ast> {
+    fn ast(&self) -> &Ast {
+        self.ast
+    }
+
+    fn visit_ident(&mut self, node: swc_experimental_ecma_ast::Ident) {
+        self.idents.push(self.ast.get_atom(node.sym(self.ast)));
+    }
+}
+
+struct JavascriptParserLegacy {
+    idents: Vec<Atom>,
+}
+
+impl swc_core::ecma::visit::Visit for JavascriptParserLegacy {
+    fn visit_ident(&mut self, node: &swc_core::ecma::ast::Ident) {
+        self.idents.push(node.sym.clone());
     }
 }

@@ -1,8 +1,9 @@
 use rustc_hash::FxHashSet;
 use swc_core::{
+    atoms::Atom,
     common::{BytePos, GLOBALS, Globals, Mark, comments::SingleThreadedComments},
     ecma::{
-        ast::{ClassMember, Program},
+        ast::{ClassMember, Ident, Program},
         parser::{
             Lexer, Parser, StringInput, Syntax,
             unstable::{Capturing, Token, TokenAndSpan},
@@ -20,6 +21,7 @@ pub fn run(src: &'static str) {
         run_remove_paren(&mut program, &comments);
         run_resolver(&mut program);
         let _semi = run_collect_semiconlons(&program, &tokens);
+        run_scan_dependencies(&program);
     });
 }
 
@@ -46,6 +48,11 @@ fn run_remove_paren(program: &mut Program, comments: &SingleThreadedComments) {
 #[inline(never)]
 fn run_resolver(program: &mut Program) {
     program.visit_mut_with(&mut resolver(Mark::new(), Mark::new(), false));
+}
+
+#[inline(never)]
+fn run_scan_dependencies(program: &Program) {
+    program.visit_with(&mut JavascriptParser { idents: Vec::new() });
 }
 
 #[inline(never)]
@@ -199,5 +206,15 @@ impl Visit for InsertedSemicolons<'_> {
             _ => {}
         };
         n.visit_children_with(self);
+    }
+}
+
+struct JavascriptParser {
+    idents: Vec<Atom>,
+}
+
+impl Visit for JavascriptParser {
+    fn visit_ident(&mut self, node: &Ident) {
+        self.idents.push(node.sym.clone());
     }
 }
