@@ -1801,7 +1801,7 @@ dependencies = [
 
 [[package]]
 name = "swc_experimental_ast_macros"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1810,7 +1810,7 @@ dependencies = [
 
 [[package]]
 name = "swc_experimental_ecma_ast"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "hashbrown 0.16.1",
  "num-bigint",
@@ -1822,7 +1822,7 @@ dependencies = [
 
 [[package]]
 name = "swc_experimental_ecma_ast_compat"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "stacker",
  "swc_core",
@@ -1832,7 +1832,7 @@ dependencies = [
 
 [[package]]
 name = "swc_experimental_ecma_parser"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "bitflags",
  "either",
@@ -1847,7 +1847,7 @@ dependencies = [
 
 [[package]]
 name = "swc_experimental_ecma_semantic"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "insta",
  "oxc_index",
@@ -1860,7 +1860,7 @@ dependencies = [
 
 [[package]]
 name = "swc_experimental_ecma_transforms_base"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "indexmap",
  "rustc-hash",
@@ -1870,7 +1870,7 @@ dependencies = [
 
 [[package]]
 name = "swc_experimental_ecma_utils"
-version = "0.1.0"
+version = "0.6.0"
 dependencies = [
  "swc_experimental_ecma_ast",
  "swc_experimental_ecma_semantic",
@@ -1878,7 +1878,7 @@ dependencies = [
 
 [[package]]
 name = "swc_experimental_ecma_visit"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "swc_experimental_ecma_ast",
 ]
