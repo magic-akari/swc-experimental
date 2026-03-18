@@ -2,6 +2,7 @@ use std::env;
 
 pub mod experimental;
 pub mod legacy;
+pub mod oxc;
 
 #[global_allocator]
 #[cfg(not(feature = "tracy"))]
@@ -32,6 +33,10 @@ pub fn main() {
 
     if target == "exp_compat" {
         experimental::run(source, true);
+    }
+
+    if target == "oxc" {
+        oxc::run(source);
     }
 
     #[cfg(feature = "tracy")]

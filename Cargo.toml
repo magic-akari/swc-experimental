@@ -62,6 +62,9 @@ pico-args    = "0.5.0"
 saphyr       = "0.0.6"
 tracy-client = { version = "=0.18.4", features = ["enable", "sampling", "demangle", "system-tracing"] }
 
+oxc           = { version = "0.120.0", features = ["ast_visit", "semantic"] }
+oxc_allocator = "0.120.0"
+
 [profile.bench]
 codegen-units = 1
 debug         = true
