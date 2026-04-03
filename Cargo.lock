@@ -366,7 +366,7 @@ version = "3.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "faf9468729b8cbcea668e36183cb69d317348c2e08e994829fb56ebfdfbaac34"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -598,7 +598,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -944,7 +944,7 @@ checksum = "3640c1c38b8e4e43584d8df18be5fc6b0aa314ce6ebf51b53313d4306cca8e46"
 dependencies = [
  "hermit-abi",
  "libc",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1104,7 +1104,7 @@ version = "0.50.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7957b9740744892f114936ab4a57b3f487491bbeafaf8083688b16841a4240e5"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1710,7 +1710,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1960,9 +1960,9 @@ dependencies = [
 
 [[package]]
 name = "swc_common"
-version = "20.0.0"
+version = "21.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "990735f1c65fac4d0f2748113f3bc8a799fd31501efbd254eb7cc5e877c50660"
+checksum = "8a771e6a245d82746eee4a06849e1ed481ddf0e6fa1d5794a833b516513bb414"
 dependencies = [
  "anyhow",
  "ast_node",
@@ -1985,9 +1985,9 @@ dependencies = [
 
 [[package]]
 name = "swc_core"
-version = "61.0.1"
+version = "62.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fb9b4e1cdb43dd6ef8c13822b2b4513e42c87ed8798efa587b4b768fba1a555"
+checksum = "99da8abca2986698cc01b67d9c1f540209429058417a0d852bf9675a162b8f7f"
 dependencies = [
  "swc_allocator",
  "swc_atoms",
@@ -2001,9 +2001,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_ast"
-version = "22.0.0"
+version = "23.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "acb0eed1bac5703d661d16fa4b54958f6b8823a6f1385d163942cf4b90afb4a2"
+checksum = "39f4173ab7e676eed4938d5ad8bbdf14418f87c9a8d36e6cdda82ac9645912b0"
 dependencies = [
  "bitflags",
  "is-macro",
@@ -2020,9 +2020,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_parser"
-version = "37.0.0"
+version = "38.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a85eb7cc9dce8c0cc5f25a0276b690ad3fdfd8f0d5b610058e5ae74b12044016"
+checksum = "9346e0008023779aec17909bd806946e75c8f1fa84d13d6fbebeba60b94ec1b1"
 dependencies = [
  "bitflags",
  "either",
@@ -2040,9 +2040,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_transforms_base"
-version = "40.0.0"
+version = "41.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0032c86aa96e23a051908cc942f8acf9f564f67c12d4f496d0b93e1223744318"
+checksum = "d73866fd2ae645e8f187b1cd10a3a9235da72101eee2605634a6ed62c8238af4"
 dependencies = [
  "better_scoped_tls",
  "indexmap",
@@ -2062,9 +2062,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_utils"
-version = "28.0.0"
+version = "29.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1538f609efb379fef302e65f2c7886b6ea1ddd31c5f1fb8e47bfdea61e0a3e7"
+checksum = "dbfeafa10ff76faab3395f4c8413c46f3484a505e694aa3472a40f164a8dd537"
 dependencies = [
  "dragonbox_ecma",
  "indexmap",
@@ -2081,9 +2081,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_visit"
-version = "22.0.0"
+version = "23.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9ead1b61949ce19ca2088ae0cac092bfa2287718c955ff31e55f7d1eba0a84b"
+checksum = "ad65d392ed427dc9e94f16a3d802b02e27722c21227639c8d5f45f19757b447b"
 dependencies = [
  "new_debug_unreachable",
  "num-bigint",
@@ -2242,7 +2242,7 @@ dependencies = [
  "getrandom 0.4.2",
  "once_cell",
  "rustix",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2634,7 +2634,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
