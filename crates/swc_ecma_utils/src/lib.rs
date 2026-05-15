@@ -223,16 +223,11 @@ impl ExprExt for Expr {
             }
 
             Expr::OptChain(opt) => match opt.base(ctx.ast) {
-                OptChainBase::Call(call) => {
-                    if call.callee(ctx.ast).is_pure_callee(ctx) {
-                        call.args(ctx.ast)
-                            .iter()
-                            .map(|id| ctx.ast.get_node_in_sub_range(id))
-                            .any(|arg| arg.expr(ctx.ast).may_have_side_effects(ctx))
-                    } else {
-                        true
-                    }
-                }
+                OptChainBase::Call(call) if call.callee(ctx.ast).is_pure_callee(ctx) => call
+                    .args(ctx.ast)
+                    .iter()
+                    .map(|id| ctx.ast.get_node_in_sub_range(id))
+                    .any(|arg| arg.expr(ctx.ast).may_have_side_effects(ctx)),
                 _ => true,
             },
 
@@ -493,15 +488,14 @@ pub fn class_has_side_effect(expr_ctx: ExprCtx, c: Class) -> bool {
                     return true;
                 }
             }
-            ClassMember::StaticBlock(s) => {
+            ClassMember::StaticBlock(s)
                 if s.body(expr_ctx.ast)
                     .stmts(expr_ctx.ast)
                     .iter()
                     .map(|id| expr_ctx.ast.get_node_in_sub_range(id))
-                    .any(|stmt| stmt.may_have_side_effects(expr_ctx))
-                {
-                    return true;
-                }
+                    .any(|stmt| stmt.may_have_side_effects(expr_ctx)) =>
+            {
+                return true;
             }
             _ => {}
         }

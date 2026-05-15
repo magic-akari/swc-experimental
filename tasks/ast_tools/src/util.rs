@@ -97,7 +97,7 @@ pub fn calculate_inline_layout(ast: &AstStruct, schema: &Schema) -> Option<Inlin
 
         // Re-use sorted fields logic but only target extra u32
         let mut sorted_fields = field_info.clone();
-        sorted_fields.sort_by(|a, b| b.1.cmp(&a.1));
+        sorted_fields.sort_by_key(|b| std::cmp::Reverse(b.1));
 
         let mut extra_u32_fields: Vec<(usize, usize)> = Vec::new();
         let mut extra_u32_used = 0usize;
@@ -133,7 +133,7 @@ pub fn calculate_inline_layout(ast: &AstStruct, schema: &Schema) -> Option<Inlin
 
     // Sort fields by size (descending) for better packing, but keep original indices
     let mut sorted_fields = field_info.clone();
-    sorted_fields.sort_by(|a, b| b.1.cmp(&a.1));
+    sorted_fields.sort_by_key(|b| std::cmp::Reverse(b.1));
 
     // Try to pack fields optimally into primary u32 region (4 bytes) and extra u32 region (4 bytes)
     let mut u32_fields: Vec<(usize, usize)> = Vec::new(); // (field_index, size)
