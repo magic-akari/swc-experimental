@@ -2,15 +2,14 @@ use std::{hash::BuildHasherDefault, ops::RangeFull};
 
 use indexmap::IndexMap;
 use rustc_hash::FxHasher;
-use swc_core::common::comments::Comments;
 use swc_experimental_ecma_ast::{
-    Ast, Expr, GetSpan, SimpleAssignTarget, Span, VisitMut, VisitMutWith,
+    Ast, Comments, Expr, GetSpan, SimpleAssignTarget, Span, VisitMut, VisitMutWith,
 };
 
 pub fn remove_paren<'ast, N: VisitMutWith<ParenRemover<'ast>>>(
     root: N,
     ast: &'ast mut Ast,
-    comments: Option<&dyn Comments>,
+    comments: Option<&mut Comments>,
 ) -> N {
     let mut visitor = ParenRemover {
         ast,
@@ -19,8 +18,8 @@ pub fn remove_paren<'ast, N: VisitMutWith<ParenRemover<'ast>>>(
     let root = root.visit_mut_with(&mut visitor);
     if let Some(c) = comments {
         for (to, from) in visitor.span_map.drain(RangeFull).rev() {
-            c.move_leading(from.lo, to.lo);
-            c.move_trailing(from.hi, to.hi);
+            c.move_leading(from.start, to.start);
+            c.move_trailing(from.end, to.end);
         }
     }
     root

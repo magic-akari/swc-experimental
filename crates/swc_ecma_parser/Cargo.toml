@@ -14,11 +14,12 @@ unstable = []
 [dependencies]
 bitflags    = { workspace = true }
 either      = { workspace = true }
+miette      = { workspace = true }
 num-bigint  = { workspace = true }
 rustc-hash  = { workspace = true }
 seq-macro   = { workspace = true }
 smartstring = { workspace = true }
-swc_core    = { workspace = true }
+swc_atoms   = { workspace = true }
 tracing     = { workspace = true }
 
 swc_experimental_ecma_ast = { workspace = true }

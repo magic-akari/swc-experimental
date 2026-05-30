@@ -6,14 +6,10 @@ use either::Either::{self, Left, Right};
 use num_bigint::BigInt as BigIntValue;
 use rustc_hash::FxHashMap;
 use smartstring::{LazyCompact, SmartString};
-use swc_core::atoms::{Atom, wtf8::CodePoint};
-use swc_core::common::{
-    BytePos, Span,
-    comments::{Comment, CommentKind, Comments},
-};
+use swc_atoms::{Atom, wtf8::CodePoint};
 use swc_experimental_ecma_ast::{
-    EsVersion, StringAllocator, is_valid_ascii_continue, is_valid_ascii_start,
-    is_valid_non_ascii_continue, is_valid_non_ascii_start,
+    Comment, CommentKind, Comments, EsVersion, Span, StringAllocator, is_valid_ascii_continue,
+    is_valid_ascii_start, is_valid_non_ascii_continue, is_valid_non_ascii_start,
 };
 
 use self::table::{BYTE_HANDLERS, ByteHandler};
@@ -120,15 +116,14 @@ fn remove_underscore(s: &str, has_underscore: bool) -> Cow<'_, str> {
     }
 }
 
-#[derive(Clone)]
 pub struct Lexer<'a> {
-    comments: Option<&'a dyn Comments>,
+    comments: Option<&'a mut Comments>,
     /// [Some] if comment comment parsing is enabled. Otherwise [None]
     comments_buffer: Option<CommentsBuffer>,
 
     pub ctx: Context,
     input: StringSource<'a>,
-    start_pos: BytePos,
+    start_pos: u32,
 
     state: State,
     token_flags: TokenFlags,
@@ -163,27 +158,17 @@ impl<'a> Lexer<'a> {
     }
 
     #[inline(always)]
-    fn comments(&self) -> Option<&'a dyn swc_core::common::comments::Comments> {
-        self.comments
-    }
-
-    #[inline(always)]
     fn comments_buffer(&self) -> Option<&CommentsBuffer> {
         self.comments_buffer.as_ref()
     }
 
     #[inline(always)]
-    fn comments_buffer_mut(&mut self) -> Option<&mut CommentsBuffer> {
-        self.comments_buffer.as_mut()
-    }
-
-    #[inline(always)]
-    unsafe fn input_slice_to_cur(&mut self, start: BytePos) -> &'a str {
+    unsafe fn input_slice_to_cur(&mut self, start: u32) -> &'a str {
         unsafe { self.input.slice_to_cur(start) }
     }
 
     #[inline(always)]
-    unsafe fn input_slice(&mut self, start: BytePos, end: BytePos) -> &'a str {
+    unsafe fn input_slice(&mut self, start: u32, end: u32) -> &'a str {
         unsafe { self.input.slice(start, end) }
     }
 }
@@ -193,14 +178,14 @@ impl<'a> Lexer<'a> {
         syntax: Syntax,
         target: EsVersion,
         input: StringSource<'a>,
-        comments: Option<&'a dyn Comments>,
+        comments: Option<&'a mut Comments>,
         string_allocator: StringAllocator,
     ) -> Self {
         let start_pos = input.cur_pos();
-
+        let comments_buffer = comments.is_some().then(CommentsBuffer::new);
         Lexer {
             comments,
-            comments_buffer: comments.is_some().then(CommentsBuffer::new),
+            comments_buffer,
             ctx: Default::default(),
             input,
             start_pos,
@@ -385,11 +370,7 @@ impl Lexer<'_> {
         self.scan_template_token(start, true)
     }
 
-    fn scan_template_token(
-        &mut self,
-        start: BytePos,
-        started_with_backtick: bool,
-    ) -> LexResult<Token> {
+    fn scan_template_token(&mut self, start: u32, started_with_backtick: bool) -> LexResult<Token> {
         debug_assert!(self.peek() == Some(if started_with_backtick { b'`' } else { b'}' }));
         let mut cooked = Ok(self.sb.alloc_wtf8());
         self.bump(1); // `}` or `\``
@@ -492,16 +473,16 @@ impl Lexer<'_> {
 
 impl<'a> Lexer<'a> {
     #[inline(always)]
-    fn span(&self, start: BytePos) -> Span {
+    fn span(&self, start: u32) -> Span {
         let end = self.last_pos();
         if cfg!(debug_assertions) && start > end {
             unreachable!(
                 "assertion failed: (span.start <= span.end).
  start = {}, end = {}",
-                start.0, end.0
+                start, end
             )
         }
-        Span { lo: start, hi: end }
+        Span::new(start, end)
     }
 
     /// Advances the input by `len` bytes.
@@ -546,19 +527,19 @@ impl<'a> Lexer<'a> {
     }
 
     #[inline(always)]
-    fn cur_pos(&self) -> BytePos {
+    fn cur_pos(&self) -> u32 {
         self.input().cur_pos()
     }
 
     #[inline(always)]
-    fn last_pos(&self) -> BytePos {
+    fn last_pos(&self) -> u32 {
         self.input().cur_pos()
     }
 
     /// Shorthand for `let span = self.span(start); self.error_span(span)`
     #[cold]
     #[inline(never)]
-    fn error<T>(&self, start: BytePos, kind: SyntaxError) -> LexResult<T> {
+    fn error<T>(&self, start: u32, kind: SyntaxError) -> LexResult<T> {
         let span = self.span(start);
         self.error_span(span, kind)
     }
@@ -571,7 +552,7 @@ impl<'a> Lexer<'a> {
 
     #[cold]
     #[inline(never)]
-    fn emit_error(&mut self, start: BytePos, kind: SyntaxError) {
+    fn emit_error(&mut self, start: u32, kind: SyntaxError) {
         let span = self.span(start);
         self.emit_error_span(span, kind)
     }
@@ -589,7 +570,7 @@ impl<'a> Lexer<'a> {
 
     #[cold]
     #[inline(never)]
-    fn emit_strict_mode_error(&mut self, start: BytePos, kind: SyntaxError) {
+    fn emit_strict_mode_error(&mut self, start: u32, kind: SyntaxError) {
         let span = self.span(start);
         if self.ctx().contains(Context::Strict) {
             self.emit_error_span(span, kind);
@@ -601,7 +582,7 @@ impl<'a> Lexer<'a> {
 
     #[cold]
     #[inline(never)]
-    fn emit_module_mode_error(&mut self, start: BytePos, kind: SyntaxError) {
+    fn emit_module_mode_error(&mut self, start: u32, kind: SyntaxError) {
         let span = self.span(start);
         let err = crate::error::Error::new(span, kind);
         self.add_module_mode_error(err);
@@ -659,17 +640,13 @@ impl<'a> Lexer<'a> {
 
                 if self.comments_buffer().is_some() {
                     let s = unsafe { self.input_slice(slice_start, end) };
-                    let cmt = swc_core::common::comments::Comment {
-                        kind: swc_core::common::comments::CommentKind::Line,
-                        span: Span::new_with_checked(start, end),
-                        text: Atom::new(s),
-                    };
+                    let cmt = Comment::new(CommentKind::Line, Span::new(start, end), Atom::new(s));
 
                     if is_for_next {
-                        self.comments_buffer_mut().unwrap().push_pending(cmt);
+                        self.comments_buffer.as_mut().unwrap().push_pending(cmt);
                     } else {
                         let pos = self.state.prev_hi;
-                        self.comments_buffer_mut().unwrap().push_comment(BufferedComment {
+                        self.comments_buffer.as_mut().unwrap().push_comment(BufferedComment {
                             kind: BufferedCommentKind::Trailing,
                             pos,
                             comment: cmt,
@@ -690,17 +667,14 @@ impl<'a> Lexer<'a> {
                 // Safety: We know that the start and the end are valid
                 self.input_slice_to_cur(slice_start)
             };
-            let cmt = swc_core::common::comments::Comment {
-                kind: swc_core::common::comments::CommentKind::Line,
-                span: Span::new_with_checked(start, end),
-                text: Atom::new(s),
-            };
+            let cmt = Comment::new(CommentKind::Line, Span::new(start, end), Atom::new(s));
 
             if is_for_next {
-                self.comments_buffer_mut().unwrap().push_pending(cmt);
+                self.comments_buffer.as_mut().unwrap().push_pending(cmt);
             } else {
                 let pos = self.state.prev_hi;
-                self.comments_buffer_mut()
+                self.comments_buffer
+                    .as_mut()
                     .unwrap()
                     .push_comment(BufferedComment {
                         kind: BufferedCommentKind::Trailing,
@@ -770,21 +744,25 @@ impl<'a> Lexer<'a> {
                                     let cur = self.input().cur_pos();
                                     // Safety: We got slice_start and end from self.input so those are
                                     // valid.
-                                    let s = self.input_mut().slice(slice_start, slice_start + BytePos((pos_offset - 2) as u32));
+                                    let s = self.input_mut().slice(slice_start, slice_start + (pos_offset - 2) as u32);
                                     self.input_mut().reset_to(cur);
                                     s
                                 };
-                                let cmt = Comment {
-                                    kind: CommentKind::Block,
-                                    span: Span::new_with_checked(start, slice_start + BytePos(pos_offset as u32)),
-                                    text: Atom::new(s),
-                                };
+                                let cmt = Comment::new(
+                                    CommentKind::Block,
+                                    Span::new(
+                                        start,
+                                        slice_start + pos_offset as u32,
+                                    ),
+                                    Atom::new(s),
+                                );
 
                                 if is_for_next {
-                                    self.comments_buffer_mut().unwrap().push_pending(cmt);
+                                    self.comments_buffer.as_mut().unwrap().push_pending(cmt);
                                 } else {
                                     let pos = self.state.prev_hi;
-                                    self.comments_buffer_mut()
+                                    self.comments_buffer
+                                        .as_mut()
                                         .unwrap()
                                         .push_comment(BufferedComment {
                                             kind: BufferedCommentKind::Trailing,
@@ -807,7 +785,7 @@ impl<'a> Lexer<'a> {
             },
             handle_eof: {
                 let end_pos = self.input().end_pos();
-                let span = Span::new_with_checked(end_pos, end_pos);
+                let span = Span::new(end_pos, end_pos);
                 self.emit_error_span(span, SyntaxError::UnterminatedBlockComment);
                 return;
             }
@@ -825,7 +803,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    fn make_legacy_octal(&mut self, start: BytePos, val: f64) -> LexResult<f64> {
+    fn make_legacy_octal(&mut self, start: u32, val: f64) -> LexResult<f64> {
         self.ensure_not_ident()?;
         if self.syntax().typescript() && self.target() >= EsVersion::Es5 {
             self.emit_error(start, SyntaxError::TS1085);
@@ -992,9 +970,7 @@ impl<'a> Lexer<'a> {
             };
 
             // legacy octal number is not allowed in bigint.
-            if (!START_WITH_ZERO || lazy_integer.end - lazy_integer.start == BytePos(1))
-                && self.eat(b'n')
-            {
+            if (!START_WITH_ZERO || lazy_integer.end - lazy_integer.start == 1) && self.eat(b'n') {
                 let bigint_value = num_bigint::BigInt::parse_bytes(s.as_bytes(), 10).unwrap();
                 return Ok(Either::Right(Box::new(bigint_value)));
             }
@@ -1009,7 +985,7 @@ impl<'a> Lexer<'a> {
                     // e.g. `0` is decimal (so it can be part of float)
                     //
                     // e.g. `000` is octal
-                    if start.0 != self.last_pos().0 - 1 {
+                    if start != self.last_pos() - 1 {
                         return self.make_legacy_octal(start, 0f64).map(Either::Left);
                     }
                 } else if lazy_integer.not_octal {
@@ -1101,7 +1077,7 @@ impl<'a> Lexer<'a> {
                     .checked_mul(radix as u32)
                     .and_then(|v| v.checked_add(val))
                     .ok_or_else(|| {
-                        let span = Span::new_with_checked(start, start);
+                        let span = Span::new(start, start);
                         crate::error::Error::new(span, SyntaxError::InvalidUnicodeEscape)
                     })?;
 
@@ -1172,11 +1148,11 @@ impl<'a> Lexer<'a> {
     #[cold]
     #[inline(never)]
     fn consume_pending_comments(&mut self) {
-        if let Some(comments) = self.comments() {
-            let last = self.state.prev_hi;
-            let start_pos = self.start_pos();
-            let comments_buffer = self.comments_buffer_mut().unwrap();
-
+        let last = self.state.prev_hi;
+        let start_pos = self.start_pos();
+        if let (Some(comments), Some(comments_buffer)) =
+            (self.comments.as_mut(), self.comments_buffer.as_mut())
+        {
             // if the file had no tokens and no shebang, then treat any
             // comments in the leading comments buffer as leading.
             // Otherwise treat them as trailing.
@@ -1191,12 +1167,16 @@ impl<'a> Lexer<'a> {
             // now fill the user's passed in comments
             for comment in comments_buffer.take_comments() {
                 match comment.kind {
-                    BufferedCommentKind::Leading => {
-                        comments.add_leading(comment.pos, comment.comment);
-                    }
-                    BufferedCommentKind::Trailing => {
-                        comments.add_trailing(comment.pos, comment.comment);
-                    }
+                    BufferedCommentKind::Leading => comments
+                        .leading
+                        .entry(comment.pos)
+                        .or_default()
+                        .push(comment.comment),
+                    BufferedCommentKind::Trailing => comments
+                        .trailing
+                        .entry(comment.pos)
+                        .or_default()
+                        .push(comment.comment),
                 }
             }
         }
@@ -1347,7 +1327,7 @@ impl<'a> Lexer<'a> {
                     }
                 }
 
-                chunk_start = cur_pos + BytePos(1);
+                chunk_start = cur_pos + 1;
             } else {
                 self.bump(1);
             }
@@ -1656,7 +1636,7 @@ impl<'a> Lexer<'a> {
     }
 
     /// Expects current char to be '/'
-    fn read_regexp(&mut self, start: BytePos) -> LexResult<Token> {
+    fn read_regexp(&mut self, start: u32) -> LexResult<Token> {
         unsafe {
             // Safety: start is valid position, and peek() is Some('/')
             self.input_mut().reset_to(start);
@@ -1796,7 +1776,7 @@ impl<'a> Lexer<'a> {
     #[cold]
     fn read_word_as_str_with_slow_path(
         &mut self,
-        mut slice_start: BytePos,
+        mut slice_start: u32,
     ) -> LexResult<(MaybeSubUtf8, bool)> {
         let mut first = true;
         let mut has_escape = false;
@@ -2144,7 +2124,7 @@ impl<'a> Lexer<'a> {
                     return Ok(Token::str(s, self));
                 },
             };
-            // dbg!(char::from_u32(fast_path_result as u32));
+            // dbg!(char::from_fast_path_result as u32);
 
             match fast_path_result {
                 b'"' | b'\'' if fast_path_result == quote => {
@@ -2262,10 +2242,10 @@ impl<'a> Lexer<'a> {
     }
 }
 
-fn pos_span(p: BytePos) -> Span {
-    Span::new_with_checked(p, p)
+fn pos_span(p: u32) -> Span {
+    Span::new(p, p)
 }
 
-fn fixed_len_span(p: BytePos, len: u32) -> Span {
-    Span::new_with_checked(p, p + BytePos(len))
+fn fixed_len_span(p: u32, len: u32) -> Span {
+    Span::new(p, p + len)
 }

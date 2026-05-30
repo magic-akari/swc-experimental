@@ -1,10 +1,12 @@
 mod assert_layout;
 mod ast;
 mod atom;
+mod comment;
 mod common;
 mod derive;
 mod multi_index_vec;
 mod node_id;
+mod span;
 mod visit;
 
 mod generated {
@@ -17,15 +19,14 @@ mod generated {
 }
 
 use std::marker::PhantomData;
-use swc_core::atoms::Wtf8Atom;
-use swc_core::atoms::{Atom, wtf8::Wtf8};
-use swc_core::common::BytePos;
+use swc_atoms::{Atom, Wtf8Atom, wtf8::Wtf8};
 
 use num_bigint::BigInt as BigIntValue;
 use oxc_index::IndexVec;
 
 pub use ast::*;
 pub use atom::*;
+pub use comment::*;
 pub use common::*;
 pub use derive::*;
 pub use generated::ast_visitor::*;
@@ -33,6 +34,7 @@ pub use node_id::{
     BigIntId, ExtraDataCompact, ExtraDataId, NodeId, NodeIdTrait, OptionalNodeId, SubRange,
     TypedSubRange,
 };
+pub use span::{DUMMY_SP, Span};
 
 use crate::multi_index_vec::multi_index_vec;
 use crate::node_id::OptionalSubRange;
