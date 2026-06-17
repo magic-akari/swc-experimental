@@ -26,13 +26,13 @@ jobs:
 
       - name: Self-hosted Renovate
         if: ${{ !inputs.dryRun }}
-        uses: renovatebot/github-action@9dd450fe094737324c6740847d34d21d0a12670e
+        uses: renovatebot/github-action@v46.1.15
         with:
           token: ${{ secrets.RENOVATE_TOKEN }}
 
       - name: Self-hosted Renovate (dry run)
         if: ${{ inputs.dryRun }}
-        uses: renovatebot/github-action@9dd450fe094737324c6740847d34d21d0a12670e
+        uses: renovatebot/github-action@v46.1.15
         with:
           token: ${{ secrets.RENOVATE_TOKEN }}
         env:
