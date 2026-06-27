@@ -2541,11 +2541,13 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                         // }
 
                         // async a => body
+                        let param_span = ident.span();
                         let arg = Pat::Ident(p.ast.box_binding_ident(p.boxed(ident)));
-                        let params = p.collect_vec(|_p, params| {
-                            params.push(arg);
-                            Ok(())
-                        })?;
+                        let mut items = p.vec();
+                        items.push(p.ast.param(param_span, p.vec(), arg, None));
+                        let params =
+                            p.ast
+                                .box_param_list(param_span, ParamListKind::Arrow, items, None);
 
                         expect!(p, Token::Arrow);
                         let body = p.parse_fn_block_or_expr_body(
@@ -2562,11 +2564,13 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                         p.emit_strict_mode_err(id.span(), SyntaxError::EvalAndArgumentsInStrict)
                     }
 
-                    let params = p.collect_vec(|p, params| {
-                        let pat = Pat::Ident(p.ast.box_binding_ident(p.boxed(id)));
-                        params.push(pat);
-                        Ok(())
-                    })?;
+                    let param_span = id.span();
+                    let pat = Pat::Ident(p.ast.box_binding_ident(p.boxed(id)));
+                    let mut items = p.vec();
+                    items.push(p.ast.param(param_span, p.vec(), pat, None));
+                    let params =
+                        p.ast
+                            .box_param_list(param_span, ParamListKind::Arrow, items, None);
 
                     p.bump();
                     let body = p.parse_fn_block_or_expr_body(

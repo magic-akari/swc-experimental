@@ -1618,7 +1618,7 @@ impl<'a> AstBuilder<'a> {
     pub fn for_head_pat_expr_arrow_expr(
         &self,
         span: Span,
-        params: Vec<'a, Pat<'a>>,
+        params: Box<'a, ParamList<'a>>,
         body: BlockStmtOrExpr<'a>,
         is_async: bool,
     ) -> ForHead<'a> {
@@ -2046,7 +2046,7 @@ impl<'a> AstBuilder<'a> {
     pub fn var_decl_or_expr_expr_arrow_expr(
         &self,
         span: Span,
-        params: Vec<'a, Pat<'a>>,
+        params: Box<'a, ParamList<'a>>,
         body: BlockStmtOrExpr<'a>,
         is_async: bool,
     ) -> VarDeclOrExpr<'a> {
@@ -2493,7 +2493,7 @@ impl<'a> AstBuilder<'a> {
     pub fn expr_arrow_expr(
         &self,
         span: Span,
-        params: Vec<'a, Pat<'a>>,
+        params: Box<'a, ParamList<'a>>,
         body: BlockStmtOrExpr<'a>,
         is_async: bool,
     ) -> Expr<'a> {
@@ -2945,7 +2945,7 @@ impl<'a> AstBuilder<'a> {
     pub fn arrow_expr(
         &self,
         span: Span,
-        params: Vec<'a, Pat<'a>>,
+        params: Box<'a, ParamList<'a>>,
         body: BlockStmtOrExpr<'a>,
         is_async: bool,
     ) -> ArrowExpr<'a> {
@@ -2960,7 +2960,7 @@ impl<'a> AstBuilder<'a> {
     pub fn box_arrow_expr(
         &self,
         span: Span,
-        params: Vec<'a, Pat<'a>>,
+        params: Box<'a, ParamList<'a>>,
         body: BlockStmtOrExpr<'a>,
         is_async: bool,
     ) -> Box<'a, ArrowExpr<'a>> {
@@ -3323,7 +3323,7 @@ impl<'a> AstBuilder<'a> {
     pub fn callee_expr_arrow_expr(
         &self,
         span: Span,
-        params: Vec<'a, Pat<'a>>,
+        params: Box<'a, ParamList<'a>>,
         body: BlockStmtOrExpr<'a>,
         is_async: bool,
     ) -> Callee<'a> {
@@ -3747,7 +3747,7 @@ impl<'a> AstBuilder<'a> {
     pub fn block_stmt_or_expr_expr_arrow_expr(
         &self,
         span: Span,
-        params: Vec<'a, Pat<'a>>,
+        params: Box<'a, ParamList<'a>>,
         body: BlockStmtOrExpr<'a>,
         is_async: bool,
     ) -> BlockStmtOrExpr<'a> {
@@ -4120,7 +4120,7 @@ impl<'a> AstBuilder<'a> {
     pub fn function(
         &self,
         span: Span,
-        params: Vec<'a, Param<'a>>,
+        params: Box<'a, ParamList<'a>>,
         decorators: Vec<'a, Decorator<'a>>,
         body: Box<'a, BlockStmt<'a>>,
         is_generator: bool,
@@ -4139,7 +4139,7 @@ impl<'a> AstBuilder<'a> {
     pub fn box_function(
         &self,
         span: Span,
-        params: Vec<'a, Param<'a>>,
+        params: Box<'a, ParamList<'a>>,
         decorators: Vec<'a, Decorator<'a>>,
         body: Box<'a, BlockStmt<'a>>,
         is_generator: bool,
@@ -4149,11 +4149,44 @@ impl<'a> AstBuilder<'a> {
             .boxed(self.function(span, params, decorators, body, is_generator, is_async))
     }
     #[inline]
-    pub fn param(&self, span: Span, decorators: Vec<'a, Decorator<'a>>, pat: Pat<'a>) -> Param<'a> {
+    pub fn param_list(
+        &self,
+        span: Span,
+        kind: ParamListKind,
+        items: Vec<'a, Param<'a>>,
+        rest: Option<Box<'a, ParamRest<'a>>>,
+    ) -> ParamList<'a> {
+        ParamList {
+            span,
+            kind,
+            items,
+            rest,
+        }
+    }
+    #[inline]
+    pub fn box_param_list(
+        &self,
+        span: Span,
+        kind: ParamListKind,
+        items: Vec<'a, Param<'a>>,
+        rest: Option<Box<'a, ParamRest<'a>>>,
+    ) -> Box<'a, ParamList<'a>> {
+        self.allocator
+            .boxed(self.param_list(span, kind, items, rest))
+    }
+    #[inline]
+    pub fn param(
+        &self,
+        span: Span,
+        decorators: Vec<'a, Decorator<'a>>,
+        pat: Pat<'a>,
+        initializer: Option<Expr<'a>>,
+    ) -> Param<'a> {
         Param {
             span,
             decorators,
             pat,
+            initializer,
         }
     }
     #[inline]
@@ -4162,17 +4195,32 @@ impl<'a> AstBuilder<'a> {
         span: Span,
         decorators: Vec<'a, Decorator<'a>>,
         pat: Pat<'a>,
+        initializer: Option<Expr<'a>>,
     ) -> Box<'a, Param<'a>> {
-        self.allocator.boxed(self.param(span, decorators, pat))
+        self.allocator
+            .boxed(self.param(span, decorators, pat, initializer))
     }
     #[inline]
-    pub fn param_or_ts_param_prop_param(
+    pub fn param_rest(
         &self,
         span: Span,
         decorators: Vec<'a, Decorator<'a>>,
-        pat: Pat<'a>,
-    ) -> ParamOrTsParamProp<'a> {
-        ParamOrTsParamProp::Param(self.box_param(span, decorators, pat))
+        arg: Pat<'a>,
+    ) -> ParamRest<'a> {
+        ParamRest {
+            span,
+            decorators,
+            arg,
+        }
+    }
+    #[inline]
+    pub fn box_param_rest(
+        &self,
+        span: Span,
+        decorators: Vec<'a, Decorator<'a>>,
+        arg: Pat<'a>,
+    ) -> Box<'a, ParamRest<'a>> {
+        self.allocator.boxed(self.param_rest(span, decorators, arg))
     }
     #[inline]
     pub fn class(
@@ -4208,7 +4256,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         key: PropName<'a>,
-        params: Vec<'a, ParamOrTsParamProp<'a>>,
+        params: Box<'a, ParamList<'a>>,
         body: Option<Box<'a, BlockStmt<'a>>>,
     ) -> ClassMember<'a> {
         ClassMember::Constructor(self.box_constructor(span, key, params, body))
@@ -4401,7 +4449,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         key: PropName<'a>,
-        params: Vec<'a, ParamOrTsParamProp<'a>>,
+        params: Box<'a, ParamList<'a>>,
         body: Option<Box<'a, BlockStmt<'a>>>,
     ) -> Constructor<'a> {
         Constructor {
@@ -4416,7 +4464,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         key: PropName<'a>,
-        params: Vec<'a, ParamOrTsParamProp<'a>>,
+        params: Box<'a, ParamList<'a>>,
         body: Option<Box<'a, BlockStmt<'a>>>,
     ) -> Box<'a, Constructor<'a>> {
         self.allocator
@@ -4957,7 +5005,7 @@ impl<'a> AstBuilder<'a> {
     pub fn pat_expr_arrow_expr(
         &self,
         span: Span,
-        params: Vec<'a, Pat<'a>>,
+        params: Box<'a, ParamList<'a>>,
         body: BlockStmtOrExpr<'a>,
         is_async: bool,
     ) -> Pat<'a> {
@@ -5653,7 +5701,7 @@ impl<'a> AstBuilder<'a> {
     pub fn jsx_expr_expr_arrow_expr(
         &self,
         span: Span,
-        params: Vec<'a, Pat<'a>>,
+        params: Box<'a, ParamList<'a>>,
         body: BlockStmtOrExpr<'a>,
         is_async: bool,
     ) -> JSXExpr<'a> {

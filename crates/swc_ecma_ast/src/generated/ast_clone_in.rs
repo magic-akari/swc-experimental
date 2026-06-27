@@ -1033,6 +1033,18 @@ impl<'a, 'src> CloneIn<'a> for Function<'src> {
         }
     }
 }
+impl<'a, 'src> CloneIn<'a> for ParamList<'src> {
+    type Cloned = ParamList<'a>;
+    #[inline]
+    fn clone_in(&self, allocator: &'a Allocator) -> Self::Cloned {
+        ParamList {
+            span: self.span.clone_in(allocator),
+            kind: self.kind.clone_in(allocator),
+            items: self.items.clone_in(allocator),
+            rest: self.rest.clone_in(allocator),
+        }
+    }
+}
 impl<'a, 'src> CloneIn<'a> for Param<'src> {
     type Cloned = Param<'a>;
     #[inline]
@@ -1041,15 +1053,18 @@ impl<'a, 'src> CloneIn<'a> for Param<'src> {
             span: self.span.clone_in(allocator),
             decorators: self.decorators.clone_in(allocator),
             pat: self.pat.clone_in(allocator),
+            initializer: self.initializer.clone_in(allocator),
         }
     }
 }
-impl<'a, 'src> CloneIn<'a> for ParamOrTsParamProp<'src> {
-    type Cloned = ParamOrTsParamProp<'a>;
+impl<'a, 'src> CloneIn<'a> for ParamRest<'src> {
+    type Cloned = ParamRest<'a>;
     #[inline]
     fn clone_in(&self, allocator: &'a Allocator) -> Self::Cloned {
-        match self {
-            Self::Param(it) => ParamOrTsParamProp::Param(it.clone_in(allocator)),
+        ParamRest {
+            span: self.span.clone_in(allocator),
+            decorators: self.decorators.clone_in(allocator),
+            arg: self.arg.clone_in(allocator),
         }
     }
 }

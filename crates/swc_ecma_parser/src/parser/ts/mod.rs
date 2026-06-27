@@ -1395,15 +1395,14 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
 
         debug_assert!(self.input().syntax().typescript());
 
-        let params = self.parse_formal_params()?;
+        let params = self.parse_param_list(ParamListKind::Signature)?;
         let mut list = Vec::with_capacity(4);
 
-        for param in params {
+        for param in params.items {
             let item = match param.pat {
-                Pat::Ident(pat) => TsFnParam::Ident(pat),
-                Pat::Array(pat) => TsFnParam::Array(pat),
-                Pat::Object(pat) => TsFnParam::Object(pat),
-                Pat::Rest(pat) => TsFnParam::Rest(pat),
+                Pat::Ident(pat) if param.initializer.is_none() => TsFnParam::Ident(pat),
+                Pat::Array(pat) if param.initializer.is_none() => TsFnParam::Array(pat),
+                Pat::Object(pat) if param.initializer.is_none() => TsFnParam::Object(pat),
                 _ => unexpected!(
                     self,
                     "an identifier, [ for an array pattern, { for an object patter or ... for a \
@@ -1411,6 +1410,14 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                 ),
             };
             list.push(item);
+        }
+        if let Some(rest) = params.rest {
+            let dot3_token = Span::new(rest.span.start, rest.span.start + 3);
+            list.push(TsFnParam::Rest(self.ast.box_rest_pat(
+                rest.span,
+                dot3_token,
+                rest.arg,
+            )));
         }
         expect!(self, Token::RParen);
         Ok(list)

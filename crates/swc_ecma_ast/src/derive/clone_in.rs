@@ -1,8 +1,8 @@
 use swc_experimental_allocator::{Allocator, CloneIn};
 
 use crate::{
-    AssignOp, BinaryOp, ImportPhase, MetaPropKind, MethodKind, ScopeId, Span, SymbolId, UnaryOp,
-    UpdateOp, VarDeclKind,
+    AssignOp, BinaryOp, ImportPhase, MetaPropKind, MethodKind, ParamListKind, ScopeId, Span,
+    SymbolId, UnaryOp, UpdateOp, VarDeclKind,
 };
 
 macro_rules! impl_clone_in_trivial {
@@ -26,5 +26,6 @@ impl_clone_in_trivial!(MetaPropKind);
 impl_clone_in_trivial!(ImportPhase);
 impl_clone_in_trivial!(VarDeclKind);
 impl_clone_in_trivial!(MethodKind);
+impl_clone_in_trivial!(ParamListKind);
 impl_clone_in_trivial!(ScopeId);
 impl_clone_in_trivial!(SymbolId);

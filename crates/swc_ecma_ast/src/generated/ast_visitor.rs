@@ -369,11 +369,15 @@ pub trait Visit<'a> {
         node.visit_children_with(self);
     }
     #[inline]
+    fn visit_param_list(&mut self, node: &ParamList<'a>) {
+        node.visit_children_with(self);
+    }
+    #[inline]
     fn visit_param(&mut self, node: &Param<'a>) {
         node.visit_children_with(self);
     }
     #[inline]
-    fn visit_param_or_ts_param_prop(&mut self, node: &ParamOrTsParamProp<'a>) {
+    fn visit_param_rest(&mut self, node: &ParamRest<'a>) {
         node.visit_children_with(self);
     }
     #[inline]
@@ -693,15 +697,7 @@ pub trait Visit<'a> {
         node.visit_children_with(self);
     }
     #[inline]
-    fn visit_pats(&mut self, node: &Vec<'a, Pat<'a>>) {
-        node.visit_children_with(self);
-    }
-    #[inline]
     fn visit_tpl_elements(&mut self, node: &Vec<'a, TplElement<'a>>) {
-        node.visit_children_with(self);
-    }
-    #[inline]
-    fn visit_params(&mut self, node: &Vec<'a, Param<'a>>) {
         node.visit_children_with(self);
     }
     #[inline]
@@ -709,11 +705,15 @@ pub trait Visit<'a> {
         node.visit_children_with(self);
     }
     #[inline]
-    fn visit_class_members(&mut self, node: &Vec<'a, ClassMember<'a>>) {
+    fn visit_params(&mut self, node: &Vec<'a, Param<'a>>) {
         node.visit_children_with(self);
     }
     #[inline]
-    fn visit_param_or_ts_param_props(&mut self, node: &Vec<'a, ParamOrTsParamProp<'a>>) {
+    fn visit_opt_param_rest(&mut self, node: &Option<Box<'a, ParamRest<'a>>>) {
+        node.visit_children_with(self);
+    }
+    #[inline]
+    fn visit_class_members(&mut self, node: &Vec<'a, ClassMember<'a>>) {
         node.visit_children_with(self);
     }
     #[inline]
@@ -1823,6 +1823,17 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Function<'a> {
         self.body.visit_with(visitor);
     }
 }
+impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for ParamList<'a> {
+    #[inline]
+    fn visit_with(&self, visitor: &mut V) {
+        <V as Visit<'a>>::visit_param_list(visitor, self)
+    }
+    #[inline]
+    fn visit_children_with(&self, visitor: &mut V) {
+        self.items.visit_with(visitor);
+        self.rest.visit_with(visitor);
+    }
+}
 impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Param<'a> {
     #[inline]
     fn visit_with(&self, visitor: &mut V) {
@@ -1832,18 +1843,18 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Param<'a> {
     fn visit_children_with(&self, visitor: &mut V) {
         self.decorators.visit_with(visitor);
         self.pat.visit_with(visitor);
+        self.initializer.visit_with(visitor);
     }
 }
-impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for ParamOrTsParamProp<'a> {
+impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for ParamRest<'a> {
     #[inline]
     fn visit_with(&self, visitor: &mut V) {
-        <V as Visit<'a>>::visit_param_or_ts_param_prop(visitor, self)
+        <V as Visit<'a>>::visit_param_rest(visitor, self)
     }
     #[inline]
     fn visit_children_with(&self, visitor: &mut V) {
-        match self {
-            Self::Param(it) => it.visit_with(visitor),
-        }
+        self.decorators.visit_with(visitor);
+        self.arg.visit_with(visitor);
     }
 }
 impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Class<'a> {
@@ -2753,34 +2764,10 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Vec<'a, Expr<'a>> {
         }
     }
 }
-impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Vec<'a, Pat<'a>> {
-    #[inline]
-    fn visit_with(&self, visitor: &mut V) {
-        <V as Visit<'a>>::visit_pats(visitor, self)
-    }
-    #[inline]
-    fn visit_children_with(&self, visitor: &mut V) {
-        for node in self {
-            node.visit_with(visitor);
-        }
-    }
-}
 impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Vec<'a, TplElement<'a>> {
     #[inline]
     fn visit_with(&self, visitor: &mut V) {
         <V as Visit<'a>>::visit_tpl_elements(visitor, self)
-    }
-    #[inline]
-    fn visit_children_with(&self, visitor: &mut V) {
-        for node in self {
-            node.visit_with(visitor);
-        }
-    }
-}
-impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Vec<'a, Param<'a>> {
-    #[inline]
-    fn visit_with(&self, visitor: &mut V) {
-        <V as Visit<'a>>::visit_params(visitor, self)
     }
     #[inline]
     fn visit_children_with(&self, visitor: &mut V) {
@@ -2801,10 +2788,10 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Vec<'a, Decorator<'a>> {
         }
     }
 }
-impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Vec<'a, ClassMember<'a>> {
+impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Vec<'a, Param<'a>> {
     #[inline]
     fn visit_with(&self, visitor: &mut V) {
-        <V as Visit<'a>>::visit_class_members(visitor, self)
+        <V as Visit<'a>>::visit_params(visitor, self)
     }
     #[inline]
     fn visit_children_with(&self, visitor: &mut V) {
@@ -2813,10 +2800,22 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Vec<'a, ClassMember<'a>> {
         }
     }
 }
-impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Vec<'a, ParamOrTsParamProp<'a>> {
+impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Option<Box<'a, ParamRest<'a>>> {
     #[inline]
     fn visit_with(&self, visitor: &mut V) {
-        <V as Visit<'a>>::visit_param_or_ts_param_props(visitor, self)
+        <V as Visit<'a>>::visit_opt_param_rest(visitor, self)
+    }
+    #[inline]
+    fn visit_children_with(&self, visitor: &mut V) {
+        if let Some(node) = self {
+            node.visit_with(visitor);
+        }
+    }
+}
+impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Vec<'a, ClassMember<'a>> {
+    #[inline]
+    fn visit_with(&self, visitor: &mut V) {
+        <V as Visit<'a>>::visit_class_members(visitor, self)
     }
     #[inline]
     fn visit_children_with(&self, visitor: &mut V) {
@@ -3263,11 +3262,15 @@ pub trait VisitMut<'a> {
         node.visit_mut_children_with(self);
     }
     #[inline]
+    fn visit_mut_param_list(&mut self, node: &mut ParamList<'a>) {
+        node.visit_mut_children_with(self);
+    }
+    #[inline]
     fn visit_mut_param(&mut self, node: &mut Param<'a>) {
         node.visit_mut_children_with(self);
     }
     #[inline]
-    fn visit_mut_param_or_ts_param_prop(&mut self, node: &mut ParamOrTsParamProp<'a>) {
+    fn visit_mut_param_rest(&mut self, node: &mut ParamRest<'a>) {
         node.visit_mut_children_with(self);
     }
     #[inline]
@@ -3590,15 +3593,7 @@ pub trait VisitMut<'a> {
         node.visit_mut_children_with(self);
     }
     #[inline]
-    fn visit_mut_pats(&mut self, node: &mut Vec<'a, Pat<'a>>) {
-        node.visit_mut_children_with(self);
-    }
-    #[inline]
     fn visit_mut_tpl_elements(&mut self, node: &mut Vec<'a, TplElement<'a>>) {
-        node.visit_mut_children_with(self);
-    }
-    #[inline]
-    fn visit_mut_params(&mut self, node: &mut Vec<'a, Param<'a>>) {
         node.visit_mut_children_with(self);
     }
     #[inline]
@@ -3606,11 +3601,15 @@ pub trait VisitMut<'a> {
         node.visit_mut_children_with(self);
     }
     #[inline]
-    fn visit_mut_class_members(&mut self, node: &mut Vec<'a, ClassMember<'a>>) {
+    fn visit_mut_params(&mut self, node: &mut Vec<'a, Param<'a>>) {
         node.visit_mut_children_with(self);
     }
     #[inline]
-    fn visit_mut_param_or_ts_param_props(&mut self, node: &mut Vec<'a, ParamOrTsParamProp<'a>>) {
+    fn visit_mut_opt_param_rest(&mut self, node: &mut Option<Box<'a, ParamRest<'a>>>) {
+        node.visit_mut_children_with(self);
+    }
+    #[inline]
+    fn visit_mut_class_members(&mut self, node: &mut Vec<'a, ClassMember<'a>>) {
         node.visit_mut_children_with(self);
     }
     #[inline]
@@ -4723,6 +4722,17 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Function<'a> {
         self.body.visit_mut_with(visitor);
     }
 }
+impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for ParamList<'a> {
+    #[inline]
+    fn visit_mut_with(&mut self, visitor: &mut V) {
+        <V as VisitMut<'a>>::visit_mut_param_list(visitor, self)
+    }
+    #[inline]
+    fn visit_mut_children_with(&mut self, visitor: &mut V) {
+        self.items.visit_mut_with(visitor);
+        self.rest.visit_mut_with(visitor);
+    }
+}
 impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Param<'a> {
     #[inline]
     fn visit_mut_with(&mut self, visitor: &mut V) {
@@ -4732,18 +4742,18 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Param<'a> {
     fn visit_mut_children_with(&mut self, visitor: &mut V) {
         self.decorators.visit_mut_with(visitor);
         self.pat.visit_mut_with(visitor);
+        self.initializer.visit_mut_with(visitor);
     }
 }
-impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for ParamOrTsParamProp<'a> {
+impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for ParamRest<'a> {
     #[inline]
     fn visit_mut_with(&mut self, visitor: &mut V) {
-        <V as VisitMut<'a>>::visit_mut_param_or_ts_param_prop(visitor, self)
+        <V as VisitMut<'a>>::visit_mut_param_rest(visitor, self)
     }
     #[inline]
     fn visit_mut_children_with(&mut self, visitor: &mut V) {
-        match self {
-            Self::Param(it) => it.visit_mut_with(visitor),
-        }
+        self.decorators.visit_mut_with(visitor);
+        self.arg.visit_mut_with(visitor);
     }
 }
 impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Class<'a> {
@@ -5655,34 +5665,10 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Vec<'a, Expr<'a>> {
         }
     }
 }
-impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Vec<'a, Pat<'a>> {
-    #[inline]
-    fn visit_mut_with(&mut self, visitor: &mut V) {
-        <V as VisitMut<'a>>::visit_mut_pats(visitor, self)
-    }
-    #[inline]
-    fn visit_mut_children_with(&mut self, visitor: &mut V) {
-        for node in self {
-            node.visit_mut_with(visitor);
-        }
-    }
-}
 impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Vec<'a, TplElement<'a>> {
     #[inline]
     fn visit_mut_with(&mut self, visitor: &mut V) {
         <V as VisitMut<'a>>::visit_mut_tpl_elements(visitor, self)
-    }
-    #[inline]
-    fn visit_mut_children_with(&mut self, visitor: &mut V) {
-        for node in self {
-            node.visit_mut_with(visitor);
-        }
-    }
-}
-impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Vec<'a, Param<'a>> {
-    #[inline]
-    fn visit_mut_with(&mut self, visitor: &mut V) {
-        <V as VisitMut<'a>>::visit_mut_params(visitor, self)
     }
     #[inline]
     fn visit_mut_children_with(&mut self, visitor: &mut V) {
@@ -5703,10 +5689,10 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Vec<'a, Decorator<'a>
         }
     }
 }
-impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Vec<'a, ClassMember<'a>> {
+impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Vec<'a, Param<'a>> {
     #[inline]
     fn visit_mut_with(&mut self, visitor: &mut V) {
-        <V as VisitMut<'a>>::visit_mut_class_members(visitor, self)
+        <V as VisitMut<'a>>::visit_mut_params(visitor, self)
     }
     #[inline]
     fn visit_mut_children_with(&mut self, visitor: &mut V) {
@@ -5715,10 +5701,22 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Vec<'a, ClassMember<'
         }
     }
 }
-impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Vec<'a, ParamOrTsParamProp<'a>> {
+impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Option<Box<'a, ParamRest<'a>>> {
     #[inline]
     fn visit_mut_with(&mut self, visitor: &mut V) {
-        <V as VisitMut<'a>>::visit_mut_param_or_ts_param_props(visitor, self)
+        <V as VisitMut<'a>>::visit_mut_opt_param_rest(visitor, self)
+    }
+    #[inline]
+    fn visit_mut_children_with(&mut self, visitor: &mut V) {
+        if let Some(node) = self {
+            node.visit_mut_with(visitor);
+        }
+    }
+}
+impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Vec<'a, ClassMember<'a>> {
+    #[inline]
+    fn visit_mut_with(&mut self, visitor: &mut V) {
+        <V as VisitMut<'a>>::visit_mut_class_members(visitor, self)
     }
     #[inline]
     fn visit_mut_children_with(&mut self, visitor: &mut V) {

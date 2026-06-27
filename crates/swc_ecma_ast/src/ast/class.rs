@@ -3,7 +3,7 @@ use swc_experimental_allocator::boxed::Box;
 use swc_experimental_allocator::vec::Vec;
 use swc_experimental_ast_macros::ast;
 
-use crate::{BlockStmt, EmptyStmt, Expr, Function, ParamOrTsParamProp, PrivateName, PropName};
+use crate::{BlockStmt, EmptyStmt, Expr, Function, ParamList, PrivateName, PropName};
 
 #[ast]
 #[derive(Debug)]
@@ -99,7 +99,7 @@ pub struct PrivateMethod<'a> {
 pub struct Constructor<'a> {
     pub span: Span,
     pub key: PropName<'a>,
-    pub params: Vec<'a, ParamOrTsParamProp<'a>>,
+    pub params: Box<'a, ParamList<'a>>,
     pub body: Option<Box<'a, BlockStmt<'a>>>,
     // accessibility: Option<Accessibility>,
     // is_optional: bool,

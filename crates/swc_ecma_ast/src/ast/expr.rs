@@ -216,7 +216,7 @@ pub struct SeqExpr<'a> {
 #[derive(Debug)]
 pub struct ArrowExpr<'a> {
     pub span: Span,
-    pub params: Vec<'a, Pat<'a>>,
+    pub params: Box<'a, ParamList<'a>>,
     pub body: BlockStmtOrExpr<'a>,
     pub is_async: bool,
     // type_params: Option<Box<TsTypeParamDecl>>,

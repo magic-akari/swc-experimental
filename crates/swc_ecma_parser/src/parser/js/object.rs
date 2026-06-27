@@ -1,4 +1,4 @@
-use swc_experimental_allocator::vec::Vec;
+use swc_experimental_allocator::{boxed::Box as AstBox, vec::Vec};
 use swc_experimental_ecma_ast::*;
 
 use crate::parser::js::is_not_this;
@@ -294,7 +294,8 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                 |p| {
                                     let params = p.parse_formal_params()?;
 
-                                    if params.iter().any(is_not_this) {
+                                    if params.items.iter().any(is_not_this) || params.rest.is_some()
+                                    {
                                         p.emit_err(key_span, SyntaxError::GetterParam);
                                     }
 
@@ -325,14 +326,17 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                 |p| {
                                     let params = p.parse_formal_params()?;
 
-                                    if params.iter().filter(|param| is_not_this(param)).count() != 1
-                                    {
+                                    let param_count = params
+                                        .items
+                                        .iter()
+                                        .filter(|param| is_not_this(param))
+                                        .count()
+                                        + params.rest.as_ref().map_or(0, |_| 1);
+                                    if param_count != 1 {
                                         p.emit_err(key_span, SyntaxError::SetterParam);
                                     }
 
-                                    if !params.is_empty()
-                                        && let Pat::Rest(rest) = &params.first().unwrap().pat
-                                    {
+                                    if let Some(rest) = &params.rest {
                                         p.emit_err(rest.span(), SyntaxError::RestPatInSetter);
                                     }
 
@@ -349,13 +353,23 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                             )
                             .map(|function| {
                                 let mut this = None;
-                                let mut params = function.params;
-                                if params.len() >= 2 {
-                                    this = Some(params.remove(0).pat);
+                                let params = AstBox::into_inner(function.params);
+                                let mut items = params.items;
+                                if items.len() >= 2 {
+                                    this = Some(items.remove(0).pat);
                                 }
 
-                                let param =
-                                    params.into_iter().next().map(|v| v.pat).unwrap_or_else(|| {
+                                let param = items
+                                    .into_iter()
+                                    .next()
+                                    .map(|v| v.pat)
+                                    .or_else(|| {
+                                        params.rest.map(|rest| {
+                                            let rest = AstBox::into_inner(rest);
+                                            p.ast.pat_rest_pat(rest.span, rest.dot3_token, rest.arg)
+                                        })
+                                    })
+                                    .unwrap_or_else(|| {
                                         p.emit_err(key_span, SyntaxError::SetterParam);
                                         p.ast.pat_invalid()
                                     });

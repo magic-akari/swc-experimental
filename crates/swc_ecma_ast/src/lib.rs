@@ -43,7 +43,7 @@ const _: () = {
     assert_size!(Decl<'_>, 16);
     assert_size!(VarDeclKind, 1);
 
-    assert_size!(ParamOrTsParamProp<'_>, 8);
+    assert_size!(ParamListKind, 1);
 
     assert_size!(BinaryOp, 1);
     assert_size!(AssignOp, 1);

@@ -25,7 +25,6 @@ pub struct ArrayPat<'a> {
     pub span: Span,
     pub elems: Vec<'a, Option<Pat<'a>>>,
     pub optional: bool,
-    // type_ann: Option<TsTypeAnn>,
 }
 
 #[ast]
@@ -34,7 +33,6 @@ pub struct ObjectPat<'a> {
     pub span: Span,
     pub props: Vec<'a, ObjectPatProp<'a>>,
     pub optional: bool,
-    // pub type_ann: Option<Box<TsTypeAnn>>,
 }
 
 #[ast]
@@ -51,7 +49,6 @@ pub struct RestPat<'a> {
     pub span: Span,
     pub dot3_token: Span,
     pub arg: Pat<'a>,
-    // type_ann: Option<Box<TsTypeAnn>>,
 }
 
 #[ast]

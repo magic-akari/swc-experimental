@@ -212,7 +212,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         is_generator: bool,
     ) -> PResult<Function<'a>>
     where
-        F: FnOnce(&mut Self) -> PResult<Vec<'a, Param<'a>>>,
+        F: FnOnce(&mut Self) -> PResult<Box<'a, ParamList<'a>>>,
     {
         trace_cur!(self, parse_fn_args_body);
         let f = |p: &mut Self| {
@@ -271,16 +271,11 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
 
             if p.syntax().typescript() && body.is_none() {
                 // Declare functions cannot have assignment pattern in parameters
-                for param in params.iter() {
+                for param in params.items.iter() {
                     // TODO: Search deeply for assignment pattern using a Visitor
 
-                    let span = match &param.pat {
-                        Pat::Assign(pat) => Some(pat.span()),
-                        _ => None,
-                    };
-
-                    if let Some(span) = span {
-                        p.emit_err(span, SyntaxError::TS2371)
+                    if param.initializer.is_some() {
+                        p.emit_err(param.span(), SyntaxError::TS2371)
                     }
                 }
             }
@@ -493,7 +488,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         }: MakeMethodArgs<'a>,
     ) -> PResult<ClassMember<'a>>
     where
-        F: FnOnce(&mut Self) -> PResult<Vec<'a, Param<'a>>>,
+        F: FnOnce(&mut Self) -> PResult<Box<'a, ParamList<'a>>>,
     {
         trace_cur!(self, make_method);
 
@@ -1000,37 +995,6 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                     params.is_simple_parameter_list(),
                 )?;
 
-                // if body.is_none() {
-                //     for param in params.iter() {
-                //         if param.is_ts_param_prop() {
-                //             self.emit_err(param.span(), SyntaxError::TS2369)
-                //         }
-                //     }
-                // }
-
-                // if self.syntax().typescript() && body.is_none() {
-                //     // Declare constructors cannot have assignment pattern in parameters
-                //     for param in &params {
-                //         // TODO: Search deeply for assignment pattern using a Visitor
-
-                //         let span = match *param {
-                //             ParamOrTsParamProp::Param(ref param) => match param.pat {
-                //                 Pat::Assign(ref p) => Some(p.span()),
-                //                 _ => None,
-                //             },
-                //             ParamOrTsParamProp::TsParamProp(TsParamProp {
-                //                 param: TsParamPropParam::Assign(ref p),
-                //                 ..
-                //             }) => Some(p.span()),
-                //             _ => None,
-                //         };
-
-                //         if let Some(span) = span {
-                //             self.emit_err(span, SyntaxError::TS2371)
-                //         }
-                //     }
-                // }
-
                 if let Some(static_token) = static_token {
                     self.emit_err(static_token, SyntaxError::TS1089("static".to_string()))
                 }
@@ -1160,7 +1124,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                     |p| {
                         let params = p.parse_formal_params()?;
 
-                        if params.iter().any(is_not_this) {
+                        if params.items.iter().any(is_not_this) || params.rest.is_some() {
                             p.emit_err(key_span, SyntaxError::GetterParam);
                         }
 
@@ -1184,13 +1148,17 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                     |p| {
                         let params = p.parse_formal_params()?;
 
-                        if params.iter().filter(|param| is_not_this(param)).count() != 1 {
+                        let param_count = params
+                            .items
+                            .iter()
+                            .filter(|param| is_not_this(param))
+                            .count()
+                            + params.rest.as_ref().map_or(0, |_| 1);
+                        if param_count != 1 {
                             p.emit_err(key_span, SyntaxError::SetterParam);
                         }
 
-                        if !params.is_empty()
-                            && let Pat::Rest(rest) = &params.first().unwrap().pat
-                        {
+                        if let Some(rest) = &params.rest {
                             p.emit_err(rest.span(), SyntaxError::RestPatInSetter);
                         }
 

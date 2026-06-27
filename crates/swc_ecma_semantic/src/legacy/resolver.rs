@@ -9,6 +9,17 @@ use crate::legacy::utils::find_pat_ids;
 
 use super::scope::{DeclKind, IdentType, ScopeKind};
 
+fn find_param_list_ids<'ast>(params: &ParamList<'ast>, found: &mut Vec<Atom<'ast>>) {
+    params
+        .items
+        .iter()
+        .for_each(|p| find_pat_ids(&p.pat, found));
+
+    if let Some(rest) = &params.rest {
+        find_pat_ids(&rest.arg, found);
+    }
+}
+
 /// See [Ident] for know how does swc manages identifiers.
 ///
 /// # When to run
@@ -536,10 +547,7 @@ impl<'ast> Visit<'ast> for Resolver<'ast> {
             child.ident_type = IdentType::Binding;
             {
                 let mut params = std::vec::Vec::default();
-                e.params
-                    .iter()
-                    .filter(|p| !p.is_rest())
-                    .for_each(|p| find_pat_ids(p, &mut params));
+                find_param_list_ids(&e.params, &mut params);
 
                 for id in params.iter() {
                     child.scopes[child.current]
@@ -708,35 +716,12 @@ impl<'ast> Visit<'ast> for Resolver<'ast> {
     }
 
     fn visit_constructor(&mut self, c: &Constructor<'ast>) {
-        // for p in c.params.iter() {
-        //     let p = self.ast.get_node(p);
-        //     match p {
-        //         ParamOrTsParamProp::TsParamProp(p) => {
-        //             p.decorators.visit_with(self);
-        //         }
-        //         ParamOrTsParamProp::Param(p) => {
-        //             p.decorators.visit_with(self);
-        //         }
-        //         #[cfg(swc_ast_unknown)]
-        //         _ => (),
-        //     }
-        // }
-
         self.with_child(ScopeKind::Fn, |child| {
             let old = child.ident_type;
             child.ident_type = IdentType::Binding;
             {
                 let mut params = std::vec::Vec::default();
-                c.params
-                    .iter()
-                    .filter(|p| match p {
-                        // ParamOrTsParamProp::TsParamProp(_) => false,
-                        ParamOrTsParamProp::Param(p) => !p.pat.is_rest(),
-                    })
-                    .for_each(|p| {
-                        let ParamOrTsParamProp::Param(p) = p;
-                        find_pat_ids(&p.pat, &mut params);
-                    });
+                find_param_list_ids(&c.params, &mut params);
 
                 for id in params.iter() {
                     child.scopes[child.current]
@@ -894,10 +879,7 @@ impl<'ast> Visit<'ast> for Resolver<'ast> {
 
         {
             let mut params = std::vec::Vec::default();
-            f.params
-                .iter()
-                .filter(|p| !p.pat.is_rest())
-                .for_each(|p| find_pat_ids(&p.pat, &mut params));
+            find_param_list_ids(&f.params, &mut params);
 
             for id in params.iter() {
                 self.scopes[self.current]
@@ -1109,8 +1091,30 @@ impl<'ast> Visit<'ast> for Resolver<'ast> {
     }
 
     fn visit_param(&mut self, param: &Param<'ast>) {
+        let old = self.ident_type;
+
+        self.ident_type = IdentType::Ref;
+        param.decorators.visit_with(self);
+
         self.ident_type = IdentType::Binding;
-        param.visit_children_with(self);
+        param.pat.visit_with(self);
+
+        self.ident_type = IdentType::Ref;
+        param.initializer.visit_with(self);
+
+        self.ident_type = old;
+    }
+
+    fn visit_param_rest(&mut self, param: &ParamRest<'ast>) {
+        let old = self.ident_type;
+
+        self.ident_type = IdentType::Ref;
+        param.decorators.visit_with(self);
+
+        self.ident_type = IdentType::Binding;
+        param.arg.visit_with(self);
+
+        self.ident_type = old;
     }
 
     fn visit_pat(&mut self, p: &Pat<'ast>) {

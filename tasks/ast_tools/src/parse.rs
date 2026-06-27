@@ -167,6 +167,7 @@ impl Parser {
             "UpdateOp" => primitive("UpdateOp"),
             "MetaPropKind" => primitive("MetaPropKind"),
             "MethodKind" => primitive("MethodKind"),
+            "ParamListKind" => primitive("ParamListKind"),
             _ => panic!("Unknown primitive {name}"),
         };
         self.create_new_type(type_def)

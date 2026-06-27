@@ -3267,6 +3267,18 @@ impl<'a> SetSpan for Function<'a> {
         self.span = span;
     }
 }
+impl<'a> GetSpan for ParamList<'a> {
+    #[inline]
+    fn span(&self) -> Span {
+        self.span
+    }
+}
+impl<'a> SetSpan for ParamList<'a> {
+    #[inline]
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
+    }
+}
 impl<'a> GetSpan for Param<'a> {
     #[inline]
     fn span(&self) -> Span {
@@ -3279,40 +3291,16 @@ impl<'a> SetSpan for Param<'a> {
         self.span = span;
     }
 }
-impl<'a> ParamOrTsParamProp<'a> {
-    #[inline]
-    pub const fn is_param(&self) -> bool {
-        matches!(self, Self::Param { .. })
-    }
-    #[inline]
-    pub fn as_param(&self) -> Option<&Param<'a>> {
-        match self {
-            Self::Param(it) => Some(it),
-            _ => None,
-        }
-    }
-    #[inline]
-    pub fn as_mut_param(&mut self) -> Option<&mut Param<'a>> {
-        match self {
-            Self::Param(it) => Some(it),
-            _ => None,
-        }
-    }
-}
-impl<'a> GetSpan for ParamOrTsParamProp<'a> {
+impl<'a> GetSpan for ParamRest<'a> {
     #[inline]
     fn span(&self) -> Span {
-        match self {
-            Self::Param(it) => it.span(),
-        }
+        self.span
     }
 }
-impl<'a> SetSpan for ParamOrTsParamProp<'a> {
+impl<'a> SetSpan for ParamRest<'a> {
     #[inline]
     fn set_span(&mut self, span: Span) {
-        match self {
-            Self::Param(it) => it.set_span(span),
-        }
+        self.span = span;
     }
 }
 impl<'a> GetSpan for Class<'a> {

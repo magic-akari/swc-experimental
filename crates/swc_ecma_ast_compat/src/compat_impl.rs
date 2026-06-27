@@ -1,12 +1,12 @@
 use swc_core::atoms::{Atom, Wtf8Atom};
-use swc_core::common::{BytePos, Span as SwcSpan, SyntaxContext};
+use swc_core::common::{BytePos, Span as SwcSpan, Spanned, SyntaxContext};
 use swc_core::ecma::ast::{self as legacy};
 use swc_experimental_allocator::atom::{
     Atom as ExperimentalAtom, Wtf8Atom as ExperimentalWtf8Atom,
 };
 use swc_experimental_allocator::boxed::Box as AstBox;
 use swc_experimental_allocator::vec::Vec as ArenaVec;
-use swc_experimental_ecma_ast::{self as experimental};
+use swc_experimental_ecma_ast as experimental;
 use swc_experimental_ecma_semantic::resolver::Semantic;
 
 fn compat_span(span: experimental::Span) -> SwcSpan {
@@ -637,7 +637,7 @@ pub(crate) trait CompatImpl {
                     legacy::Expr::Arrow(legacy::ArrowExpr {
                         span: compat_span(a.span),
                         ctxt: Default::default(),
-                        params: self.compat_vec(a.params, Self::compat_pat),
+                        params: self.compat_params_as_arrow_params(a.params),
                         body: alloc_box!(
                             self,
                             match a.body {
@@ -1072,7 +1072,7 @@ pub(crate) trait CompatImpl {
     ) -> legacy::Function {
         let f = AstBox::into_inner(f);
         legacy::Function {
-            params: self.compat_vec(f.params, Self::compat_param),
+            params: self.compat_params_as_function_params(f.params),
             decorators: self.compat_vec(f.decorators, Self::compat_decorator),
             span: compat_span(f.span),
             ctxt: Default::default(),
@@ -1085,11 +1085,95 @@ pub(crate) trait CompatImpl {
     }
 
     fn compat_param<'a>(&mut self, p: experimental::Param<'a>) -> legacy::Param {
+        let pat = self.compat_param_pat(p.pat, p.initializer);
         legacy::Param {
             span: compat_span(p.span),
             decorators: self.compat_vec(p.decorators, Self::compat_decorator),
-            pat: self.compat_pat(p.pat),
+            pat,
         }
+    }
+
+    fn compat_param_pat<'a>(
+        &mut self,
+        pat: experimental::Pat<'a>,
+        initializer: Option<experimental::Expr<'a>>,
+    ) -> legacy::Pat {
+        let pat = self.compat_pat(pat);
+        if let Some(initializer) = initializer {
+            let right = self.compat_expr(initializer);
+            let span = pat.span().to(right.span());
+            legacy::Pat::Assign(legacy::AssignPat {
+                span,
+                left: alloc_box!(self, pat),
+                right,
+            })
+        } else {
+            pat
+        }
+    }
+
+    fn compat_param_rest_as_param<'a>(&mut self, p: experimental::ParamRest<'a>) -> legacy::Param {
+        let dot3_token = experimental::Span::new(p.span.start, p.span.start + 3);
+        let arg = self.compat_pat(p.arg);
+        legacy::Param {
+            span: compat_span(p.span),
+            decorators: self.compat_vec(p.decorators, Self::compat_decorator),
+            pat: legacy::Pat::Rest(legacy::RestPat {
+                span: compat_span(p.span),
+                dot3_token: compat_span(dot3_token),
+                arg: alloc_box!(self, arg),
+                type_ann: None,
+            }),
+        }
+    }
+
+    fn compat_param_rest_as_pat<'a>(&mut self, p: experimental::ParamRest<'a>) -> legacy::Pat {
+        let dot3_token = experimental::Span::new(p.span.start, p.span.start + 3);
+        let arg = self.compat_pat(p.arg);
+        legacy::Pat::Rest(legacy::RestPat {
+            span: compat_span(p.span),
+            dot3_token: compat_span(dot3_token),
+            arg: alloc_box!(self, arg),
+            type_ann: None,
+        })
+    }
+
+    fn compat_params_as_function_params<'a>(
+        &mut self,
+        params: AstBox<'a, experimental::ParamList<'a>>,
+    ) -> Vec<legacy::Param> {
+        let params = AstBox::into_inner(params);
+        let mut items = self.compat_vec(params.items, Self::compat_param);
+        if let Some(rest) = params.rest {
+            items.push(self.compat_param_rest_as_param(AstBox::into_inner(rest)));
+        }
+        items
+    }
+
+    fn compat_params_as_arrow_params<'a>(
+        &mut self,
+        params: AstBox<'a, experimental::ParamList<'a>>,
+    ) -> Vec<legacy::Pat> {
+        let params = AstBox::into_inner(params);
+        let mut items = params
+            .items
+            .into_iter()
+            .map(|param| self.compat_param_pat(param.pat, param.initializer))
+            .collect::<Vec<_>>();
+        if let Some(rest) = params.rest {
+            items.push(self.compat_param_rest_as_pat(AstBox::into_inner(rest)));
+        }
+        items
+    }
+
+    fn compat_params_as_constructor_params<'a>(
+        &mut self,
+        params: AstBox<'a, experimental::ParamList<'a>>,
+    ) -> Vec<legacy::ParamOrTsParamProp> {
+        self.compat_params_as_function_params(params)
+            .into_iter()
+            .map(legacy::ParamOrTsParamProp::Param)
+            .collect()
     }
 
     fn compat_decorator<'a>(&mut self, d: experimental::Decorator<'a>) -> legacy::Decorator {
@@ -1122,7 +1206,7 @@ pub(crate) trait CompatImpl {
                     span: compat_span(k.span),
                     ctxt: Default::default(),
                     key: self.compat_prop_name(k.key),
-                    params: self.compat_vec(k.params, Self::compat_param_or_ts_param_prop),
+                    params: self.compat_params_as_constructor_params(k.params),
                     body: k.body.map(|b| self.compat_block_stmt(b)),
                     accessibility: None,
                     is_optional: false,
@@ -1242,18 +1326,6 @@ pub(crate) trait CompatImpl {
                     is_override: false,
                     definite: false,
                 })
-            }
-        }
-    }
-
-    fn compat_param_or_ts_param_prop<'a>(
-        &mut self,
-
-        p: experimental::ParamOrTsParamProp<'a>,
-    ) -> legacy::ParamOrTsParamProp {
-        match p {
-            experimental::ParamOrTsParamProp::Param(pp) => {
-                legacy::ParamOrTsParamProp::Param(self.compat_param(AstBox::into_inner(pp)))
             }
         }
     }

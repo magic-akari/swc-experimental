@@ -3,13 +3,13 @@ use swc_experimental_allocator::boxed::Box;
 use swc_experimental_allocator::vec::Vec;
 use swc_experimental_ast_macros::ast;
 
-use crate::ast::{BlockStmt, Decorator, Pat};
+use crate::ast::{BlockStmt, Decorator, Expr, Pat};
 
 #[ast]
 #[derive(Debug)]
 pub struct Function<'a> {
     pub span: Span,
-    pub params: Vec<'a, Param<'a>>,
+    pub params: Box<'a, ParamList<'a>>,
     pub decorators: Vec<'a, Decorator<'a>>,
     pub body: Box<'a, BlockStmt<'a>>,
     pub is_generator: bool,
@@ -18,17 +18,37 @@ pub struct Function<'a> {
     // pub return_type: Option<Box<TsTypeAnn>>,
 }
 
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ParamListKind {
+    Formal,
+    Unique,
+    Arrow,
+    Signature,
+}
+
+#[ast]
+#[derive(Debug)]
+pub struct ParamList<'a> {
+    pub span: Span,
+    pub kind: ParamListKind,
+    pub items: Vec<'a, Param<'a>>,
+    pub rest: Option<Box<'a, ParamRest<'a>>>,
+}
+
 #[ast]
 #[derive(Debug)]
 pub struct Param<'a> {
     pub span: Span,
     pub decorators: Vec<'a, Decorator<'a>>,
     pub pat: Pat<'a>,
+    pub initializer: Option<Expr<'a>>,
 }
 
 #[ast]
 #[derive(Debug)]
-pub enum ParamOrTsParamProp<'a> {
-    // TsParamProp(TsParamProp),
-    Param(Box<'a, Param<'a>>),
+pub struct ParamRest<'a> {
+    pub span: Span,
+    pub decorators: Vec<'a, Decorator<'a>>,
+    pub arg: Pat<'a>,
 }

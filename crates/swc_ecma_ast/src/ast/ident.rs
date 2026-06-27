@@ -34,7 +34,6 @@ pub struct PrivateName<'a> {
 #[derive(Debug)]
 pub struct BindingIdent<'a> {
     pub id: Box<'a, Ident<'a>>,
-    // pub type_ann: Option<Box<TsTypeAnn>>,
 }
 
 impl GetSpan for BindingIdent<'_> {
