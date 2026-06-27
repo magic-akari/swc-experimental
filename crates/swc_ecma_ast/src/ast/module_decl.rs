@@ -52,8 +52,20 @@ pub enum ImportSpecifier<'a> {
 pub struct ImportNamedSpecifier<'a> {
     pub span: Span,
     pub local: Box<'a, Ident<'a>>,
-    pub imported: Option<ModuleExportName<'a>>,
+    pub imported: ModuleExportName<'a>,
     pub is_type_only: bool,
+}
+
+impl ImportNamedSpecifier<'_> {
+    #[inline]
+    pub fn is_shorthand(&self) -> bool {
+        match &self.imported {
+            ModuleExportName::Ident(imported) => {
+                imported.span == self.local.span && imported.sym.as_str() == self.local.sym.as_str()
+            }
+            ModuleExportName::Str(_) => false,
+        }
+    }
 }
 
 #[ast]

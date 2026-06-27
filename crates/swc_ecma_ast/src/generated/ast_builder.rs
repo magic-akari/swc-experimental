@@ -474,7 +474,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         local: Box<'a, Ident<'a>>,
-        imported: Option<ModuleExportName<'a>>,
+        imported: ModuleExportName<'a>,
         is_type_only: bool,
     ) -> ImportSpecifier<'a> {
         ImportSpecifier::Named(self.box_import_named_specifier(span, local, imported, is_type_only))
@@ -500,7 +500,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         local: Box<'a, Ident<'a>>,
-        imported: Option<ModuleExportName<'a>>,
+        imported: ModuleExportName<'a>,
         is_type_only: bool,
     ) -> ImportNamedSpecifier<'a> {
         ImportNamedSpecifier {
@@ -515,7 +515,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         local: Box<'a, Ident<'a>>,
-        imported: Option<ModuleExportName<'a>>,
+        imported: ModuleExportName<'a>,
         is_type_only: bool,
     ) -> Box<'a, ImportNamedSpecifier<'a>> {
         self.allocator

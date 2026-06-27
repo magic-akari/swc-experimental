@@ -852,10 +852,16 @@ pub(crate) trait CompatImpl {
         match s {
             experimental::ImportSpecifier::Named(n) => {
                 let n = AstBox::into_inner(n);
+                let imported = if n.is_shorthand() {
+                    None
+                } else {
+                    Some(self.compat_module_export_name(n.imported))
+                };
+
                 legacy::ImportSpecifier::Named(legacy::ImportNamedSpecifier {
                     span: compat_span(n.span),
                     local: self.compat_ident(n.local),
-                    imported: n.imported.map(|me| self.compat_module_export_name(me)),
+                    imported,
                     is_type_only: n.is_type_only,
                 })
             }
