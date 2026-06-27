@@ -837,9 +837,10 @@ pub(crate) trait CompatImpl {
                     }
                 ))
             }
-            experimental::ForHead::Pat(p) => {
-                legacy::ForHead::Pat(alloc_box!(self, self.compat_pat(AstBox::into_inner(p))))
-            }
+            experimental::ForHead::AssignTarget(t) => legacy::ForHead::Pat(alloc_box!(
+                self,
+                self.compat_assign_target_as_pat(AstBox::into_inner(t))
+            )),
         }
     }
 
@@ -1582,6 +1583,55 @@ pub(crate) trait CompatImpl {
                     span: Default::default(),
                 })
             }
+        }
+    }
+
+    fn compat_assign_target_as_pat<'a>(
+        &mut self,
+        t: experimental::AssignTarget<'a>,
+    ) -> legacy::Pat {
+        match t {
+            experimental::AssignTarget::Simple(s) => match AstBox::into_inner(s) {
+                experimental::SimpleAssignTarget::Ident(b) => {
+                    let b = AstBox::into_inner(b);
+                    legacy::Pat::Ident(legacy::BindingIdent {
+                        id: self.compat_ident(b.id),
+                        type_ann: None,
+                    })
+                }
+                experimental::SimpleAssignTarget::Invalid(_) => {
+                    legacy::Pat::Invalid(legacy::Invalid {
+                        span: Default::default(),
+                    })
+                }
+                simple => legacy::Pat::Expr(self.compat_simple_assign_target(simple).into()),
+            },
+            experimental::AssignTarget::Pat(p) => match AstBox::into_inner(p) {
+                experimental::AssignTargetPat::Array(a) => {
+                    let a = AstBox::into_inner(a);
+                    legacy::Pat::Array(legacy::ArrayPat {
+                        span: compat_span(a.span),
+                        elems: self
+                            .compat_vec(a.elems, |this, pat| pat.map(|pat| this.compat_pat(pat))),
+                        optional: false,
+                        type_ann: None,
+                    })
+                }
+                experimental::AssignTargetPat::Object(o) => {
+                    let o = AstBox::into_inner(o);
+                    legacy::Pat::Object(legacy::ObjectPat {
+                        span: compat_span(o.span),
+                        props: self.compat_vec(o.props, Self::compat_object_pat_prop),
+                        optional: false,
+                        type_ann: None,
+                    })
+                }
+                experimental::AssignTargetPat::Invalid(_) => {
+                    legacy::Pat::Invalid(legacy::Invalid {
+                        span: Default::default(),
+                    })
+                }
+            },
         }
     }
 

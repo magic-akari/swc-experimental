@@ -5,7 +5,7 @@ use swc_experimental_allocator::boxed::Box;
 use swc_experimental_allocator::vec::Vec;
 use swc_experimental_ast_macros::ast;
 
-use crate::ast::{Decl, Expr, Ident, Lit, Pat, UsingDecl, VarDecl};
+use crate::ast::{AssignTarget, Decl, Expr, Ident, Lit, Pat, UsingDecl, VarDecl};
 
 #[ast]
 #[derive(Debug)]
@@ -194,7 +194,7 @@ pub struct CatchClause<'a> {
 pub enum ForHead<'a> {
     VarDecl(Box<'a, VarDecl<'a>>),
     UsingDecl(Box<'a, UsingDecl<'a>>),
-    Pat(Box<'a, Pat<'a>>),
+    AssignTarget(Box<'a, AssignTarget<'a>>),
 }
 
 #[ast]

@@ -483,7 +483,7 @@ impl<'a, 'src> CloneIn<'a> for ForHead<'src> {
         match self {
             Self::VarDecl(it) => ForHead::VarDecl(it.clone_in(allocator)),
             Self::UsingDecl(it) => ForHead::UsingDecl(it.clone_in(allocator)),
-            Self::Pat(it) => ForHead::Pat(it.clone_in(allocator)),
+            Self::AssignTarget(it) => ForHead::AssignTarget(it.clone_in(allocator)),
         }
     }
 }

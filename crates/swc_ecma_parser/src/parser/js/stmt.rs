@@ -64,6 +64,27 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         }
     }
 
+    fn reparse_expr_as_for_head_left(
+        &mut self,
+        expr: Expr<'a>,
+        is_in: bool,
+    ) -> PResult<AssignTarget<'a>> {
+        let pat = self.reparse_expr_as_pat(PatType::AssignPat, expr)?;
+        let target = match AssignTarget::try_from_pat(pat, self.ast.allocator) {
+            Ok(target) => target,
+            Err(pat) => {
+                syntax_error!(self, pat.span(), SyntaxError::InvalidAssignTarget);
+            }
+        };
+
+        // for ({} in foo) is invalid
+        if self.input().syntax().typescript() && is_in && matches!(target, AssignTarget::Pat(..)) {
+            self.emit_err(target.span(), SyntaxError::TS2491);
+        }
+
+        Ok(target)
+    }
+
     fn parse_return_stmt(&mut self) -> PResult<Stmt<'a>> {
         self.assert_and_bump(Token::Return);
         let start = self.input().prev_span().start;
@@ -446,18 +467,9 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         if cur == Token::Of || cur == Token::In {
             let is_in = self.input().is(Token::In);
 
-            let pat = self.reparse_expr_as_pat(PatType::AssignPat, init)?;
+            let target = self.reparse_expr_as_for_head_left(init, is_in)?;
 
-            // for ({} in foo) is invalid
-            if self.input().syntax().typescript() && is_in {
-                match pat {
-                    Pat::Ident(..) => {}
-                    Pat::Expr(..) => {}
-                    ref v => self.emit_err(v.span(), SyntaxError::TS2491),
-                }
-            }
-
-            return self.parse_for_each_head(ForHead::Pat(self.boxed(pat)));
+            return self.parse_for_each_head(ForHead::AssignTarget(self.boxed(target)));
         }
 
         expect!(self, Token::Semi);

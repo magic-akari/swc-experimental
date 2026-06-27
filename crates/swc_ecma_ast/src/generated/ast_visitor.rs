@@ -1261,7 +1261,7 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for ForHead<'a> {
         match self {
             Self::VarDecl(it) => it.visit_with(visitor),
             Self::UsingDecl(it) => it.visit_with(visitor),
-            Self::Pat(it) => it.visit_with(visitor),
+            Self::AssignTarget(it) => it.visit_with(visitor),
         }
     }
 }
@@ -4177,7 +4177,7 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for ForHead<'a> {
         match self {
             Self::VarDecl(it) => it.visit_mut_with(visitor),
             Self::UsingDecl(it) => it.visit_mut_with(visitor),
-            Self::Pat(it) => it.visit_mut_with(visitor),
+            Self::AssignTarget(it) => it.visit_mut_with(visitor),
         }
     }
 }

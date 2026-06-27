@@ -1329,8 +1329,8 @@ impl<'a> ForHead<'a> {
         matches!(self, Self::UsingDecl { .. })
     }
     #[inline]
-    pub const fn is_pat(&self) -> bool {
-        matches!(self, Self::Pat { .. })
+    pub const fn is_assign_target(&self) -> bool {
+        matches!(self, Self::AssignTarget { .. })
     }
     #[inline]
     pub fn as_var_decl(&self) -> Option<&VarDecl<'a>> {
@@ -1347,9 +1347,9 @@ impl<'a> ForHead<'a> {
         }
     }
     #[inline]
-    pub fn as_pat(&self) -> Option<&Pat<'a>> {
+    pub fn as_assign_target(&self) -> Option<&AssignTarget<'a>> {
         match self {
-            Self::Pat(it) => Some(it),
+            Self::AssignTarget(it) => Some(it),
             _ => None,
         }
     }
@@ -1368,9 +1368,9 @@ impl<'a> ForHead<'a> {
         }
     }
     #[inline]
-    pub fn as_mut_pat(&mut self) -> Option<&mut Pat<'a>> {
+    pub fn as_mut_assign_target(&mut self) -> Option<&mut AssignTarget<'a>> {
         match self {
-            Self::Pat(it) => Some(it),
+            Self::AssignTarget(it) => Some(it),
             _ => None,
         }
     }
@@ -1381,7 +1381,7 @@ impl<'a> GetSpan for ForHead<'a> {
         match self {
             Self::VarDecl(it) => it.span(),
             Self::UsingDecl(it) => it.span(),
-            Self::Pat(it) => it.span(),
+            Self::AssignTarget(it) => it.span(),
         }
     }
 }
@@ -1391,7 +1391,7 @@ impl<'a> SetSpan for ForHead<'a> {
         match self {
             Self::VarDecl(it) => it.set_span(span),
             Self::UsingDecl(it) => it.set_span(span),
-            Self::Pat(it) => it.set_span(span),
+            Self::AssignTarget(it) => it.set_span(span),
         }
     }
 }

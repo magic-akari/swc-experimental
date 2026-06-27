@@ -1264,517 +1264,111 @@ impl<'a> AstBuilder<'a> {
         ForHead::UsingDecl(self.box_using_decl(span, is_await, decls))
     }
     #[inline]
-    pub fn for_head_pat_binding_ident(&self, id: Box<'a, Ident<'a>>) -> ForHead<'a> {
-        ForHead::Pat(self.allocator.boxed(Pat::Ident(self.box_binding_ident(id))))
-    }
-    #[inline]
-    pub fn for_head_pat_array_pat(
+    pub fn for_head_assign_target_simple_assign_target_binding_ident(
         &self,
-        span: Span,
-        elems: Vec<'a, Option<Pat<'a>>>,
-        optional: bool,
+        id: Box<'a, Ident<'a>>,
     ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator
-                .boxed(Pat::Array(self.box_array_pat(span, elems, optional))),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_rest_pat(&self, span: Span, dot3_token: Span, arg: Pat<'a>) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator
-                .boxed(Pat::Rest(self.box_rest_pat(span, dot3_token, arg))),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_object_pat(
-        &self,
-        span: Span,
-        props: Vec<'a, ObjectPatProp<'a>>,
-        optional: bool,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator
-                .boxed(Pat::Object(self.box_object_pat(span, props, optional))),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_assign_pat(
-        &self,
-        span: Span,
-        left: Pat<'a>,
-        right: Expr<'a>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator
-                .boxed(Pat::Assign(self.box_assign_pat(span, left, right))),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_invalid(&self) -> ForHead<'a> {
-        ForHead::Pat(self.allocator.boxed(Pat::Invalid(self.box_invalid())))
-    }
-    #[inline]
-    pub fn for_head_pat_expr_this_expr(&self, span: Span) -> ForHead<'a> {
-        ForHead::Pat(self.allocator.boxed(Pat::Expr(
-            self.allocator.boxed(Expr::This(self.box_this_expr(span))),
-        )))
-    }
-    #[inline]
-    pub fn for_head_pat_expr_array_lit(
-        &self,
-        span: Span,
-        elems: Vec<'a, Option<Box<'a, ExprOrSpread<'a>>>>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
+        ForHead::AssignTarget(
+            self.allocator.boxed(AssignTarget::Simple(
                 self.allocator
-                    .boxed(Expr::Array(self.box_array_lit(span, elems))),
+                    .boxed(SimpleAssignTarget::Ident(self.box_binding_ident(id))),
             )),
         )
     }
     #[inline]
-    pub fn for_head_pat_expr_object_lit(
-        &self,
-        span: Span,
-        props: Vec<'a, PropOrSpread<'a>>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::Object(self.box_object_lit(span, props))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_fn_expr(
-        &self,
-        ident: Option<Box<'a, Ident<'a>>>,
-        function: Box<'a, Function<'a>>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::Fn(self.box_fn_expr(ident, function))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_unary_expr(
-        &self,
-        span: Span,
-        op: UnaryOp,
-        arg: Expr<'a>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::Unary(self.box_unary_expr(span, op, arg))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_update_expr(
-        &self,
-        span: Span,
-        op: UpdateOp,
-        prefix: bool,
-        arg: SimpleAssignTarget<'a>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator
-                .boxed(Pat::Expr(self.allocator.boxed(Expr::Update(
-                    self.box_update_expr(span, op, prefix, arg),
-                )))),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_bin_expr(
-        &self,
-        span: Span,
-        op: BinaryOp,
-        left: Expr<'a>,
-        right: Expr<'a>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::Bin(self.box_bin_expr(span, op, left, right))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_assign_expr(
-        &self,
-        span: Span,
-        op: AssignOp,
-        left: AssignTarget<'a>,
-        right: Expr<'a>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator
-                .boxed(Pat::Expr(self.allocator.boxed(Expr::Assign(
-                    self.box_assign_expr(span, op, left, right),
-                )))),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_member_expr(
+    pub fn for_head_assign_target_simple_assign_target_member_expr(
         &self,
         span: Span,
         obj: Expr<'a>,
         prop: MemberProp<'a>,
     ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::Member(self.box_member_expr(span, obj, prop))),
-            )),
+        ForHead::AssignTarget(
+            self.allocator
+                .boxed(AssignTarget::Simple(self.allocator.boxed(
+                    SimpleAssignTarget::Member(self.box_member_expr(span, obj, prop)),
+                ))),
         )
     }
     #[inline]
-    pub fn for_head_pat_expr_super_prop_expr(
+    pub fn for_head_assign_target_simple_assign_target_super_prop_expr(
         &self,
         span: Span,
         obj: Box<'a, Super>,
         prop: SuperProp<'a>,
     ) -> ForHead<'a> {
-        ForHead::Pat(
+        ForHead::AssignTarget(
             self.allocator
-                .boxed(Pat::Expr(self.allocator.boxed(Expr::SuperProp(
-                    self.box_super_prop_expr(span, obj, prop),
-                )))),
+                .boxed(AssignTarget::Simple(self.allocator.boxed(
+                    SimpleAssignTarget::SuperProp(self.box_super_prop_expr(span, obj, prop)),
+                ))),
         )
     }
     #[inline]
-    pub fn for_head_pat_expr_cond_expr(
+    pub fn for_head_assign_target_simple_assign_target_paren_expr(
         &self,
         span: Span,
-        test: Expr<'a>,
-        cons: Expr<'a>,
-        alt: Expr<'a>,
+        expr: Expr<'a>,
     ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::Cond(self.box_cond_expr(span, test, cons, alt))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_call_expr(
-        &self,
-        span: Span,
-        callee: Callee<'a>,
-        args: Vec<'a, ExprOrSpread<'a>>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::Call(self.box_call_expr(span, callee, args))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_new_expr(
-        &self,
-        span: Span,
-        callee: Expr<'a>,
-        args: Option<Vec<'a, ExprOrSpread<'a>>>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::New(self.box_new_expr(span, callee, args))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_seq_expr(&self, span: Span, exprs: Vec<'a, Expr<'a>>) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::Seq(self.box_seq_expr(span, exprs))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_ident(&self, span: Span, sym: Atom<'a>) -> ForHead<'a> {
-        ForHead::Pat(self.allocator.boxed(Pat::Expr(
-            self.allocator.boxed(Expr::Ident(self.box_ident(span, sym))),
-        )))
-    }
-    #[inline]
-    pub fn for_head_pat_expr_lit_str(
-        &self,
-        span: Span,
-        value: Wtf8Atom<'a>,
-        raw: Option<Atom<'a>>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator.boxed(Expr::Lit(
-                    self.allocator
-                        .boxed(Lit::Str(self.box_str(span, value, raw))),
-                )),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_lit_bool(&self, span: Span, value: bool) -> ForHead<'a> {
-        ForHead::Pat(
+        ForHead::AssignTarget(
             self.allocator
-                .boxed(Pat::Expr(self.allocator.boxed(Expr::Lit(
-                    self.allocator.boxed(Lit::Bool(self.box_bool(span, value))),
-                )))),
+                .boxed(AssignTarget::Simple(self.allocator.boxed(
+                    SimpleAssignTarget::Paren(self.box_paren_expr(span, expr)),
+                ))),
         )
     }
     #[inline]
-    pub fn for_head_pat_expr_lit_null(&self, span: Span) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator
-                .boxed(Pat::Expr(self.allocator.boxed(Expr::Lit(
-                    self.allocator.boxed(Lit::Null(self.box_null(span))),
-                )))),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_lit_number(
-        &self,
-        span: Span,
-        value: f64,
-        raw: Option<Atom<'a>>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator.boxed(Expr::Lit(
-                    self.allocator
-                        .boxed(Lit::Num(self.box_number(span, value, raw))),
-                )),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_lit_big_int(
-        &self,
-        span: Span,
-        value: Atom<'a>,
-        raw: Option<Atom<'a>>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator.boxed(Expr::Lit(
-                    self.allocator
-                        .boxed(Lit::BigInt(self.box_big_int(span, value, raw))),
-                )),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_lit_regex(
-        &self,
-        span: Span,
-        exp: Atom<'a>,
-        flags: Atom<'a>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator.boxed(Expr::Lit(
-                    self.allocator
-                        .boxed(Lit::Regex(self.box_regex(span, exp, flags))),
-                )),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_tpl(
-        &self,
-        span: Span,
-        exprs: Vec<'a, Expr<'a>>,
-        quasis: Vec<'a, TplElement<'a>>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::Tpl(self.box_tpl(span, exprs, quasis))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_tagged_tpl(
-        &self,
-        span: Span,
-        tag: Expr<'a>,
-        tpl: Box<'a, Tpl<'a>>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::TaggedTpl(self.box_tagged_tpl(span, tag, tpl))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_arrow_expr(
-        &self,
-        span: Span,
-        params: Vec<'a, Pat<'a>>,
-        body: BlockStmtOrExpr<'a>,
-        is_async: bool,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator
-                .boxed(Pat::Expr(self.allocator.boxed(Expr::Arrow(
-                    self.box_arrow_expr(span, params, body, is_async),
-                )))),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_class_expr(
-        &self,
-        ident: Option<Box<'a, Ident<'a>>>,
-        class: Box<'a, Class<'a>>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::Class(self.box_class_expr(ident, class))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_yield_expr(
-        &self,
-        span: Span,
-        arg: Option<Expr<'a>>,
-        delegate: bool,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::Yield(self.box_yield_expr(span, arg, delegate))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_meta_prop_expr(&self, span: Span, kind: MetaPropKind) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::MetaProp(self.box_meta_prop_expr(span, kind))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_await_expr(&self, span: Span, arg: Expr<'a>) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::Await(self.box_await_expr(span, arg))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_paren_expr(&self, span: Span, expr: Expr<'a>) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::Paren(self.box_paren_expr(span, expr))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_jsx_member_expr(
-        &self,
-        span: Span,
-        obj: JSXObject<'a>,
-        prop: Box<'a, IdentName<'a>>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator
-                .boxed(Pat::Expr(self.allocator.boxed(Expr::JSXMember(
-                    self.box_jsx_member_expr(span, obj, prop),
-                )))),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_jsx_namespaced_name(
-        &self,
-        span: Span,
-        ns: Box<'a, IdentName<'a>>,
-        name: Box<'a, IdentName<'a>>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(self.allocator.boxed(Pat::Expr(self.allocator.boxed(
-            Expr::JSXNamespacedName(self.box_jsx_namespaced_name(span, ns, name)),
-        ))))
-    }
-    #[inline]
-    pub fn for_head_pat_expr_jsx_empty_expr(&self, span: Span) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::JSXEmpty(self.box_jsx_empty_expr(span))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_jsx_element(
-        &self,
-        span: Span,
-        opening: Box<'a, JSXOpeningElement<'a>>,
-        children: Vec<'a, JSXElementChild<'a>>,
-        closing: Option<Box<'a, JSXClosingElement<'a>>>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator
-                .boxed(Pat::Expr(self.allocator.boxed(Expr::JSXElement(
-                    self.box_jsx_element(span, opening, children, closing),
-                )))),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_jsx_fragment(
-        &self,
-        span: Span,
-        opening: Box<'a, JSXOpeningFragment>,
-        children: Vec<'a, JSXElementChild<'a>>,
-        closing: Box<'a, JSXClosingFragment>,
-    ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator
-                .boxed(Pat::Expr(self.allocator.boxed(Expr::JSXFragment(
-                    self.box_jsx_fragment(span, opening, children, closing),
-                )))),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_private_name(&self, span: Span, name: Atom<'a>) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator.boxed(Pat::Expr(
-                self.allocator
-                    .boxed(Expr::PrivateName(self.box_private_name(span, name))),
-            )),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_expr_opt_chain_expr(
+    pub fn for_head_assign_target_simple_assign_target_opt_chain_expr(
         &self,
         span: Span,
         optional: bool,
         base: OptChainBase<'a>,
     ) -> ForHead<'a> {
-        ForHead::Pat(
+        ForHead::AssignTarget(
             self.allocator
-                .boxed(Pat::Expr(self.allocator.boxed(Expr::OptChain(
-                    self.box_opt_chain_expr(span, optional, base),
-                )))),
+                .boxed(AssignTarget::Simple(self.allocator.boxed(
+                    SimpleAssignTarget::OptChain(self.box_opt_chain_expr(span, optional, base)),
+                ))),
         )
     }
     #[inline]
-    pub fn for_head_pat_expr_invalid(&self) -> ForHead<'a> {
-        ForHead::Pat(self.allocator.boxed(Pat::Expr(
-            self.allocator.boxed(Expr::Invalid(self.box_invalid())),
-        )))
+    pub fn for_head_assign_target_simple_assign_target_invalid(&self) -> ForHead<'a> {
+        ForHead::AssignTarget(
+            self.allocator.boxed(AssignTarget::Simple(
+                self.allocator
+                    .boxed(SimpleAssignTarget::Invalid(self.box_invalid())),
+            )),
+        )
+    }
+    #[inline]
+    pub fn for_head_assign_target_assign_target_pat_array_pat(
+        &self,
+        span: Span,
+        elems: Vec<'a, Option<Pat<'a>>>,
+        optional: bool,
+    ) -> ForHead<'a> {
+        ForHead::AssignTarget(self.allocator.boxed(AssignTarget::Pat(self.allocator.boxed(
+            AssignTargetPat::Array(self.box_array_pat(span, elems, optional)),
+        ))))
+    }
+    #[inline]
+    pub fn for_head_assign_target_assign_target_pat_object_pat(
+        &self,
+        span: Span,
+        props: Vec<'a, ObjectPatProp<'a>>,
+        optional: bool,
+    ) -> ForHead<'a> {
+        ForHead::AssignTarget(self.allocator.boxed(AssignTarget::Pat(self.allocator.boxed(
+            AssignTargetPat::Object(self.box_object_pat(span, props, optional)),
+        ))))
+    }
+    #[inline]
+    pub fn for_head_assign_target_assign_target_pat_invalid(&self) -> ForHead<'a> {
+        ForHead::AssignTarget(
+            self.allocator.boxed(AssignTarget::Pat(
+                self.allocator
+                    .boxed(AssignTargetPat::Invalid(self.box_invalid())),
+            )),
+        )
     }
     #[inline]
     pub fn var_decl_or_expr_var_decl(

@@ -1943,7 +1943,7 @@ impl<'resolver, 'ast> Visit<'ast> for Hoister<'resolver, 'ast> {
         //     console.log(a);
         //   }
         // }
-        if let ForHead::Pat(_) = n {
+        if let ForHead::AssignTarget(_) = n {
             return;
         }
 
