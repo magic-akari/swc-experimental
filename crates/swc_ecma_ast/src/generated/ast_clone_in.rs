@@ -581,6 +581,7 @@ impl<'a, 'src> CloneIn<'a> for Expr<'src> {
             Self::Member(it) => Expr::Member(it.clone_in(allocator)),
             Self::SuperProp(it) => Expr::SuperProp(it.clone_in(allocator)),
             Self::Cond(it) => Expr::Cond(it.clone_in(allocator)),
+            Self::Import(it) => Expr::Import(it.clone_in(allocator)),
             Self::Call(it) => Expr::Call(it.clone_in(allocator)),
             Self::New(it) => Expr::New(it.clone_in(allocator)),
             Self::Seq(it) => Expr::Seq(it.clone_in(allocator)),
@@ -776,6 +777,18 @@ impl<'a, 'src> CloneIn<'a> for CondExpr<'src> {
         }
     }
 }
+impl<'a, 'src> CloneIn<'a> for ImportExpr<'src> {
+    type Cloned = ImportExpr<'a>;
+    #[inline]
+    fn clone_in(&self, allocator: &'a Allocator) -> Self::Cloned {
+        ImportExpr {
+            span: self.span.clone_in(allocator),
+            source: self.source.clone_in(allocator),
+            options: self.options.clone_in(allocator),
+            phase: self.phase.clone_in(allocator),
+        }
+    }
+}
 impl<'a, 'src> CloneIn<'a> for CallExpr<'src> {
     type Cloned = CallExpr<'a>;
     #[inline]
@@ -901,7 +914,6 @@ impl<'a, 'src> CloneIn<'a> for Callee<'src> {
     fn clone_in(&self, allocator: &'a Allocator) -> Self::Cloned {
         match self {
             Self::Super(it) => Callee::Super(it.clone_in(allocator)),
-            Self::Import(it) => Callee::Import(it.clone_in(allocator)),
             Self::Expr(it) => Callee::Expr(it.clone_in(allocator)),
         }
     }
@@ -912,16 +924,6 @@ impl<'a> CloneIn<'a> for Super {
     fn clone_in(&self, allocator: &'a Allocator) -> Self::Cloned {
         Super {
             span: self.span.clone_in(allocator),
-        }
-    }
-}
-impl<'a> CloneIn<'a> for Import {
-    type Cloned = Import;
-    #[inline]
-    fn clone_in(&self, allocator: &'a Allocator) -> Self::Cloned {
-        Import {
-            span: self.span.clone_in(allocator),
-            phase: self.phase.clone_in(allocator),
         }
     }
 }

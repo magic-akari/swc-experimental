@@ -273,6 +273,10 @@ pub trait Visit<'a> {
         node.visit_children_with(self);
     }
     #[inline]
+    fn visit_import_expr(&mut self, node: &ImportExpr<'a>) {
+        node.visit_children_with(self);
+    }
+    #[inline]
     fn visit_call_expr(&mut self, node: &CallExpr<'a>) {
         node.visit_children_with(self);
     }
@@ -322,10 +326,6 @@ pub trait Visit<'a> {
     }
     #[inline]
     fn visit_super(&mut self, node: &Super) {
-        node.visit_children_with(self);
-    }
-    #[inline]
-    fn visit_import(&mut self, node: &Import) {
         node.visit_children_with(self);
     }
     #[inline]
@@ -1361,6 +1361,7 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Expr<'a> {
             Self::Member(it) => it.visit_with(visitor),
             Self::SuperProp(it) => it.visit_with(visitor),
             Self::Cond(it) => it.visit_with(visitor),
+            Self::Import(it) => it.visit_with(visitor),
             Self::Call(it) => it.visit_with(visitor),
             Self::New(it) => it.visit_with(visitor),
             Self::Seq(it) => it.visit_with(visitor),
@@ -1561,6 +1562,17 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for CondExpr<'a> {
         self.alt.visit_with(visitor);
     }
 }
+impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for ImportExpr<'a> {
+    #[inline]
+    fn visit_with(&self, visitor: &mut V) {
+        <V as Visit<'a>>::visit_import_expr(visitor, self)
+    }
+    #[inline]
+    fn visit_children_with(&self, visitor: &mut V) {
+        self.source.visit_with(visitor);
+        self.options.visit_with(visitor);
+    }
+}
 impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for CallExpr<'a> {
     #[inline]
     fn visit_with(&self, visitor: &mut V) {
@@ -1681,7 +1693,6 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Callee<'a> {
     fn visit_children_with(&self, visitor: &mut V) {
         match self {
             Self::Super(it) => it.visit_with(visitor),
-            Self::Import(it) => it.visit_with(visitor),
             Self::Expr(it) => it.visit_with(visitor),
         }
     }
@@ -1690,14 +1701,6 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Super {
     #[inline]
     fn visit_with(&self, visitor: &mut V) {
         <V as Visit<'a>>::visit_super(visitor, self)
-    }
-    #[inline]
-    fn visit_children_with(&self, visitor: &mut V) {}
-}
-impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Import {
-    #[inline]
-    fn visit_with(&self, visitor: &mut V) {
-        <V as Visit<'a>>::visit_import(visitor, self)
     }
     #[inline]
     fn visit_children_with(&self, visitor: &mut V) {}
@@ -3167,6 +3170,10 @@ pub trait VisitMut<'a> {
         node.visit_mut_children_with(self);
     }
     #[inline]
+    fn visit_mut_import_expr(&mut self, node: &mut ImportExpr<'a>) {
+        node.visit_mut_children_with(self);
+    }
+    #[inline]
     fn visit_mut_call_expr(&mut self, node: &mut CallExpr<'a>) {
         node.visit_mut_children_with(self);
     }
@@ -3216,10 +3223,6 @@ pub trait VisitMut<'a> {
     }
     #[inline]
     fn visit_mut_super(&mut self, node: &mut Super) {
-        node.visit_mut_children_with(self);
-    }
-    #[inline]
-    fn visit_mut_import(&mut self, node: &mut Import) {
         node.visit_mut_children_with(self);
     }
     #[inline]
@@ -4261,6 +4264,7 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Expr<'a> {
             Self::Member(it) => it.visit_mut_with(visitor),
             Self::SuperProp(it) => it.visit_mut_with(visitor),
             Self::Cond(it) => it.visit_mut_with(visitor),
+            Self::Import(it) => it.visit_mut_with(visitor),
             Self::Call(it) => it.visit_mut_with(visitor),
             Self::New(it) => it.visit_mut_with(visitor),
             Self::Seq(it) => it.visit_mut_with(visitor),
@@ -4461,6 +4465,17 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for CondExpr<'a> {
         self.alt.visit_mut_with(visitor);
     }
 }
+impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for ImportExpr<'a> {
+    #[inline]
+    fn visit_mut_with(&mut self, visitor: &mut V) {
+        <V as VisitMut<'a>>::visit_mut_import_expr(visitor, self)
+    }
+    #[inline]
+    fn visit_mut_children_with(&mut self, visitor: &mut V) {
+        self.source.visit_mut_with(visitor);
+        self.options.visit_mut_with(visitor);
+    }
+}
 impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for CallExpr<'a> {
     #[inline]
     fn visit_mut_with(&mut self, visitor: &mut V) {
@@ -4581,7 +4596,6 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Callee<'a> {
     fn visit_mut_children_with(&mut self, visitor: &mut V) {
         match self {
             Self::Super(it) => it.visit_mut_with(visitor),
-            Self::Import(it) => it.visit_mut_with(visitor),
             Self::Expr(it) => it.visit_mut_with(visitor),
         }
     }
@@ -4590,14 +4604,6 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Super {
     #[inline]
     fn visit_mut_with(&mut self, visitor: &mut V) {
         <V as VisitMut<'a>>::visit_mut_super(visitor, self)
-    }
-    #[inline]
-    fn visit_mut_children_with(&mut self, visitor: &mut V) {}
-}
-impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Import {
-    #[inline]
-    fn visit_mut_with(&mut self, visitor: &mut V) {
-        <V as VisitMut<'a>>::visit_mut_import(visitor, self)
     }
     #[inline]
     fn visit_mut_children_with(&mut self, visitor: &mut V) {}

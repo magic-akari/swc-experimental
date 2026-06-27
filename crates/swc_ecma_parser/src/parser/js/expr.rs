@@ -439,14 +439,15 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
             // This is parsed using production MemberExpression,
             // which is left-recursive.
             let start = callee.span_lo();
-            let (callee, is_import) = match callee {
-                _ if callee.is_ident_ref_to("import") => (
-                    self.ast.callee_import(callee.span(), Default::default()),
-                    true,
-                ),
-                _ => (Callee::Expr(self.boxed(callee)), false),
-            };
-            let args = self.parse_args(is_import)?;
+            if callee.is_ident_ref_to("import") {
+                let args = self.parse_args(true)?;
+                let import_expr =
+                    self.import_expr_from_args(start, args, ImportPhase::Evaluation)?;
+                return self.parse_subscripts_expr::<false>(import_expr, false);
+            }
+
+            let callee = Callee::Expr(self.boxed(callee));
+            let args = self.parse_args(false)?;
 
             let call_expr = match callee {
                 Callee::Expr(e) if unwrap_ts_non_null(&e).is_opt_chain() => {
@@ -1007,9 +1008,6 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
     ) -> PResult<Expr<'a>> {
         let start = obj.span().start;
         let expr = match obj {
-            Callee::Import(import) => {
-                self.parse_subscript_import_call(start, AstBox::into_inner(import))?
-            }
             Callee::Super(s) => {
                 self.parse_subscript_super(start, AstBox::into_inner(s), no_call)?
             }
@@ -1544,28 +1542,41 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
 
     /// Section 13.3 ImportCall
     #[cfg_attr(feature = "tracing-spans", tracing::instrument(skip_all))]
-    fn parse_subscript_import_call(&mut self, start: u32, lhs: Import) -> PResult<Expr<'a>> {
-        trace_cur!(self, parse_subscript_import);
-
-        if self.input().is(Token::LParen) {
-            let args = self.parse_args(true)?;
-
-            // Dynamic import requires exactly one or two arguments
-            if args.is_empty() || args.len() > 2 {
-                syntax_error!(
-                    self,
-                    self.span(start),
-                    SyntaxError::ImportRequiresOneOrTwoArgs
-                );
-            }
-
-            let expr =
-                self.ast
-                    .expr_call_expr(self.span(start), Callee::Import(self.boxed(lhs)), args);
-            return Ok(expr);
+    fn import_expr_from_args(
+        &mut self,
+        start: u32,
+        mut args: Vec<'a, ExprOrSpread<'a>>,
+        phase: ImportPhase,
+    ) -> PResult<Expr<'a>> {
+        if args.is_empty() || args.len() > 2 {
+            syntax_error!(
+                self,
+                self.span(start),
+                SyntaxError::ImportRequiresOneOrTwoArgs
+            );
         }
 
-        syntax_error!(self, self.input().cur_span(), SyntaxError::InvalidImport);
+        let options = if args.len() == 2 {
+            Some(args.remove(1))
+        } else {
+            None
+        };
+        let source = self.import_expr_arg_to_expr(args.remove(0))?;
+        let options = options
+            .map(|options| self.import_expr_arg_to_expr(options))
+            .transpose()?;
+
+        Ok(self
+            .ast
+            .expr_import_expr(self.span(start), source, options, phase))
+    }
+
+    fn import_expr_arg_to_expr(&mut self, arg: ExprOrSpread<'a>) -> PResult<Expr<'a>> {
+        if arg.spread.is_some() {
+            syntax_error!(self, arg.span(), SyntaxError::SpreadInsideImport);
+        }
+
+        Ok(arg.expr)
     }
 
     fn parse_dynamic_import_or_import_meta(
@@ -1596,8 +1607,13 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
     }
 
     fn parse_dynamic_import_call(&mut self, start: u32, phase: ImportPhase) -> PResult<Expr<'a>> {
-        let import = self.ast.callee_import(self.span(start), phase);
-        self.parse_subscripts(import, false, false)
+        if self.input().is(Token::LParen) {
+            let args = self.parse_args(true)?;
+            let expr = self.import_expr_from_args(start, args, phase)?;
+            return self.parse_subscripts_expr::<false>(expr, false);
+        }
+
+        syntax_error!(self, self.input().cur_span(), SyntaxError::InvalidImport);
     }
 
     /// Parse `MemberExpression`.
@@ -1705,6 +1721,9 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
             }
             _ => {}
         }
+
+        // TODO: Reject `new import(...)`, `new import.source(...)`, and
+        // `new import.defer(...)` in the semantic validation pass.
 
         // let type_args = None;
         // let type_args = if self.input().syntax().typescript() && {
