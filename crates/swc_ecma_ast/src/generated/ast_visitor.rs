@@ -689,10 +689,6 @@ pub trait Visit<'a> {
         node.visit_children_with(self);
     }
     #[inline]
-    fn visit_opt_expr_or_spreads(&mut self, node: &Option<Vec<'a, ExprOrSpread<'a>>>) {
-        node.visit_children_with(self);
-    }
-    #[inline]
     fn visit_exprs(&mut self, node: &Vec<'a, Expr<'a>>) {
         node.visit_children_with(self);
     }
@@ -2745,18 +2741,6 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Vec<'a, ExprOrSpread<'a>> {
         }
     }
 }
-impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Option<Vec<'a, ExprOrSpread<'a>>> {
-    #[inline]
-    fn visit_with(&self, visitor: &mut V) {
-        <V as Visit<'a>>::visit_opt_expr_or_spreads(visitor, self)
-    }
-    #[inline]
-    fn visit_children_with(&self, visitor: &mut V) {
-        if let Some(node) = self {
-            node.visit_with(visitor);
-        }
-    }
-}
 impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Vec<'a, Expr<'a>> {
     #[inline]
     fn visit_with(&self, visitor: &mut V) {
@@ -3599,10 +3583,6 @@ pub trait VisitMut<'a> {
     }
     #[inline]
     fn visit_mut_expr_or_spreads(&mut self, node: &mut Vec<'a, ExprOrSpread<'a>>) {
-        node.visit_mut_children_with(self);
-    }
-    #[inline]
-    fn visit_mut_opt_expr_or_spreads(&mut self, node: &mut Option<Vec<'a, ExprOrSpread<'a>>>) {
         node.visit_mut_children_with(self);
     }
     #[inline]
@@ -5659,18 +5639,6 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Vec<'a, ExprOrSpread<
     #[inline]
     fn visit_mut_children_with(&mut self, visitor: &mut V) {
         for node in self {
-            node.visit_mut_with(visitor);
-        }
-    }
-}
-impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Option<Vec<'a, ExprOrSpread<'a>>> {
-    #[inline]
-    fn visit_mut_with(&mut self, visitor: &mut V) {
-        <V as VisitMut<'a>>::visit_mut_opt_expr_or_spreads(visitor, self)
-    }
-    #[inline]
-    fn visit_mut_children_with(&mut self, visitor: &mut V) {
-        if let Some(node) = self {
             node.visit_mut_with(visitor);
         }
     }

@@ -432,19 +432,6 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         //     None
         // };
 
-        if matches!(&callee, Expr::New(new) if new.args.is_none()) {
-            // If this is parsed using 'NewExpression' rule, just return it.
-            // Because it's not left-recursive.
-            // if type_args.is_some() {
-            //     // This fails with `expected (`
-            //     expect!(self, Token::LParen);
-            // }
-            debug_assert!(
-                self.input().cur() != Token::LParen,
-                "parse_new_expr() should eat paren if it exists"
-            );
-            return Ok(callee);
-        }
         // 'CallExpr' rule contains 'MemberExpr (...)',
         // and 'MemberExpr' rule contains 'new MemberExpr (...)'
 
@@ -1613,112 +1600,11 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         self.parse_subscripts(import, false, false)
     }
 
-    /// `is_new_expr`: true iff we are parsing production 'NewExpression'.
-    #[cfg_attr(
-        feature = "tracing-spans",
-        tracing::instrument(level = "debug", skip_all)
-    )]
-    fn parse_member_expr_or_new_expr(&mut self, is_new_expr: bool) -> PResult<Expr<'a>> {
-        if self.ctx().contains(Context::InType) {
-            self.do_inside_of_context(Context::ShouldNotLexLtOrGtAsType, |p| {
-                p.parse_member_expr_or_new_expr_inner(is_new_expr)
-            })
-        } else {
-            self.parse_member_expr_or_new_expr_inner(is_new_expr)
-        }
-    }
-
-    fn parse_member_expr_or_new_expr_inner(&mut self, is_new_expr: bool) -> PResult<Expr<'a>> {
-        trace_cur!(self, parse_member_expr_or_new_expr);
+    /// Parse `MemberExpression`.
+    fn parse_member_expr_inner(&mut self) -> PResult<Expr<'a>> {
+        trace_cur!(self, parse_member_expr);
 
         let cur = self.input().cur();
-        if cur == Token::New {
-            self.bump();
-            let start = self.input().prev_span().start;
-            if self.input_mut().eat(Token::Dot) {
-                if self.input_mut().eat(Token::Target) {
-                    let span = self.span(start);
-                    let expr = self.ast.expr_meta_prop_expr(span, MetaPropKind::NewTarget);
-
-                    let ctx = self.ctx();
-                    if !ctx.contains(Context::InsideNonArrowFunctionScope)
-                        && !ctx.contains(Context::InParameters)
-                        && !ctx.contains(Context::InClass)
-                    {
-                        self.emit_err(span, SyntaxError::InvalidNewTarget);
-                    }
-
-                    return self.parse_subscripts_expr::<false>(expr, true);
-                }
-
-                unexpected!(self, "target")
-            }
-
-            // 'NewExpression' allows new call without paren.
-            let callee = self.parse_member_expr_or_new_expr(is_new_expr)?;
-            return_if_arrow!(self, callee);
-
-            if is_new_expr {
-                match &callee {
-                    Expr::OptChain(opt) if opt.optional => {
-                        syntax_error!(
-                            self,
-                            opt.span(),
-                            SyntaxError::OptChainCannotFollowConstructorCall
-                        )
-                    }
-                    Expr::Member(member) => {
-                        if let Expr::OptChain(opt) = &member.obj
-                            && opt.optional
-                        {
-                            syntax_error!(
-                                self,
-                                opt.span(),
-                                SyntaxError::OptChainCannotFollowConstructorCall
-                            )
-                        }
-                    }
-                    _ => {}
-                }
-            }
-
-            // let type_args = None;
-            // let type_args = if self.input().syntax().typescript() && {
-            //     let cur = self.input().cur();
-            //     cur == Token::Lt || cur == Token::LShift
-            // } {
-            //     self.try_parse_ts(|p| {
-            //         let args = p.do_outside_of_context(
-            //             Context::ShouldNotLexLtOrGtAsType,
-            //             Self::parse_ts_type_args,
-            //         )?;
-            //         p.assert_and_bump(Token::Gt);
-            //         if !p.input().is(Token::LParen) {
-            //             let span = p.input().cur_span();
-            //             let cur = p.input_mut().dump_cur();
-            //             syntax_error!(p, span, SyntaxError::Expected('('.to_string(), cur))
-            //         }
-            //         Ok(Some(args))
-            //     })
-            // } else {
-            //     None
-            // };
-
-            if !is_new_expr || self.input().is(Token::LParen) {
-                // Parsed with 'MemberExpression' production.
-                let args = self.parse_args(false)?;
-                let new_expr = self.ast.expr_new_expr(self.span(start), callee, Some(args));
-
-                // We should parse subscripts for MemberExpression.
-                // Because it's left recursive.
-                return self.parse_subscripts_expr::<false>(new_expr, true);
-            }
-
-            // Parsed with 'NewExpression' production.
-
-            return Ok(self.ast.expr_new_expr(self.span(start), callee, None));
-        }
-
         if cur == Token::Super {
             self.bump();
             let start = self.input().prev_span().start;
@@ -1739,7 +1625,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         //     None
         // };
         // let obj = if let Some(type_args) = type_args {
-        //     trace_cur!(self, parse_member_expr_or_new_expr__with_type_args);
+        //     trace_cur!(self, parse_member_expr__with_type_args);
         //     TsInstantiation {
         //         expr: obj,
         //         type_args,
@@ -1758,7 +1644,104 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
     #[cfg_attr(feature = "tracing-spans", tracing::instrument(skip_all))]
     pub(crate) fn parse_new_expr(&mut self) -> PResult<Expr<'a>> {
         trace_cur!(self, parse_new_expr);
-        self.parse_member_expr_or_new_expr(true)
+        if self.ctx().contains(Context::InType) {
+            self.do_inside_of_context(Context::ShouldNotLexLtOrGtAsType, |p| {
+                p.parse_new_expr_inner()
+            })
+        } else {
+            self.parse_new_expr_inner()
+        }
+    }
+
+    fn parse_new_expr_inner(&mut self) -> PResult<Expr<'a>> {
+        let cur = self.input().cur();
+        if cur != Token::New {
+            return self.parse_member_expr_inner();
+        }
+
+        self.bump();
+        let start = self.input().prev_span().start;
+        if self.input_mut().eat(Token::Dot) {
+            if self.input_mut().eat(Token::Target) {
+                let span = self.span(start);
+                let expr = self.ast.expr_meta_prop_expr(span, MetaPropKind::NewTarget);
+
+                let ctx = self.ctx();
+                if !ctx.contains(Context::InsideNonArrowFunctionScope)
+                    && !ctx.contains(Context::InParameters)
+                    && !ctx.contains(Context::InClass)
+                {
+                    self.emit_err(span, SyntaxError::InvalidNewTarget);
+                }
+
+                return self.parse_subscripts_expr::<false>(expr, true);
+            }
+
+            unexpected!(self, "target")
+        }
+
+        // 'NewExpression' allows new calls without parens and can nest.
+        let callee = self.parse_new_expr()?;
+        return_if_arrow!(self, callee);
+
+        match &callee {
+            Expr::OptChain(opt) if opt.optional => {
+                syntax_error!(
+                    self,
+                    opt.span(),
+                    SyntaxError::OptChainCannotFollowConstructorCall
+                )
+            }
+            Expr::Member(member) => {
+                if let Expr::OptChain(opt) = &member.obj
+                    && opt.optional
+                {
+                    syntax_error!(
+                        self,
+                        opt.span(),
+                        SyntaxError::OptChainCannotFollowConstructorCall
+                    )
+                }
+            }
+            _ => {}
+        }
+
+        // let type_args = None;
+        // let type_args = if self.input().syntax().typescript() && {
+        //     let cur = self.input().cur();
+        //     cur == Token::Lt || cur == Token::LShift
+        // } {
+        //     self.try_parse_ts(|p| {
+        //         let args = p.do_outside_of_context(
+        //             Context::ShouldNotLexLtOrGtAsType,
+        //             Self::parse_ts_type_args,
+        //         )?;
+        //         p.assert_and_bump(Token::Gt);
+        //         if !p.input().is(Token::LParen) {
+        //             let span = p.input().cur_span();
+        //             let cur = p.input_mut().dump_cur();
+        //             syntax_error!(p, span, SyntaxError::Expected('('.to_string(), cur))
+        //         }
+        //         Ok(Some(args))
+        //     })
+        // } else {
+        //     None
+        // };
+
+        if self.input().is(Token::LParen) {
+            // Parsed with 'MemberExpression' production.
+            let args = self.parse_args(false)?;
+            let new_expr = self.ast.expr_new_expr(self.span(start), callee, args);
+
+            // We should parse subscripts for MemberExpression.
+            // Because it's left recursive.
+            return self.parse_subscripts_expr::<false>(new_expr, true);
+        }
+
+        // Parsed with 'NewExpression' production.
+        Ok(self
+            .ast
+            .expr_new_expr(self.span(start), callee, Vec::new_in(self.ast.allocator)))
     }
 
     /// Name from spec: 'LogicalORExpression'

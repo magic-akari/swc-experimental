@@ -200,7 +200,7 @@ pub struct CallExpr<'a> {
 pub struct NewExpr<'a> {
     pub span: Span,
     pub callee: Expr<'a>,
-    pub args: Option<Vec<'a, ExprOrSpread<'a>>>,
+    pub args: Vec<'a, ExprOrSpread<'a>>,
     // type_args: Option<Box<TsTypeParamInstantiation>>,
     // pub type_params: Option<TsTypeParamInstantiation>,
 }

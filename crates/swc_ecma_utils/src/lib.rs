@@ -173,8 +173,8 @@ impl<'a> ExprExt for Expr<'a> {
             // class expressions are valid for `new` but calling them throws TypeError.
             Expr::New(new_expr) if is_pure_new_callee(&new_expr.callee, ctx) => new_expr
                 .args
-                .as_ref()
-                .is_some_and(|args| args.iter().any(|arg| arg.expr.may_have_side_effects(ctx))),
+                .iter()
+                .any(|arg| arg.expr.may_have_side_effects(ctx)),
 
             Expr::New(_) => true,
 
