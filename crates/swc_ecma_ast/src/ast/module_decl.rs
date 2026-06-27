@@ -121,8 +121,23 @@ pub struct ExportDefaultSpecifier<'a> {
 pub struct ExportNamedSpecifier<'a> {
     pub span: Span,
     pub orig: ModuleExportName<'a>,
-    pub exported: Option<ModuleExportName<'a>>,
+    pub exported: ModuleExportName<'a>,
     pub is_type_only: bool,
+}
+
+impl ExportNamedSpecifier<'_> {
+    #[inline]
+    pub fn is_shorthand(&self) -> bool {
+        match (&self.orig, &self.exported) {
+            (ModuleExportName::Ident(orig), ModuleExportName::Ident(exported)) => {
+                orig.span == exported.span && orig.sym.as_str() == exported.sym.as_str()
+            }
+            (ModuleExportName::Str(orig), ModuleExportName::Str(exported)) => {
+                orig.span == exported.span && orig.value == exported.value
+            }
+            _ => false,
+        }
+    }
 }
 
 #[ast]

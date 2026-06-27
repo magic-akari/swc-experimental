@@ -612,7 +612,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         orig: ModuleExportName<'a>,
-        exported: Option<ModuleExportName<'a>>,
+        exported: ModuleExportName<'a>,
         is_type_only: bool,
     ) -> ExportSpecifier<'a> {
         ExportSpecifier::Named(self.box_export_named_specifier(span, orig, exported, is_type_only))
@@ -667,7 +667,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         orig: ModuleExportName<'a>,
-        exported: Option<ModuleExportName<'a>>,
+        exported: ModuleExportName<'a>,
         is_type_only: bool,
     ) -> ExportNamedSpecifier<'a> {
         ExportNamedSpecifier {
@@ -682,7 +682,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         orig: ModuleExportName<'a>,
-        exported: Option<ModuleExportName<'a>>,
+        exported: ModuleExportName<'a>,
         is_type_only: bool,
     ) -> Box<'a, ExportNamedSpecifier<'a>> {
         self.allocator
