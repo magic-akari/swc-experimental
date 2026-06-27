@@ -1480,7 +1480,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         callee: Expr<'a>,
-        args: Option<Vec<'a, ExprOrSpread<'a>>>,
+        args: Vec<'a, ExprOrSpread<'a>>,
     ) -> ForHead<'a> {
         ForHead::Pat(
             self.allocator.boxed(Pat::Expr(
@@ -1928,7 +1928,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         callee: Expr<'a>,
-        args: Option<Vec<'a, ExprOrSpread<'a>>>,
+        args: Vec<'a, ExprOrSpread<'a>>,
     ) -> VarDeclOrExpr<'a> {
         VarDeclOrExpr::Expr(
             self.allocator
@@ -2428,7 +2428,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         callee: Expr<'a>,
-        args: Option<Vec<'a, ExprOrSpread<'a>>>,
+        args: Vec<'a, ExprOrSpread<'a>>,
     ) -> Expr<'a> {
         Expr::New(self.box_new_expr(span, callee, args))
     }
@@ -2920,7 +2920,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         callee: Expr<'a>,
-        args: Option<Vec<'a, ExprOrSpread<'a>>>,
+        args: Vec<'a, ExprOrSpread<'a>>,
     ) -> NewExpr<'a> {
         NewExpr { span, callee, args }
     }
@@ -2929,7 +2929,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         callee: Expr<'a>,
-        args: Option<Vec<'a, ExprOrSpread<'a>>>,
+        args: Vec<'a, ExprOrSpread<'a>>,
     ) -> Box<'a, NewExpr<'a>> {
         self.allocator.boxed(self.new_expr(span, callee, args))
     }
@@ -3214,7 +3214,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         callee: Expr<'a>,
-        args: Option<Vec<'a, ExprOrSpread<'a>>>,
+        args: Vec<'a, ExprOrSpread<'a>>,
     ) -> Callee<'a> {
         Callee::Expr(
             self.allocator
@@ -3629,7 +3629,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         callee: Expr<'a>,
-        args: Option<Vec<'a, ExprOrSpread<'a>>>,
+        args: Vec<'a, ExprOrSpread<'a>>,
     ) -> BlockStmtOrExpr<'a> {
         BlockStmtOrExpr::Expr(
             self.allocator
@@ -4858,7 +4858,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         callee: Expr<'a>,
-        args: Option<Vec<'a, ExprOrSpread<'a>>>,
+        args: Vec<'a, ExprOrSpread<'a>>,
     ) -> Pat<'a> {
         Pat::Expr(
             self.allocator
@@ -5539,7 +5539,7 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         callee: Expr<'a>,
-        args: Option<Vec<'a, ExprOrSpread<'a>>>,
+        args: Vec<'a, ExprOrSpread<'a>>,
     ) -> JSXExpr<'a> {
         JSXExpr::Expr(
             self.allocator

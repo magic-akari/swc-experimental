@@ -601,9 +601,7 @@ pub(crate) trait CompatImpl {
                         span: compat_span(n.span),
                         ctxt: Default::default(),
                         callee: self.compat_expr(n.callee),
-                        args: n
-                            .args
-                            .map(|args| self.compat_vec(args, Self::compat_expr_or_spread)),
+                        args: Some(self.compat_vec(n.args, Self::compat_expr_or_spread)),
                         type_args: None,
                     })
                 }
