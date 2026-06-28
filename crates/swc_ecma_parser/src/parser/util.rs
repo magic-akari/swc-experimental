@@ -1,33 +1,5 @@
 use swc_experimental_allocator::boxed::Box;
-use swc_experimental_allocator::vec::Vec;
 use swc_experimental_ecma_ast::*;
-
-pub trait IsSimpleParameterList {
-    fn is_simple_parameter_list(&self) -> bool;
-}
-
-impl<'a> IsSimpleParameterList for Vec<'a, Param<'a>> {
-    #[inline]
-    fn is_simple_parameter_list(&self) -> bool {
-        self.iter().all(|param| {
-            !param.optional && param.initializer.is_none() && matches!(param.pat, Pat::Ident(_))
-        })
-    }
-}
-
-impl<'a> IsSimpleParameterList for Vec<'a, Pat<'a>> {
-    #[inline]
-    fn is_simple_parameter_list(&self) -> bool {
-        self.iter().all(|pat| matches!(pat, Pat::Ident(_)))
-    }
-}
-
-impl<'a> IsSimpleParameterList for ParamList<'a> {
-    #[inline]
-    fn is_simple_parameter_list(&self) -> bool {
-        self.rest.is_none() && self.items.is_simple_parameter_list()
-    }
-}
 
 pub trait IsInvalidClassName {
     fn invalid_class_name(&self) -> Option<Span>;

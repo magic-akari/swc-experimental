@@ -9,9 +9,9 @@ use crate::{
     input::Tokens,
     lexer::Token,
     parser::{
-        js::is_not_this,
+        js::{ParamListWithInfo, is_not_this},
         state::State,
-        util::{IsInvalidClassName, IsSimpleParameterList},
+        util::IsInvalidClassName,
     },
 };
 
@@ -203,7 +203,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
     }
 
     /// `parse_args` closure should not eat '(' or ')'.
-    pub(crate) fn parse_fn_args_body<F>(
+    pub(super) fn parse_fn_args_body<F>(
         &mut self,
         decorators: Vec<'a, Decorator<'a>>,
         start: u32,
@@ -212,7 +212,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         is_generator: bool,
     ) -> PResult<Function<'a>>
     where
-        F: FnOnce(&mut Self) -> PResult<Box<'a, ParamList<'a>>>,
+        F: FnOnce(&mut Self) -> PResult<ParamListWithInfo<'a>>,
     {
         trace_cur!(self, parse_fn_args_body);
         let f = |p: &mut Self| {
@@ -262,12 +262,11 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
             //     None
             // };
 
-            let body: Option<_> = p.parse_fn_block_body(
-                is_async,
-                is_generator,
-                false,
-                params.is_simple_parameter_list(),
-            )?;
+            let is_simple_parameter_list = params.is_simple;
+            let params = params.params;
+
+            let body: Option<_> =
+                p.parse_fn_block_body(is_async, is_generator, false, is_simple_parameter_list)?;
 
             if p.syntax().typescript() && body.is_none() {
                 // Declare functions cannot have assignment pattern in parameters
@@ -408,7 +407,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                 let f = p.parse_fn_args_body(
                     decorators,
                     start,
-                    Self::parse_formal_params,
+                    Self::parse_formal_params_with_info,
                     is_async,
                     is_generator,
                 )?;
@@ -488,7 +487,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         }: MakeMethodArgs<'a>,
     ) -> PResult<ClassMember<'a>>
     where
-        F: FnOnce(&mut Self) -> PResult<Box<'a, ParamList<'a>>>,
+        F: FnOnce(&mut Self) -> PResult<ParamListWithInfo<'a>>,
     {
         trace_cur!(self, make_method);
 
@@ -905,7 +904,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
             }
 
             return self.make_method(
-                Self::parse_unique_formal_params,
+                Self::parse_unique_formal_params_with_info,
                 MakeMethodArgs {
                     start,
                     decorators,
@@ -978,7 +977,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                 }
 
                 expect!(self, Token::LParen);
-                let params = self.parse_constructor_params()?;
+                let params = self.parse_constructor_params_with_info()?;
                 expect!(self, Token::RParen);
 
                 // if self.syntax().typescript() && self.input().is(Token::Colon) {
@@ -988,12 +987,11 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                 //     self.emit_err(type_ann.type_ann.span(), SyntaxError::TS1093);
                 // }
 
-                let body: Option<_> = self.parse_fn_block_body(
-                    false,
-                    false,
-                    false,
-                    params.is_simple_parameter_list(),
-                )?;
+                let is_simple_parameter_list = params.is_simple;
+                let params = params.params;
+
+                let body: Option<_> =
+                    self.parse_fn_block_body(false, false, false, is_simple_parameter_list)?;
 
                 if let Some(static_token) = static_token {
                     self.emit_err(static_token, SyntaxError::TS1089("static".to_string()))
@@ -1018,7 +1016,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                 ));
             } else {
                 return self.make_method(
-                    Self::parse_formal_params,
+                    Self::parse_formal_params_with_info,
                     MakeMethodArgs {
                         start,
                         is_optional,
@@ -1088,7 +1086,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
             let is_optional = is_optional
                 || self.input().syntax().typescript() && self.input_mut().eat(Token::QuestionMark);
             return self.make_method(
-                Self::parse_unique_formal_params,
+                Self::parse_unique_formal_params_with_info,
                 MakeMethodArgs {
                     start,
                     static_token,
@@ -1122,9 +1120,11 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
             return match key_token {
                 Token::Get => self.make_method(
                     |p| {
-                        let params = p.parse_formal_params()?;
+                        let params = p.parse_formal_params_with_info()?;
 
-                        if params.items.iter().any(is_not_this) || params.rest.is_some() {
+                        if params.params.items.iter().any(is_not_this)
+                            || params.params.rest.is_some()
+                        {
                             p.emit_err(key_span, SyntaxError::GetterParam);
                         }
 
@@ -1146,24 +1146,26 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                 ),
                 Token::Set => self.make_method(
                     |p| {
-                        let params = p.parse_formal_params()?;
+                        let params = p.parse_formal_params_with_info()?;
 
                         let param_count = params
+                            .params
                             .items
                             .iter()
                             .filter(|param| is_not_this(param))
                             .count()
-                            + params.rest.as_ref().map_or(0, |_| 1);
+                            + params.params.rest.as_ref().map_or(0, |_| 1);
                         if param_count != 1 {
                             p.emit_err(key_span, SyntaxError::SetterParam);
                         }
 
-                        if let Some(rest) = &params.rest {
+                        if let Some(rest) = &params.params.rest {
                             p.emit_err(rest.span(), SyntaxError::RestPatInSetter);
                         }
 
                         if p.input().syntax().typescript()
                             && params
+                                .params
                                 .items
                                 .iter()
                                 .any(|param| is_not_this(param) && param.optional)
@@ -1216,7 +1218,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                 let is_optional =
                     self.input().syntax().typescript() && self.input_mut().eat(Token::QuestionMark);
                 return self.make_method(
-                    Self::parse_unique_formal_params,
+                    Self::parse_unique_formal_params_with_info,
                     MakeMethodArgs {
                         start,
                         // accessibility,
@@ -1288,7 +1290,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                 let is_optional =
                     self.input().syntax().typescript() && self.input_mut().eat(Token::QuestionMark);
                 return self.make_method(
-                    Self::parse_unique_formal_params,
+                    Self::parse_unique_formal_params_with_info,
                     MakeMethodArgs {
                         start,
                         // accessibility,
@@ -1337,7 +1339,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                 let is_optional =
                     self.input().syntax().typescript() && self.input_mut().eat(Token::QuestionMark);
                 return self.make_method(
-                    Self::parse_unique_formal_params,
+                    Self::parse_unique_formal_params_with_info,
                     MakeMethodArgs {
                         start,
                         // accessibility,

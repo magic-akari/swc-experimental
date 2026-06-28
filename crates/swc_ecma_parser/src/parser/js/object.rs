@@ -181,7 +181,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                             // no decorator in an object literal
                             p.vec(),
                             start,
-                            Self::parse_unique_formal_params,
+                            Self::parse_unique_formal_params_with_info,
                             false,
                             true,
                         )
@@ -246,7 +246,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                             // no decorator in an object literal
                             p.vec(),
                             start,
-                            Self::parse_unique_formal_params,
+                            Self::parse_unique_formal_params_with_info,
                             false,
                             false,
                         )
@@ -314,9 +314,10 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                 p.vec(),
                                 start,
                                 |p| {
-                                    let params = p.parse_formal_params()?;
+                                    let params = p.parse_formal_params_with_info()?;
 
-                                    if params.items.iter().any(is_not_this) || params.rest.is_some()
+                                    if params.params.items.iter().any(is_not_this)
+                                        || params.params.rest.is_some()
                                     {
                                         p.emit_err(key_span, SyntaxError::GetterParam);
                                     }
@@ -346,24 +347,26 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                 p.vec(),
                                 start,
                                 |p| {
-                                    let params = p.parse_formal_params()?;
+                                    let params = p.parse_formal_params_with_info()?;
 
                                     let param_count = params
+                                        .params
                                         .items
                                         .iter()
                                         .filter(|param| is_not_this(param))
                                         .count()
-                                        + params.rest.as_ref().map_or(0, |_| 1);
+                                        + params.params.rest.as_ref().map_or(0, |_| 1);
                                     if param_count != 1 {
                                         p.emit_err(key_span, SyntaxError::SetterParam);
                                     }
 
-                                    if let Some(rest) = &params.rest {
+                                    if let Some(rest) = &params.params.rest {
                                         p.emit_err(rest.span(), SyntaxError::RestPatInSetter);
                                     }
 
                                     if p.input().syntax().typescript()
                                         && params
+                                            .params
                                             .items
                                             .iter()
                                             .any(|param| is_not_this(param) && param.optional)
@@ -399,7 +402,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                 // no decorator in an object literal
                                 p.vec(),
                                 start,
-                                Self::parse_unique_formal_params,
+                                Self::parse_unique_formal_params_with_info,
                                 true,
                                 is_generator,
                             )

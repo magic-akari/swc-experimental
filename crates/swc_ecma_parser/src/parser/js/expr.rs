@@ -10,11 +10,7 @@ use crate::{
     error::{Error, SyntaxError},
     input::Tokens,
     lexer::Token,
-    parser::{
-        Parser,
-        js::pat::PatType,
-        util::{ExprExt, IsSimpleParameterList},
-    },
+    parser::{Parser, util::ExprExt},
 };
 
 pub(crate) enum AssignTargetOrSpread<'a> {
@@ -921,13 +917,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
 
         if let Some(op) = self.input().cur().as_assign_op() {
             let left = if op == AssignOp::Assign {
-                let pat = self.reparse_expr_as_pat(PatType::AssignPat, cond)?;
-                match AssignTarget::try_from_pat(pat, self.ast.allocator) {
-                    Ok(pat) => pat,
-                    Err(expr) => {
-                        syntax_error!(self, expr.span(), SyntaxError::InvalidAssignTarget)
-                    }
-                }
+                self.cover_expr_as_assign_target(cond)?
             } else {
                 // It is an early Reference Error if IsValidSimpleAssignmentTarget of
                 // LeftHandSideExpression is false.
@@ -2156,18 +2146,16 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
             } {
                 let params = {
                     let items = items.clone_in(self.ast.allocator);
-                    self.parse_paren_items_as_params(items, None)?
+                    self.parse_paren_items_as_params_with_info(items, None)?
                 };
 
-                let body: BlockStmtOrExpr = self.parse_fn_block_or_expr_body(
-                    false,
-                    false,
-                    true,
-                    params.is_simple_parameter_list(),
-                )?;
+                let body: BlockStmtOrExpr =
+                    self.parse_fn_block_or_expr_body(false, false, true, params.is_simple)?;
                 let span = self.span(start);
 
-                let arrow = self.ast.expr_arrow_expr(span, params, body, is_async);
+                let arrow = self
+                    .ast
+                    .expr_arrow_expr(span, params.params, body, is_async);
                 let expr = self.ast.expr_or_spread(None, arrow);
                 items.push(AssignTargetOrSpread::ExprOrSpread(expr));
             }
@@ -2198,6 +2186,12 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         let expr_start = async_span
             .map(|x| x.start)
             .unwrap_or_else(|| self.cur_pos());
+
+        if let Some(expr) =
+            self.try_parse_definite_parenthesized_arrow_expr(expr_start, async_span, can_be_arrow)?
+        {
+            return Ok(expr);
+        }
 
         // At this point, we can't know if it's parenthesized
         // expression or head of arrow function.
@@ -2292,18 +2286,21 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
             }
             expect!(self, Token::Arrow);
 
-            let params = self.parse_paren_items_as_params(paren_items, trailing_comma)?;
+            let params = self.parse_paren_items_as_params_with_info(paren_items, trailing_comma)?;
 
             let body: BlockStmtOrExpr = self.parse_fn_block_or_expr_body(
                 async_span.is_some(),
                 false,
                 true,
-                params.is_simple_parameter_list(),
+                params.is_simple,
             )?;
 
-            let arrow_expr =
-                self.ast
-                    .arrow_expr(self.span(expr_start), params, body, async_span.is_some());
+            let arrow_expr = self.ast.arrow_expr(
+                self.span(expr_start),
+                params.params,
+                body,
+                async_span.is_some(),
+            );
             if arrow_expr.body.is_block_stmt() && self.input().cur().is_bin_op() {
                 // ) is required
                 self.emit_err(self.input().cur_span(), SyntaxError::TS1005);
@@ -2476,12 +2473,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                 .box_param_list(param_span, ParamListKind::Arrow, items, None);
 
                         expect!(p, Token::Arrow);
-                        let body = p.parse_fn_block_or_expr_body(
-                            true,
-                            false,
-                            true,
-                            params.is_simple_parameter_list(),
-                        )?;
+                        let body = p.parse_fn_block_or_expr_body(true, false, true, true)?;
 
                         return Ok(p.ast.expr_arrow_expr(p.span(start), params, body, true));
                     }
@@ -2499,12 +2491,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                             .box_param_list(param_span, ParamListKind::Arrow, items, None);
 
                     p.bump();
-                    let body = p.parse_fn_block_or_expr_body(
-                        false,
-                        false,
-                        true,
-                        params.is_simple_parameter_list(),
-                    )?;
+                    let body = p.parse_fn_block_or_expr_body(false, false, true, true)?;
 
                     return Ok(p.ast.expr_arrow_expr(p.span(start), params, body, false));
                 }
