@@ -2053,8 +2053,7 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for SetterProp<'a> {
     #[inline]
     fn visit_children_with(&self, visitor: &mut V) {
         self.key.visit_with(visitor);
-        self.this_param.visit_with(visitor);
-        self.param.visit_with(visitor);
+        self.params.visit_with(visitor);
         self.body.visit_with(visitor);
     }
 }
@@ -4968,8 +4967,7 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for SetterProp<'a> {
     #[inline]
     fn visit_mut_children_with(&mut self, visitor: &mut V) {
         self.key.visit_mut_with(visitor);
-        self.this_param.visit_mut_with(visitor);
-        self.param.visit_mut_with(visitor);
+        self.params.visit_mut_with(visitor);
         self.body.visit_mut_with(visitor);
     }
 }

@@ -981,11 +981,39 @@ pub(crate) trait CompatImpl {
             }
             experimental::Prop::Setter(s) => {
                 let s = AstBox::into_inner(s);
+                let params = AstBox::into_inner(s.params);
+                let mut items = params.items;
+                let this_param = if items.len() >= 2 {
+                    let this_param = items.remove(0);
+                    Some(self.compat_param_pat(
+                        this_param.pat,
+                        this_param.initializer,
+                        this_param.optional,
+                    ))
+                } else {
+                    None
+                };
+                let param = items
+                    .into_iter()
+                    .next()
+                    .map(|param| {
+                        self.compat_param_pat(param.pat, param.initializer, param.optional)
+                    })
+                    .or_else(|| {
+                        params
+                            .rest
+                            .map(|rest| self.compat_param_rest_as_pat(AstBox::into_inner(rest)))
+                    })
+                    .unwrap_or_else(|| {
+                        legacy::Pat::Invalid(legacy::Invalid {
+                            span: Default::default(),
+                        })
+                    });
                 legacy::Prop::Setter(legacy::SetterProp {
                     span: compat_span(s.span),
                     key: self.compat_prop_name(s.key),
-                    this_param: s.this_param.map(|p| self.compat_pat(p)),
-                    param: alloc_box!(self, self.compat_pat(s.param)),
+                    this_param,
+                    param: alloc_box!(self, param),
                     body: s.body.map(|b| self.compat_block_stmt(b)),
                 })
             }
@@ -1691,20 +1719,29 @@ pub(crate) trait CompatImpl {
                 legacy::AssignTarget::Pat(match AstBox::into_inner(p) {
                     experimental::AssignTargetPat::Array(a) => {
                         let a = AstBox::into_inner(a);
+                        let mut elems = self
+                            .compat_vec(a.elems, |this, pat| pat.map(|pat| this.compat_pat(pat)));
+                        if let Some(rest) = a.rest {
+                            elems.push(Some(self.compat_rest_pat_as_pat(AstBox::into_inner(rest))));
+                        }
                         legacy::AssignTargetPat::Array(legacy::ArrayPat {
                             span: compat_span(a.span),
-                            elems: self.compat_vec(a.elems, |this, pat| {
-                                pat.map(|pat| this.compat_pat(pat))
-                            }),
+                            elems,
                             optional: false,
                             type_ann: None,
                         })
                     }
                     experimental::AssignTargetPat::Object(o) => {
                         let o = AstBox::into_inner(o);
+                        let mut props = self.compat_vec(o.props, Self::compat_object_pat_prop);
+                        if let Some(rest) = o.rest {
+                            props.push(
+                                self.compat_rest_pat_as_object_pat_prop(AstBox::into_inner(rest)),
+                            );
+                        }
                         legacy::AssignTargetPat::Object(legacy::ObjectPat {
                             span: compat_span(o.span),
-                            props: self.compat_vec(o.props, Self::compat_object_pat_prop),
+                            props,
                             optional: false,
                             type_ann: None,
                         })

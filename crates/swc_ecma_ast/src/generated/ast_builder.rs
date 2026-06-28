@@ -2667,13 +2667,13 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         key: PropName<'a>,
-        this_param: Option<Pat<'a>>,
-        param: Pat<'a>,
+        params: Box<'a, ParamList<'a>>,
         body: Option<Box<'a, BlockStmt<'a>>>,
     ) -> PropOrSpread<'a> {
-        PropOrSpread::Prop(self.allocator.boxed(Prop::Setter(
-            self.box_setter_prop(span, key, this_param, param, body),
-        )))
+        PropOrSpread::Prop(
+            self.allocator
+                .boxed(Prop::Setter(self.box_setter_prop(span, key, params, body))),
+        )
     }
     #[inline]
     pub fn prop_or_spread_prop_method_prop(
@@ -4600,11 +4600,10 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         key: PropName<'a>,
-        this_param: Option<Pat<'a>>,
-        param: Pat<'a>,
+        params: Box<'a, ParamList<'a>>,
         body: Option<Box<'a, BlockStmt<'a>>>,
     ) -> Prop<'a> {
-        Prop::Setter(self.box_setter_prop(span, key, this_param, param, body))
+        Prop::Setter(self.box_setter_prop(span, key, params, body))
     }
     #[inline]
     pub fn prop_method_prop(&self, key: PropName<'a>, function: Box<'a, Function<'a>>) -> Prop<'a> {
@@ -4663,15 +4662,13 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         key: PropName<'a>,
-        this_param: Option<Pat<'a>>,
-        param: Pat<'a>,
+        params: Box<'a, ParamList<'a>>,
         body: Option<Box<'a, BlockStmt<'a>>>,
     ) -> SetterProp<'a> {
         SetterProp {
             span,
             key,
-            this_param,
-            param,
+            params,
             body,
         }
     }
@@ -4680,12 +4677,11 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         key: PropName<'a>,
-        this_param: Option<Pat<'a>>,
-        param: Pat<'a>,
+        params: Box<'a, ParamList<'a>>,
         body: Option<Box<'a, BlockStmt<'a>>>,
     ) -> Box<'a, SetterProp<'a>> {
         self.allocator
-            .boxed(self.setter_prop(span, key, this_param, param, body))
+            .boxed(self.setter_prop(span, key, params, body))
     }
     #[inline]
     pub fn method_prop(

@@ -383,34 +383,11 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                 false,
                             )
                             .map(|function| {
-                                let mut this = None;
-                                let params = AstBox::into_inner(function.params);
-                                let mut items = params.items;
-                                if items.len() >= 2 {
-                                    this = Some(items.remove(0).pat);
-                                }
-
-                                let param = items
-                                    .into_iter()
-                                    .next()
-                                    .map(|v| v.pat)
-                                    .or_else(|| {
-                                        params.rest.map(|rest| {
-                                            let rest = AstBox::into_inner(rest);
-                                            rest.arg
-                                        })
-                                    })
-                                    .unwrap_or_else(|| {
-                                        p.emit_err(key_span, SyntaxError::SetterParam);
-                                        p.ast.pat_invalid()
-                                    });
-
                                 let body = Some(function.body);
                                 p.ast.prop_or_spread_prop_setter_prop(
                                     p.span(start),
                                     key,
-                                    this,
-                                    param,
+                                    function.params,
                                     body,
                                 )
                             });

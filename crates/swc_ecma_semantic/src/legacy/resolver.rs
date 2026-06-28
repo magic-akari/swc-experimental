@@ -1156,9 +1156,16 @@ impl<'ast> Visit<'ast> for Resolver<'ast> {
 
         {
             self.with_child(ScopeKind::Fn, |child| {
-                child.ident_type = IdentType::Binding;
-                // n.this_param.visit_with(child);
-                n.param.visit_with(child);
+                let mut params = std::vec::Vec::default();
+                find_param_list_ids(&n.params, &mut params);
+
+                for id in params.iter() {
+                    child.scopes[child.current]
+                        .declared_symbols
+                        .insert(*id, DeclKind::Param);
+                }
+
+                n.params.visit_with(child);
                 n.body.visit_with(child);
             });
         };
