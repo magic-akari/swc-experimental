@@ -1,4 +1,9 @@
-#![allow(unused, clippy::useless_conversion, clippy::identity_op)]
+#![allow(
+    unused,
+    clippy::useless_conversion,
+    clippy::identity_op,
+    clippy::too_many_arguments
+)]
 use crate::*;
 use swc_experimental_allocator::atom::{Atom, Wtf8Atom};
 use swc_experimental_allocator::boxed::Box;
@@ -4195,6 +4200,7 @@ impl<'a> AstBuilder<'a> {
     pub fn function(
         &self,
         span: Span,
+        this_param: Option<Box<'a, TSThisParameter<'a>>>,
         params: Vec<'a, Param<'a>>,
         decorators: Vec<'a, Decorator<'a>>,
         body: Box<'a, BlockStmt<'a>>,
@@ -4203,6 +4209,7 @@ impl<'a> AstBuilder<'a> {
     ) -> Function<'a> {
         Function {
             span,
+            this_param,
             params,
             decorators,
             body,
@@ -4214,14 +4221,22 @@ impl<'a> AstBuilder<'a> {
     pub fn box_function(
         &self,
         span: Span,
+        this_param: Option<Box<'a, TSThisParameter<'a>>>,
         params: Vec<'a, Param<'a>>,
         decorators: Vec<'a, Decorator<'a>>,
         body: Box<'a, BlockStmt<'a>>,
         is_generator: bool,
         is_async: bool,
     ) -> Box<'a, Function<'a>> {
-        self.allocator
-            .boxed(self.function(span, params, decorators, body, is_generator, is_async))
+        self.allocator.boxed(self.function(
+            span,
+            this_param,
+            params,
+            decorators,
+            body,
+            is_generator,
+            is_async,
+        ))
     }
     #[inline]
     pub fn param(&self, span: Span, decorators: Vec<'a, Decorator<'a>>, pat: Pat<'a>) -> Param<'a> {
@@ -6157,5 +6172,36 @@ impl<'a> AstBuilder<'a> {
     #[inline]
     pub fn box_jsx_closing_fragment(&self, span: Span) -> Box<'a, JSXClosingFragment> {
         self.allocator.boxed(self.jsx_closing_fragment(span))
+    }
+    #[inline]
+    pub fn ts_this_parameter(
+        &self,
+        span: Span,
+        this_span: Span,
+        type_annotation: Option<Box<'a, TSTypeAnnotation>>,
+    ) -> TSThisParameter<'a> {
+        TSThisParameter {
+            span,
+            this_span,
+            type_annotation,
+        }
+    }
+    #[inline]
+    pub fn box_ts_this_parameter(
+        &self,
+        span: Span,
+        this_span: Span,
+        type_annotation: Option<Box<'a, TSTypeAnnotation>>,
+    ) -> Box<'a, TSThisParameter<'a>> {
+        self.allocator
+            .boxed(self.ts_this_parameter(span, this_span, type_annotation))
+    }
+    #[inline]
+    pub fn ts_type_annotation(&self, span: Span) -> TSTypeAnnotation {
+        TSTypeAnnotation { span }
+    }
+    #[inline]
+    pub fn box_ts_type_annotation(&self, span: Span) -> Box<'a, TSTypeAnnotation> {
+        self.allocator.boxed(self.ts_type_annotation(span))
     }
 }

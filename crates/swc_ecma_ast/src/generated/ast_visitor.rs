@@ -609,6 +609,14 @@ pub trait Visit<'a> {
         node.visit_children_with(self);
     }
     #[inline]
+    fn visit_ts_this_parameter(&mut self, node: &TSThisParameter<'a>) {
+        node.visit_children_with(self);
+    }
+    #[inline]
+    fn visit_ts_type_annotation(&mut self, node: &TSTypeAnnotation) {
+        node.visit_children_with(self);
+    }
+    #[inline]
     fn visit_module_items(&mut self, node: &Vec<'a, ModuleItem<'a>>) {
         node.visit_children_with(self);
     }
@@ -630,10 +638,6 @@ pub trait Visit<'a> {
     }
     #[inline]
     fn visit_opt_str(&mut self, node: &Option<Box<'a, Str<'a>>>) {
-        node.visit_children_with(self);
-    }
-    #[inline]
-    fn visit_opt_module_export_name(&mut self, node: &Option<ModuleExportName<'a>>) {
         node.visit_children_with(self);
     }
     #[inline]
@@ -701,6 +705,10 @@ pub trait Visit<'a> {
         node.visit_children_with(self);
     }
     #[inline]
+    fn visit_opt_ts_this_parameter(&mut self, node: &Option<Box<'a, TSThisParameter<'a>>>) {
+        node.visit_children_with(self);
+    }
+    #[inline]
     fn visit_params(&mut self, node: &Vec<'a, Param<'a>>) {
         node.visit_children_with(self);
     }
@@ -738,6 +746,10 @@ pub trait Visit<'a> {
     }
     #[inline]
     fn visit_opt_jsx_closing_element(&mut self, node: &Option<Box<'a, JSXClosingElement<'a>>>) {
+        node.visit_children_with(self);
+    }
+    #[inline]
+    fn visit_opt_ts_type_annotation(&mut self, node: &Option<Box<'a, TSTypeAnnotation>>) {
         node.visit_children_with(self);
     }
 }
@@ -1821,6 +1833,7 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Function<'a> {
     }
     #[inline]
     fn visit_children_with(&self, visitor: &mut V) {
+        self.this_param.visit_with(visitor);
         self.params.visit_with(visitor);
         self.decorators.visit_with(visitor);
         self.body.visit_with(visitor);
@@ -2504,6 +2517,24 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for JSXClosingFragment {
     #[inline]
     fn visit_children_with(&self, visitor: &mut V) {}
 }
+impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for TSThisParameter<'a> {
+    #[inline]
+    fn visit_with(&self, visitor: &mut V) {
+        <V as Visit<'a>>::visit_ts_this_parameter(visitor, self)
+    }
+    #[inline]
+    fn visit_children_with(&self, visitor: &mut V) {
+        self.type_annotation.visit_with(visitor);
+    }
+}
+impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for TSTypeAnnotation {
+    #[inline]
+    fn visit_with(&self, visitor: &mut V) {
+        <V as Visit<'a>>::visit_ts_type_annotation(visitor, self)
+    }
+    #[inline]
+    fn visit_children_with(&self, visitor: &mut V) {}
+}
 impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Vec<'a, ModuleItem<'a>> {
     #[inline]
     fn visit_with(&self, visitor: &mut V) {
@@ -2568,18 +2599,6 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Option<Box<'a, Str<'a>>> {
     #[inline]
     fn visit_with(&self, visitor: &mut V) {
         <V as Visit<'a>>::visit_opt_str(visitor, self)
-    }
-    #[inline]
-    fn visit_children_with(&self, visitor: &mut V) {
-        if let Some(node) = self {
-            node.visit_with(visitor);
-        }
-    }
-}
-impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Option<ModuleExportName<'a>> {
-    #[inline]
-    fn visit_with(&self, visitor: &mut V) {
-        <V as Visit<'a>>::visit_opt_module_export_name(visitor, self)
     }
     #[inline]
     fn visit_children_with(&self, visitor: &mut V) {
@@ -2780,6 +2799,18 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Vec<'a, TplElement<'a>> {
         }
     }
 }
+impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Option<Box<'a, TSThisParameter<'a>>> {
+    #[inline]
+    fn visit_with(&self, visitor: &mut V) {
+        <V as Visit<'a>>::visit_opt_ts_this_parameter(visitor, self)
+    }
+    #[inline]
+    fn visit_children_with(&self, visitor: &mut V) {
+        if let Some(node) = self {
+            node.visit_with(visitor);
+        }
+    }
+}
 impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Vec<'a, Param<'a>> {
     #[inline]
     fn visit_with(&self, visitor: &mut V) {
@@ -2892,6 +2923,18 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Option<Box<'a, JSXClosingEl
     #[inline]
     fn visit_with(&self, visitor: &mut V) {
         <V as Visit<'a>>::visit_opt_jsx_closing_element(visitor, self)
+    }
+    #[inline]
+    fn visit_children_with(&self, visitor: &mut V) {
+        if let Some(node) = self {
+            node.visit_with(visitor);
+        }
+    }
+}
+impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Option<Box<'a, TSTypeAnnotation>> {
+    #[inline]
+    fn visit_with(&self, visitor: &mut V) {
+        <V as Visit<'a>>::visit_opt_ts_type_annotation(visitor, self)
     }
     #[inline]
     fn visit_children_with(&self, visitor: &mut V) {
@@ -3506,6 +3549,14 @@ pub trait VisitMut<'a> {
         node.visit_mut_children_with(self);
     }
     #[inline]
+    fn visit_mut_ts_this_parameter(&mut self, node: &mut TSThisParameter<'a>) {
+        node.visit_mut_children_with(self);
+    }
+    #[inline]
+    fn visit_mut_ts_type_annotation(&mut self, node: &mut TSTypeAnnotation) {
+        node.visit_mut_children_with(self);
+    }
+    #[inline]
     fn visit_mut_module_items(&mut self, node: &mut Vec<'a, ModuleItem<'a>>) {
         node.visit_mut_children_with(self);
     }
@@ -3527,10 +3578,6 @@ pub trait VisitMut<'a> {
     }
     #[inline]
     fn visit_mut_opt_str(&mut self, node: &mut Option<Box<'a, Str<'a>>>) {
-        node.visit_mut_children_with(self);
-    }
-    #[inline]
-    fn visit_mut_opt_module_export_name(&mut self, node: &mut Option<ModuleExportName<'a>>) {
         node.visit_mut_children_with(self);
     }
     #[inline]
@@ -3601,6 +3648,10 @@ pub trait VisitMut<'a> {
         node.visit_mut_children_with(self);
     }
     #[inline]
+    fn visit_mut_opt_ts_this_parameter(&mut self, node: &mut Option<Box<'a, TSThisParameter<'a>>>) {
+        node.visit_mut_children_with(self);
+    }
+    #[inline]
     fn visit_mut_params(&mut self, node: &mut Vec<'a, Param<'a>>) {
         node.visit_mut_children_with(self);
     }
@@ -3641,6 +3692,10 @@ pub trait VisitMut<'a> {
         &mut self,
         node: &mut Option<Box<'a, JSXClosingElement<'a>>>,
     ) {
+        node.visit_mut_children_with(self);
+    }
+    #[inline]
+    fn visit_mut_opt_ts_type_annotation(&mut self, node: &mut Option<Box<'a, TSTypeAnnotation>>) {
         node.visit_mut_children_with(self);
     }
 }
@@ -4724,6 +4779,7 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Function<'a> {
     }
     #[inline]
     fn visit_mut_children_with(&mut self, visitor: &mut V) {
+        self.this_param.visit_mut_with(visitor);
         self.params.visit_mut_with(visitor);
         self.decorators.visit_mut_with(visitor);
         self.body.visit_mut_with(visitor);
@@ -5407,6 +5463,24 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for JSXClosingFragment {
     #[inline]
     fn visit_mut_children_with(&mut self, visitor: &mut V) {}
 }
+impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for TSThisParameter<'a> {
+    #[inline]
+    fn visit_mut_with(&mut self, visitor: &mut V) {
+        <V as VisitMut<'a>>::visit_mut_ts_this_parameter(visitor, self)
+    }
+    #[inline]
+    fn visit_mut_children_with(&mut self, visitor: &mut V) {
+        self.type_annotation.visit_mut_with(visitor);
+    }
+}
+impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for TSTypeAnnotation {
+    #[inline]
+    fn visit_mut_with(&mut self, visitor: &mut V) {
+        <V as VisitMut<'a>>::visit_mut_ts_type_annotation(visitor, self)
+    }
+    #[inline]
+    fn visit_mut_children_with(&mut self, visitor: &mut V) {}
+}
 impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Vec<'a, ModuleItem<'a>> {
     #[inline]
     fn visit_mut_with(&mut self, visitor: &mut V) {
@@ -5471,18 +5545,6 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Option<Box<'a, Str<'a
     #[inline]
     fn visit_mut_with(&mut self, visitor: &mut V) {
         <V as VisitMut<'a>>::visit_mut_opt_str(visitor, self)
-    }
-    #[inline]
-    fn visit_mut_children_with(&mut self, visitor: &mut V) {
-        if let Some(node) = self {
-            node.visit_mut_with(visitor);
-        }
-    }
-}
-impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Option<ModuleExportName<'a>> {
-    #[inline]
-    fn visit_mut_with(&mut self, visitor: &mut V) {
-        <V as VisitMut<'a>>::visit_mut_opt_module_export_name(visitor, self)
     }
     #[inline]
     fn visit_mut_children_with(&mut self, visitor: &mut V) {
@@ -5685,6 +5747,18 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Vec<'a, TplElement<'a
         }
     }
 }
+impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Option<Box<'a, TSThisParameter<'a>>> {
+    #[inline]
+    fn visit_mut_with(&mut self, visitor: &mut V) {
+        <V as VisitMut<'a>>::visit_mut_opt_ts_this_parameter(visitor, self)
+    }
+    #[inline]
+    fn visit_mut_children_with(&mut self, visitor: &mut V) {
+        if let Some(node) = self {
+            node.visit_mut_with(visitor);
+        }
+    }
+}
 impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Vec<'a, Param<'a>> {
     #[inline]
     fn visit_mut_with(&mut self, visitor: &mut V) {
@@ -5797,6 +5871,18 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Option<Box<'a, JSXClo
     #[inline]
     fn visit_mut_with(&mut self, visitor: &mut V) {
         <V as VisitMut<'a>>::visit_mut_opt_jsx_closing_element(visitor, self)
+    }
+    #[inline]
+    fn visit_mut_children_with(&mut self, visitor: &mut V) {
+        if let Some(node) = self {
+            node.visit_mut_with(visitor);
+        }
+    }
+}
+impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Option<Box<'a, TSTypeAnnotation>> {
+    #[inline]
+    fn visit_mut_with(&mut self, visitor: &mut V) {
+        <V as VisitMut<'a>>::visit_mut_opt_ts_type_annotation(visitor, self)
     }
     #[inline]
     fn visit_mut_children_with(&mut self, visitor: &mut V) {

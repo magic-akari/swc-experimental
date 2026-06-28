@@ -287,6 +287,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
 
             Ok(p.ast.function(
                 p.span(start),
+                None,
                 params,
                 decorators,
                 match body {

@@ -32,7 +32,12 @@ pub fn ast_builder(schema: &Schema) -> RawOutput {
     }
 
     let output = quote! {
-        #![allow(unused, clippy::useless_conversion, clippy::identity_op)]
+        #![allow(
+            unused,
+            clippy::useless_conversion,
+            clippy::identity_op,
+            clippy::too_many_arguments
+        )]
         use swc_experimental_allocator::atom::{Atom, Wtf8Atom};
         use swc_experimental_allocator::boxed::Box;
         use swc_experimental_allocator::vec::Vec;

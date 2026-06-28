@@ -5201,3 +5201,27 @@ impl SetSpan for JSXClosingFragment {
         self.span = span;
     }
 }
+impl<'a> GetSpan for TSThisParameter<'a> {
+    #[inline]
+    fn span(&self) -> Span {
+        self.span
+    }
+}
+impl<'a> SetSpan for TSThisParameter<'a> {
+    #[inline]
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
+    }
+}
+impl GetSpan for TSTypeAnnotation {
+    #[inline]
+    fn span(&self) -> Span {
+        self.span
+    }
+}
+impl SetSpan for TSTypeAnnotation {
+    #[inline]
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
+    }
+}

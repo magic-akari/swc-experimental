@@ -1027,6 +1027,7 @@ impl<'a, 'src> CloneIn<'a> for Function<'src> {
     fn clone_in(&self, allocator: &'a Allocator) -> Self::Cloned {
         Function {
             span: self.span.clone_in(allocator),
+            this_param: self.this_param.clone_in(allocator),
             params: self.params.clone_in(allocator),
             decorators: self.decorators.clone_in(allocator),
             body: self.body.clone_in(allocator),
@@ -1702,6 +1703,26 @@ impl<'a> CloneIn<'a> for JSXClosingFragment {
     #[inline]
     fn clone_in(&self, allocator: &'a Allocator) -> Self::Cloned {
         JSXClosingFragment {
+            span: self.span.clone_in(allocator),
+        }
+    }
+}
+impl<'a, 'src> CloneIn<'a> for TSThisParameter<'src> {
+    type Cloned = TSThisParameter<'a>;
+    #[inline]
+    fn clone_in(&self, allocator: &'a Allocator) -> Self::Cloned {
+        TSThisParameter {
+            span: self.span.clone_in(allocator),
+            this_span: self.this_span.clone_in(allocator),
+            type_annotation: self.type_annotation.clone_in(allocator),
+        }
+    }
+}
+impl<'a> CloneIn<'a> for TSTypeAnnotation {
+    type Cloned = TSTypeAnnotation;
+    #[inline]
+    fn clone_in(&self, allocator: &'a Allocator) -> Self::Cloned {
+        TSTypeAnnotation {
             span: self.span.clone_in(allocator),
         }
     }

@@ -11,6 +11,7 @@ mod operator;
 mod pat;
 mod prop;
 mod stmt;
+mod typescript;
 
 pub use class::*;
 pub use decl::*;
@@ -25,3 +26,4 @@ pub use operator::*;
 pub use pat::*;
 pub use prop::*;
 pub use stmt::*;
+pub use typescript::*;
