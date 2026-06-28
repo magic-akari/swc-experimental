@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
 use swc_experimental_allocator::vec::Vec;
-use swc_experimental_allocator::{atom::Atom, boxed::Box};
+use swc_experimental_allocator::{CloneIn, atom::Atom, boxed::Box};
 use swc_experimental_ecma_ast::*;
 
 use crate::{Context, PResult, Parser, error::SyntaxError, input::Tokens, lexer::Token};
@@ -208,10 +208,14 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                 self.emit_err(orig_name.span(), SyntaxError::TS2206);
                             }
 
+                            let imported = ModuleExportName::Ident(
+                                self.boxed(possibly_orig_name.clone_in(self.ast.allocator)),
+                            );
+
                             return Ok(self.ast.import_specifier_import_named_specifier(
                                 self.span(start),
                                 self.boxed(possibly_orig_name),
-                                None,
+                                imported,
                                 true,
                             ));
                         }
@@ -231,7 +235,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                 return Ok(self.ast.import_specifier_import_named_specifier(
                                     Span::new(start, orig_name.span_hi()),
                                     self.boxed(local),
-                                    Some(ModuleExportName::Ident(self.boxed(possibly_orig_name))),
+                                    ModuleExportName::Ident(self.boxed(possibly_orig_name)),
                                     true,
                                 ));
                             } else {
@@ -239,7 +243,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                 return Ok(self.ast.import_specifier_import_named_specifier(
                                     Span::new(start, maybe_as.span_hi()),
                                     self.boxed(maybe_as),
-                                    Some(ModuleExportName::Ident(orig_name)),
+                                    ModuleExportName::Ident(orig_name),
                                     false,
                                 ));
                             }
@@ -248,7 +252,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                             return Ok(self.ast.import_specifier_import_named_specifier(
                                 Span::new(start, orig_name.span_hi()),
                                 self.boxed(maybe_as),
-                                Some(ModuleExportName::Ident(orig_name)),
+                                ModuleExportName::Ident(orig_name),
                                 false,
                             ));
                         }
@@ -269,7 +273,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                     return Ok(self.ast.import_specifier_import_named_specifier(
                         Span::new(start, local.span_hi()),
                         self.boxed(local),
-                        Some(ModuleExportName::Ident(orig_name)),
+                        ModuleExportName::Ident(orig_name),
                         is_type_only,
                     ));
                 }
@@ -282,11 +286,12 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                     syntax_error!(self, orig_name.span(), SyntaxError::ReservedWordInImport)
                 }
 
+                let imported = ModuleExportName::Ident(orig_name.clone_in(self.ast.allocator));
                 let local = orig_name;
                 Ok(self.ast.import_specifier_import_named_specifier(
                     self.span(start),
                     local,
-                    None,
+                    imported,
                     is_type_only,
                 ))
             }
@@ -296,7 +301,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                     Ok(self.ast.import_specifier_import_named_specifier(
                         Span::new(start, local.span_hi()),
                         self.boxed(local),
-                        Some(ModuleExportName::Str(orig_str)),
+                        ModuleExportName::Str(orig_str),
                         false,
                     ))
                 } else {

@@ -1028,7 +1028,7 @@ impl<'ast> Visit<'ast> for Resolver<'ast> {
 
         match s {
             ImportSpecifier::Named(named) => {
-                if named.imported.is_none() {
+                if named.is_shorthand() {
                     s.visit_children_with(self);
                 } else {
                     named.local.visit_with(self);
