@@ -4179,12 +4179,14 @@ impl<'a> AstBuilder<'a> {
         decorators: Vec<'a, Decorator<'a>>,
         pat: Pat<'a>,
         initializer: Option<Expr<'a>>,
+        optional: bool,
     ) -> Param<'a> {
         Param {
             span,
             decorators,
             pat,
             initializer,
+            optional,
         }
     }
     #[inline]
@@ -4194,9 +4196,10 @@ impl<'a> AstBuilder<'a> {
         decorators: Vec<'a, Decorator<'a>>,
         pat: Pat<'a>,
         initializer: Option<Expr<'a>>,
+        optional: bool,
     ) -> Box<'a, Param<'a>> {
         self.allocator
-            .boxed(self.param(span, decorators, pat, initializer))
+            .boxed(self.param(span, decorators, pat, initializer, optional))
     }
     #[inline]
     pub fn param_rest(

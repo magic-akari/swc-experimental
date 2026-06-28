@@ -363,6 +363,15 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                     }
 
                                     if p.input().syntax().typescript()
+                                        && params
+                                            .items
+                                            .iter()
+                                            .any(|param| is_not_this(param) && param.optional)
+                                    {
+                                        p.emit_err(key_span, SyntaxError::TS1051);
+                                    }
+
+                                    if p.input().syntax().typescript()
                                         && p.input().target() == EsVersion::Es3
                                     {
                                         p.emit_err(key_span, SyntaxError::TS1056);

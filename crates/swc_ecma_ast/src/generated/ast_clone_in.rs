@@ -1054,6 +1054,7 @@ impl<'a, 'src> CloneIn<'a> for Param<'src> {
             decorators: self.decorators.clone_in(allocator),
             pat: self.pat.clone_in(allocator),
             initializer: self.initializer.clone_in(allocator),
+            optional: self.optional.clone_in(allocator),
         }
     }
 }

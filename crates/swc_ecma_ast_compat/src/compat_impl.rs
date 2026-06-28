@@ -1085,7 +1085,7 @@ pub(crate) trait CompatImpl {
     }
 
     fn compat_param<'a>(&mut self, p: experimental::Param<'a>) -> legacy::Param {
-        let pat = self.compat_param_pat(p.pat, p.initializer);
+        let pat = self.compat_param_pat(p.pat, p.initializer, p.optional);
         legacy::Param {
             span: compat_span(p.span),
             decorators: self.compat_vec(p.decorators, Self::compat_decorator),
@@ -1097,8 +1097,12 @@ pub(crate) trait CompatImpl {
         &mut self,
         pat: experimental::Pat<'a>,
         initializer: Option<experimental::Expr<'a>>,
+        optional: bool,
     ) -> legacy::Pat {
-        let pat = self.compat_pat(pat);
+        let mut pat = self.compat_pat(pat);
+        if optional {
+            Self::mark_legacy_param_optional(&mut pat);
+        }
         if let Some(initializer) = initializer {
             let right = self.compat_expr(initializer);
             let span = pat.span().to(right.span());
@@ -1109,6 +1113,15 @@ pub(crate) trait CompatImpl {
             })
         } else {
             pat
+        }
+    }
+
+    fn mark_legacy_param_optional(pat: &mut legacy::Pat) {
+        match pat {
+            legacy::Pat::Array(array) => array.optional = true,
+            legacy::Pat::Object(object) => object.optional = true,
+            legacy::Pat::Assign(assign) => Self::mark_legacy_param_optional(&mut assign.left),
+            _ => {}
         }
     }
 
@@ -1158,7 +1171,7 @@ pub(crate) trait CompatImpl {
         let mut items = params
             .items
             .into_iter()
-            .map(|param| self.compat_param_pat(param.pat, param.initializer))
+            .map(|param| self.compat_param_pat(param.pat, param.initializer, param.optional))
             .collect::<Vec<_>>();
         if let Some(rest) = params.rest {
             items.push(self.compat_param_rest_as_pat(AstBox::into_inner(rest)));

@@ -9,8 +9,9 @@ pub trait IsSimpleParameterList {
 impl<'a> IsSimpleParameterList for Vec<'a, Param<'a>> {
     #[inline]
     fn is_simple_parameter_list(&self) -> bool {
-        self.iter()
-            .all(|param| param.initializer.is_none() && matches!(param.pat, Pat::Ident(_)))
+        self.iter().all(|param| {
+            !param.optional && param.initializer.is_none() && matches!(param.pat, Pat::Ident(_))
+        })
     }
 }
 

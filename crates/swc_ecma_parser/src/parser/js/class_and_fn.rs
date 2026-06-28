@@ -1162,6 +1162,15 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                             p.emit_err(rest.span(), SyntaxError::RestPatInSetter);
                         }
 
+                        if p.input().syntax().typescript()
+                            && params
+                                .items
+                                .iter()
+                                .any(|param| is_not_this(param) && param.optional)
+                        {
+                            p.emit_err(key_span, SyntaxError::TS1051);
+                        }
+
                         Ok(params)
                     },
                     MakeMethodArgs {

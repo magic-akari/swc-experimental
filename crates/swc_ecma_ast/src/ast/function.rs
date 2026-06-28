@@ -43,6 +43,7 @@ pub struct Param<'a> {
     pub decorators: Vec<'a, Decorator<'a>>,
     pub pat: Pat<'a>,
     pub initializer: Option<Expr<'a>>,
+    pub optional: bool,
 }
 
 #[ast]

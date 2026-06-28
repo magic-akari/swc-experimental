@@ -2470,7 +2470,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                         let param_span = ident.span();
                         let arg = Pat::Ident(p.ast.box_binding_ident(p.boxed(ident)));
                         let mut items = p.vec();
-                        items.push(p.ast.param(param_span, p.vec(), arg, None));
+                        items.push(p.ast.param(param_span, p.vec(), arg, None, false));
                         let params =
                             p.ast
                                 .box_param_list(param_span, ParamListKind::Arrow, items, None);
@@ -2493,7 +2493,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                     let param_span = id.span();
                     let pat = Pat::Ident(p.ast.box_binding_ident(p.boxed(id)));
                     let mut items = p.vec();
-                    items.push(p.ast.param(param_span, p.vec(), pat, None));
+                    items.push(p.ast.param(param_span, p.vec(), pat, None, false));
                     let params =
                         p.ast
                             .box_param_list(param_span, ParamListKind::Arrow, items, None);

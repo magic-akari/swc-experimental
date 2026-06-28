@@ -510,49 +510,18 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
     /// spec: 'FormalParameter'
     ///
     /// babel: `parseAssignableListItem`
-    fn parse_formal_param_pat(&mut self) -> PResult<(Pat<'a>, Option<Expr<'a>>)> {
+    fn parse_formal_param_pat(&mut self) -> PResult<(Pat<'a>, Option<Expr<'a>>, bool)> {
         let start = self.cur_pos();
 
         // let has_modifier = self.eat_any_ts_modifier()?;
 
         let pat = self.parse_binding_pat_or_ident(false)?;
-        let opt = false;
-
-        // if self.input().syntax().typescript() {
-        //     if self.input_mut().eat(Token::QuestionMark) {
-        //         match pat {
-        //             Pat::Ident(BindingIdent {
-        //                 id:
-        //                     Ident {
-        //                         ref mut optional, ..
-        //                     },
-        //                 ..
-        //             })
-        //             | Pat::Array(ArrayPat {
-        //                 ref mut optional, ..
-        //             })
-        //             | Pat::Object(ObjectPat {
-        //                 ref mut optional, ..
-        //             }) => {
-        //                 *optional = true;
-        //                 opt = true;
-        //             }
-        //             _ if self.input().syntax().dts() || self.ctx().contains(Context::InDeclare) => {
-        //             }
-        //             _ => {
-        //                 syntax_error!(
-        //                     self,
-        //                     self.input().prev_span(),
-        //                     SyntaxError::TsBindingPatCannotBeOptional
-        //                 );
-        //             }
-        //         }
-        //     }
-        // }
+        let optional =
+            self.input().syntax().typescript() && self.input_mut().eat(Token::QuestionMark);
 
         let pat = if self.input_mut().eat(Token::Eq) {
             // `=` cannot follow optional parameter.
-            if opt {
+            if optional {
                 self.emit_err(pat.span(), SyntaxError::TS1015);
             }
 
@@ -561,7 +530,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                 self.emit_err(self.span(start), SyntaxError::TS2371);
             }
 
-            return Ok((pat, Some(right)));
+            return Ok((pat, Some(right), optional));
         } else {
             pat
         };
@@ -571,7 +540,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         //     return Ok(pat);
         // }
 
-        Ok((pat, None))
+        Ok((pat, None, optional))
     }
 
     fn make_param_from_pat(
@@ -583,9 +552,9 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         if let Pat::Assign(assign) = pat {
             let assign = Box::into_inner(assign);
             self.ast
-                .param(span, decorators, assign.left, Some(assign.right))
+                .param(span, decorators, assign.left, Some(assign.right), false)
         } else {
-            self.ast.param(span, decorators, pat, None)
+            self.ast.param(span, decorators, pat, None, false)
         }
     }
 
@@ -611,10 +580,14 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         //         node => syntax_error!(self, node.span(), SyntaxError::TsInvalidParamPropPat),
         //     };
         // }
-        let (pat, initializer) = self.parse_formal_param_pat()?;
-        Ok(self
-            .ast
-            .param(self.span(param_start), decorators, pat, initializer))
+        let (pat, initializer, optional) = self.parse_formal_param_pat()?;
+        Ok(self.ast.param(
+            self.span(param_start),
+            decorators,
+            pat,
+            initializer,
+            optional,
+        ))
     }
 
     pub(crate) fn parse_param_list(

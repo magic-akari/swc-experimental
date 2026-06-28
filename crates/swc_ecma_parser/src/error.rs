@@ -223,6 +223,7 @@ pub enum SyntaxError {
     TS1042,
     TS1047,
     TS1048,
+    TS1051,
     TS1056,
     TS1085,
     TS1089(String),
@@ -604,6 +605,7 @@ impl SyntaxError {
             SyntaxError::TS1042 => "`async` modifier cannot be used here".into(),
             SyntaxError::TS1047 => "A rest parameter cannot be optional".into(),
             SyntaxError::TS1048 => "A rest parameter cannot have an initializer".into(),
+            SyntaxError::TS1051 => "A set accessor cannot have an optional parameter".into(),
             SyntaxError::TS1085 => "Legacy octal literals are not available when targeting \
                                     ECMAScript 5 and higher"
                 .into(),
