@@ -574,6 +574,11 @@ pub(crate) trait CompatImpl {
                             expr: self.compat_expr(options),
                         });
                     }
+                    let callee_len = match i.phase {
+                        experimental::ImportPhase::Evaluation => "import".len(),
+                        experimental::ImportPhase::Source => "import.source".len(),
+                        experimental::ImportPhase::Defer => "import.defer".len(),
+                    } as u32;
 
                     legacy::Expr::Call(legacy::CallExpr {
                         span: compat_span(i.span),
@@ -581,7 +586,10 @@ pub(crate) trait CompatImpl {
                         callee: legacy::Callee::Import(legacy::Import {
                             // The experimental AST does not retain a separate span for the
                             // `import` callee.
-                            span: compat_span(experimental::DUMMY_SP),
+                            span: compat_span(experimental::Span {
+                                start: i.span.start,
+                                end: i.span.end.min(i.span.start.saturating_add(callee_len)),
+                            }),
                             phase: match i.phase {
                                 experimental::ImportPhase::Evaluation => {
                                     legacy::ImportPhase::Evaluation
