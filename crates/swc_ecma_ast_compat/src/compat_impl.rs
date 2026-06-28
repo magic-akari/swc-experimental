@@ -1391,27 +1391,26 @@ pub(crate) trait CompatImpl {
             }
             experimental::Pat::Array(a) => {
                 let a = AstBox::into_inner(a);
+                let mut elems = self.compat_vec(a.elems, |this, p| p.map(|p| this.compat_pat(p)));
+                if let Some(rest) = a.rest {
+                    elems.push(Some(self.compat_rest_pat_as_pat(AstBox::into_inner(rest))));
+                }
                 legacy::Pat::Array(legacy::ArrayPat {
                     span: compat_span(a.span),
-                    elems: self.compat_vec(a.elems, |this, p| p.map(|p| this.compat_pat(p))),
+                    elems,
                     optional: a.optional,
-                    type_ann: None,
-                })
-            }
-            experimental::Pat::Rest(r) => {
-                let r = AstBox::into_inner(r);
-                legacy::Pat::Rest(legacy::RestPat {
-                    span: compat_span(r.span),
-                    dot3_token: compat_span(r.dot3_token),
-                    arg: alloc_box!(self, self.compat_pat(r.arg)),
                     type_ann: None,
                 })
             }
             experimental::Pat::Object(o) => {
                 let o = AstBox::into_inner(o);
+                let mut props = self.compat_vec(o.props, Self::compat_object_pat_prop);
+                if let Some(rest) = o.rest {
+                    props.push(self.compat_rest_pat_as_object_pat_prop(AstBox::into_inner(rest)));
+                }
                 legacy::Pat::Object(legacy::ObjectPat {
                     span: compat_span(o.span),
-                    props: self.compat_vec(o.props, Self::compat_object_pat_prop),
+                    props,
                     optional: o.optional,
                     type_ann: None,
                 })
@@ -1431,6 +1430,27 @@ pub(crate) trait CompatImpl {
                 legacy::Pat::Expr(self.compat_expr(AstBox::into_inner(e)))
             }
         }
+    }
+
+    fn compat_rest_pat_as_pat<'a>(&mut self, r: experimental::RestPat<'a>) -> legacy::Pat {
+        legacy::Pat::Rest(legacy::RestPat {
+            span: compat_span(r.span),
+            dot3_token: compat_span(r.dot3_token),
+            arg: alloc_box!(self, self.compat_pat(r.arg)),
+            type_ann: None,
+        })
+    }
+
+    fn compat_rest_pat_as_object_pat_prop<'a>(
+        &mut self,
+        r: experimental::RestPat<'a>,
+    ) -> legacy::ObjectPatProp {
+        legacy::ObjectPatProp::Rest(legacy::RestPat {
+            span: compat_span(r.span),
+            dot3_token: compat_span(r.dot3_token),
+            arg: alloc_box!(self, self.compat_pat(r.arg)),
+            type_ann: None,
+        })
     }
 
     fn compat_object_pat_prop<'a>(
@@ -1455,15 +1475,6 @@ pub(crate) trait CompatImpl {
                         type_ann: None,
                     },
                     value: ap.value.map(|e| self.compat_expr(e)),
-                })
-            }
-            experimental::ObjectPatProp::Rest(r) => {
-                let r = AstBox::into_inner(r);
-                legacy::ObjectPatProp::Rest(legacy::RestPat {
-                    span: compat_span(r.span),
-                    dot3_token: compat_span(r.dot3_token),
-                    arg: alloc_box!(self, self.compat_pat(r.arg)),
-                    type_ann: None,
                 })
             }
         }

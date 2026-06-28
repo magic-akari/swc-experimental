@@ -105,28 +105,6 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         //     false
         // };
 
-        // Typescript extension
-        // if self.input().syntax().typescript() && self.input().is(Token::Colon) {
-        //     let type_annotation = self.try_parse_ts_type_ann()?;
-        //     match name {
-        //         Pat::Array(ArrayPat {
-        //             ref mut type_ann, ..
-        //         })
-        //         | Pat::Ident(BindingIdent {
-        //             ref mut type_ann, ..
-        //         })
-        //         | Pat::Object(ObjectPat {
-        //             ref mut type_ann, ..
-        //         })
-        //         | Pat::Rest(RestPat {
-        //             ref mut type_ann, ..
-        //         }) => {
-        //             *type_ann = type_annotation;
-        //         }
-        //         _ => unreachable!("invalid syntax: Pat: {:?}", name),
-        //     }
-        // }
-
         //FIXME: This is wrong. Should check in/of only on first looself.
         let cur = self.input().cur();
         let init = if !for_loop || !(cur == Token::In || cur == Token::Of) {
@@ -357,22 +335,6 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                     {
                         self.emit_err(decl.name.span(), SyntaxError::VarInitializerInForInHead);
                     }
-
-                    // if self.syntax().typescript() {
-                    //     let type_ann = match decl.decls[0].name {
-                    //         Pat::Ident(ref v) => Some(&v.type_ann),
-                    //         Pat::Array(ref v) => Some(&v.type_ann),
-                    //         Pat::Rest(ref v) => Some(&v.type_ann),
-                    //         Pat::Object(ref v) => Some(&v.type_ann),
-                    //         _ => None,
-                    //     };
-
-                    //     if let Some(type_ann) = type_ann {
-                    //         if type_ann.is_some() {
-                    //             self.emit_err(decl.decls[0].name.span(), SyntaxError::TS2483);
-                    //         }
-                    //     }
-                    // }
                 }
 
                 return self.parse_for_each_head(ForHead::VarDecl(self.boxed(decl)));
@@ -621,28 +583,6 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         if self.input_mut().eat(Token::LParen) {
             let pat = self.parse_binding_pat_or_ident(false)?;
 
-            // let type_ann_start = self.cur_pos();
-            // if self.syntax().typescript() && self.input_mut().eat(Token::Colon) {
-            //     let ty = self.do_inside_of_context(Context::InType, Self::parse_ts_type)?;
-            //     // self.emit_err(ty.span(), SyntaxError::TS1196);
-
-            //     match &mut pat {
-            //         Pat::Ident(BindingIdent { type_ann, .. })
-            //         | Pat::Array(ArrayPat { type_ann, .. })
-            //         | Pat::Rest(RestPat { type_ann, .. })
-            //         | Pat::Object(ObjectPat { type_ann, .. }) => {
-            //             *type_ann = Some(Box::new(TsTypeAnn {
-            //                 span: self.span(type_ann_start),
-            //                 type_ann: ty,
-            //             }));
-            //         }
-            //         Pat::Assign(..) => {}
-            //         Pat::Invalid(_) => {}
-            //         Pat::Expr(_) => {}
-            //         #[cfg(swc_ast_unknown)]
-            //         _ => unreachable!(),
-            //     }
-            // }
             expect!(self, Token::RParen);
             Ok(Some(pat))
         } else {

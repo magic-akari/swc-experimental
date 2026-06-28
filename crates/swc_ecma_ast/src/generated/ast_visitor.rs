@@ -721,6 +721,10 @@ pub trait Visit<'a> {
         node.visit_children_with(self);
     }
     #[inline]
+    fn visit_opt_rest_pat(&mut self, node: &Option<Box<'a, RestPat<'a>>>) {
+        node.visit_children_with(self);
+    }
+    #[inline]
     fn visit_object_pat_props(&mut self, node: &Vec<'a, ObjectPatProp<'a>>) {
         node.visit_children_with(self);
     }
@@ -2101,7 +2105,6 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Pat<'a> {
         match self {
             Self::Ident(it) => it.visit_with(visitor),
             Self::Array(it) => it.visit_with(visitor),
-            Self::Rest(it) => it.visit_with(visitor),
             Self::Object(it) => it.visit_with(visitor),
             Self::Assign(it) => it.visit_with(visitor),
             Self::Invalid(it) => it.visit_with(visitor),
@@ -2117,6 +2120,7 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for ArrayPat<'a> {
     #[inline]
     fn visit_children_with(&self, visitor: &mut V) {
         self.elems.visit_with(visitor);
+        self.rest.visit_with(visitor);
     }
 }
 impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for ObjectPat<'a> {
@@ -2127,6 +2131,7 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for ObjectPat<'a> {
     #[inline]
     fn visit_children_with(&self, visitor: &mut V) {
         self.props.visit_with(visitor);
+        self.rest.visit_with(visitor);
     }
 }
 impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for AssignPat<'a> {
@@ -2160,7 +2165,6 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for ObjectPatProp<'a> {
         match self {
             Self::KeyValue(it) => it.visit_with(visitor),
             Self::Assign(it) => it.visit_with(visitor),
-            Self::Rest(it) => it.visit_with(visitor),
         }
     }
 }
@@ -2832,6 +2836,18 @@ impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Vec<'a, Option<Pat<'a>>> {
     #[inline]
     fn visit_children_with(&self, visitor: &mut V) {
         for node in self {
+            node.visit_with(visitor);
+        }
+    }
+}
+impl<'a, V: ?Sized + Visit<'a>> VisitWith<'a, V> for Option<Box<'a, RestPat<'a>>> {
+    #[inline]
+    fn visit_with(&self, visitor: &mut V) {
+        <V as Visit<'a>>::visit_opt_rest_pat(visitor, self)
+    }
+    #[inline]
+    fn visit_children_with(&self, visitor: &mut V) {
+        if let Some(node) = self {
             node.visit_with(visitor);
         }
     }
@@ -3614,6 +3630,10 @@ pub trait VisitMut<'a> {
     }
     #[inline]
     fn visit_mut_opt_vec_pats(&mut self, node: &mut Vec<'a, Option<Pat<'a>>>) {
+        node.visit_mut_children_with(self);
+    }
+    #[inline]
+    fn visit_mut_opt_rest_pat(&mut self, node: &mut Option<Box<'a, RestPat<'a>>>) {
         node.visit_mut_children_with(self);
     }
     #[inline]
@@ -5000,7 +5020,6 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Pat<'a> {
         match self {
             Self::Ident(it) => it.visit_mut_with(visitor),
             Self::Array(it) => it.visit_mut_with(visitor),
-            Self::Rest(it) => it.visit_mut_with(visitor),
             Self::Object(it) => it.visit_mut_with(visitor),
             Self::Assign(it) => it.visit_mut_with(visitor),
             Self::Invalid(it) => it.visit_mut_with(visitor),
@@ -5016,6 +5035,7 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for ArrayPat<'a> {
     #[inline]
     fn visit_mut_children_with(&mut self, visitor: &mut V) {
         self.elems.visit_mut_with(visitor);
+        self.rest.visit_mut_with(visitor);
     }
 }
 impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for ObjectPat<'a> {
@@ -5026,6 +5046,7 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for ObjectPat<'a> {
     #[inline]
     fn visit_mut_children_with(&mut self, visitor: &mut V) {
         self.props.visit_mut_with(visitor);
+        self.rest.visit_mut_with(visitor);
     }
 }
 impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for AssignPat<'a> {
@@ -5059,7 +5080,6 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for ObjectPatProp<'a> {
         match self {
             Self::KeyValue(it) => it.visit_mut_with(visitor),
             Self::Assign(it) => it.visit_mut_with(visitor),
-            Self::Rest(it) => it.visit_mut_with(visitor),
         }
     }
 }
@@ -5733,6 +5753,18 @@ impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Vec<'a, Option<Pat<'a
     #[inline]
     fn visit_mut_children_with(&mut self, visitor: &mut V) {
         for node in self {
+            node.visit_mut_with(visitor);
+        }
+    }
+}
+impl<'a, V: ?Sized + VisitMut<'a>> VisitMutWith<'a, V> for Option<Box<'a, RestPat<'a>>> {
+    #[inline]
+    fn visit_mut_with(&mut self, visitor: &mut V) {
+        <V as VisitMut<'a>>::visit_mut_opt_rest_pat(visitor, self)
+    }
+    #[inline]
+    fn visit_mut_children_with(&mut self, visitor: &mut V) {
+        if let Some(node) = self {
             node.visit_mut_with(visitor);
         }
     }

@@ -3980,10 +3980,6 @@ impl<'a> Pat<'a> {
         matches!(self, Self::Array { .. })
     }
     #[inline]
-    pub const fn is_rest(&self) -> bool {
-        matches!(self, Self::Rest { .. })
-    }
-    #[inline]
     pub const fn is_object(&self) -> bool {
         matches!(self, Self::Object { .. })
     }
@@ -4010,13 +4006,6 @@ impl<'a> Pat<'a> {
     pub fn as_array(&self) -> Option<&ArrayPat<'a>> {
         match self {
             Self::Array(it) => Some(it),
-            _ => None,
-        }
-    }
-    #[inline]
-    pub fn as_rest(&self) -> Option<&RestPat<'a>> {
-        match self {
-            Self::Rest(it) => Some(it),
             _ => None,
         }
     }
@@ -4063,13 +4052,6 @@ impl<'a> Pat<'a> {
         }
     }
     #[inline]
-    pub fn as_mut_rest(&mut self) -> Option<&mut RestPat<'a>> {
-        match self {
-            Self::Rest(it) => Some(it),
-            _ => None,
-        }
-    }
-    #[inline]
     pub fn as_mut_object(&mut self) -> Option<&mut ObjectPat<'a>> {
         match self {
             Self::Object(it) => Some(it),
@@ -4104,7 +4086,6 @@ impl<'a> GetSpan for Pat<'a> {
         match self {
             Self::Ident(it) => it.span(),
             Self::Array(it) => it.span(),
-            Self::Rest(it) => it.span(),
             Self::Object(it) => it.span(),
             Self::Assign(it) => it.span(),
             Self::Invalid(it) => it.span(),
@@ -4118,7 +4099,6 @@ impl<'a> SetSpan for Pat<'a> {
         match self {
             Self::Ident(it) => it.set_span(span),
             Self::Array(it) => it.set_span(span),
-            Self::Rest(it) => it.set_span(span),
             Self::Object(it) => it.set_span(span),
             Self::Assign(it) => it.set_span(span),
             Self::Invalid(it) => it.set_span(span),
@@ -4184,10 +4164,6 @@ impl<'a> ObjectPatProp<'a> {
         matches!(self, Self::Assign { .. })
     }
     #[inline]
-    pub const fn is_rest(&self) -> bool {
-        matches!(self, Self::Rest { .. })
-    }
-    #[inline]
     pub fn as_key_value(&self) -> Option<&KeyValuePatProp<'a>> {
         match self {
             Self::KeyValue(it) => Some(it),
@@ -4198,13 +4174,6 @@ impl<'a> ObjectPatProp<'a> {
     pub fn as_assign(&self) -> Option<&AssignPatProp<'a>> {
         match self {
             Self::Assign(it) => Some(it),
-            _ => None,
-        }
-    }
-    #[inline]
-    pub fn as_rest(&self) -> Option<&RestPat<'a>> {
-        match self {
-            Self::Rest(it) => Some(it),
             _ => None,
         }
     }
@@ -4222,13 +4191,6 @@ impl<'a> ObjectPatProp<'a> {
             _ => None,
         }
     }
-    #[inline]
-    pub fn as_mut_rest(&mut self) -> Option<&mut RestPat<'a>> {
-        match self {
-            Self::Rest(it) => Some(it),
-            _ => None,
-        }
-    }
 }
 impl<'a> GetSpan for ObjectPatProp<'a> {
     #[inline]
@@ -4236,7 +4198,6 @@ impl<'a> GetSpan for ObjectPatProp<'a> {
         match self {
             Self::KeyValue(it) => it.span(),
             Self::Assign(it) => it.span(),
-            Self::Rest(it) => it.span(),
         }
     }
 }
@@ -4246,7 +4207,6 @@ impl<'a> SetSpan for ObjectPatProp<'a> {
         match self {
             Self::KeyValue(it) => it.set_span(span),
             Self::Assign(it) => it.set_span(span),
-            Self::Rest(it) => it.set_span(span),
         }
     }
 }

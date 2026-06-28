@@ -4,6 +4,11 @@ use swc_experimental_ecma_ast::*;
 use crate::parser::js::is_not_this;
 use crate::{Context, PResult, Parser, error::SyntaxError, input::Tokens, lexer::Token};
 
+enum BindingObjectProp<'a> {
+    Prop(ObjectPatProp<'a>),
+    Rest(AstBox<'a, RestPat<'a>>),
+}
+
 impl<'a, I: Tokens<'a>> Parser<'a, I> {
     pub(crate) fn parse_object<Object, ObjectProp: 'a>(
         &mut self,
@@ -38,7 +43,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
     }
 
     /// Production 'BindingProperty'
-    pub(crate) fn parse_binding_object_prop(&mut self) -> PResult<ObjectPatProp<'a>> {
+    fn parse_binding_object_prop(&mut self) -> PResult<BindingObjectProp<'a>> {
         let start = self.cur_pos();
 
         if self.input_mut().eat(Token::DotDotDot) {
@@ -47,16 +52,20 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
 
             let arg = self.parse_binding_pat_or_ident(false)?;
 
-            return Ok(self
-                .ast
-                .object_pat_prop_rest_pat(self.span(start), dot3_token, arg));
+            return Ok(BindingObjectProp::Rest(self.ast.box_rest_pat(
+                self.span(start),
+                dot3_token,
+                arg,
+            )));
         }
 
         let key = self.parse_prop_name()?;
         if self.input_mut().eat(Token::Colon) {
             let value = self.parse_binding_element()?;
 
-            return Ok(self.ast.object_pat_prop_key_value_pat_prop(key, value));
+            return Ok(BindingObjectProp::Prop(
+                self.ast.object_pat_prop_key_value_pat_prop(key, value),
+            ));
         }
         let key = match key {
             PropName::Ident(ident) => ident,
@@ -75,42 +84,55 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
 
         let key_ident = self.ast.box_ident(key.span(), key.sym);
         let key_ident = self.ast.box_binding_ident(key_ident);
-        Ok(self
-            .ast
-            .object_pat_prop_assign_pat_prop(self.span(start), key_ident, value))
+        Ok(BindingObjectProp::Prop(
+            self.ast
+                .object_pat_prop_assign_pat_prop(self.span(start), key_ident, value),
+        ))
     }
 
     fn make_binding_object(
         &mut self,
         span: Span,
-        props: Vec<'a, ObjectPatProp<'a>>,
+        items: Vec<'a, BindingObjectProp<'a>>,
         trailing_comma: Option<Span>,
     ) -> PResult<Pat<'a>> {
-        let len = props.len();
-        for (i, prop) in props.iter().enumerate() {
-            if i == len - 1 {
-                if let ObjectPatProp::Rest(rest) = prop {
-                    match &rest.arg {
-                        Pat::Ident(..) => {
-                            if let Some(trailing_comma) = trailing_comma {
-                                self.emit_err(trailing_comma, SyntaxError::CommaAfterRestElement);
-                            }
-                        }
-                        _ => syntax_error!(self, prop.span(), SyntaxError::DotsWithoutIdentifier),
-                    }
-                }
-                continue;
-            }
+        let len = items.len();
+        let mut props = self.vec();
+        let mut rest = None;
 
-            if let ObjectPatProp::Rest(..) = prop {
-                self.emit_err(prop.span(), SyntaxError::NonLastRestParam)
+        for (i, item) in items.into_iter().enumerate() {
+            match item {
+                BindingObjectProp::Prop(prop) => props.push(prop),
+                BindingObjectProp::Rest(rest_pat) => {
+                    if i == len - 1 {
+                        match &rest_pat.arg {
+                            Pat::Ident(..) => {
+                                if let Some(trailing_comma) = trailing_comma {
+                                    self.emit_err(
+                                        trailing_comma,
+                                        SyntaxError::CommaAfterRestElement,
+                                    );
+                                }
+                            }
+                            _ => syntax_error!(
+                                self,
+                                rest_pat.span(),
+                                SyntaxError::DotsWithoutIdentifier
+                            ),
+                        }
+                    } else {
+                        self.emit_err(rest_pat.span(), SyntaxError::NonLastRestParam)
+                    }
+
+                    rest = Some(rest_pat);
+                }
             }
         }
 
         let optional = (self.input().syntax().dts() || self.ctx().contains(Context::InDeclare))
             && self.input_mut().eat(Token::QuestionMark);
 
-        Ok(self.ast.pat_object_pat(span, props, optional))
+        Ok(self.ast.pat_object_pat(span, props, rest, optional))
     }
 
     pub(super) fn parse_object_pat(&mut self) -> PResult<Pat<'a>> {
@@ -366,7 +388,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                     .or_else(|| {
                                         params.rest.map(|rest| {
                                             let rest = AstBox::into_inner(rest);
-                                            p.ast.pat_rest_pat(rest.span, rest.dot3_token, rest.arg)
+                                            rest.arg
                                         })
                                     })
                                     .unwrap_or_else(|| {

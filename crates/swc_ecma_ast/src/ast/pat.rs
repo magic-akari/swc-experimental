@@ -12,7 +12,6 @@ use crate::{
 pub enum Pat<'a> {
     Ident(Box<'a, BindingIdent<'a>>),
     Array(Box<'a, ArrayPat<'a>>),
-    Rest(Box<'a, RestPat<'a>>),
     Object(Box<'a, ObjectPat<'a>>),
     Assign(Box<'a, AssignPat<'a>>),
     Invalid(Box<'a, Invalid>),
@@ -24,6 +23,7 @@ pub enum Pat<'a> {
 pub struct ArrayPat<'a> {
     pub span: Span,
     pub elems: Vec<'a, Option<Pat<'a>>>,
+    pub rest: Option<Box<'a, RestPat<'a>>>,
     pub optional: bool,
 }
 
@@ -32,6 +32,7 @@ pub struct ArrayPat<'a> {
 pub struct ObjectPat<'a> {
     pub span: Span,
     pub props: Vec<'a, ObjectPatProp<'a>>,
+    pub rest: Option<Box<'a, RestPat<'a>>>,
     pub optional: bool,
 }
 
@@ -56,7 +57,6 @@ pub struct RestPat<'a> {
 pub enum ObjectPatProp<'a> {
     KeyValue(Box<'a, KeyValuePatProp<'a>>),
     Assign(Box<'a, AssignPatProp<'a>>),
-    Rest(Box<'a, RestPat<'a>>),
 }
 
 #[ast]

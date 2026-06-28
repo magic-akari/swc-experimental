@@ -1303,7 +1303,6 @@ impl<'a, 'src> CloneIn<'a> for Pat<'src> {
         match self {
             Self::Ident(it) => Pat::Ident(it.clone_in(allocator)),
             Self::Array(it) => Pat::Array(it.clone_in(allocator)),
-            Self::Rest(it) => Pat::Rest(it.clone_in(allocator)),
             Self::Object(it) => Pat::Object(it.clone_in(allocator)),
             Self::Assign(it) => Pat::Assign(it.clone_in(allocator)),
             Self::Invalid(it) => Pat::Invalid(it.clone_in(allocator)),
@@ -1318,6 +1317,7 @@ impl<'a, 'src> CloneIn<'a> for ArrayPat<'src> {
         ArrayPat {
             span: self.span.clone_in(allocator),
             elems: self.elems.clone_in(allocator),
+            rest: self.rest.clone_in(allocator),
             optional: self.optional.clone_in(allocator),
         }
     }
@@ -1329,6 +1329,7 @@ impl<'a, 'src> CloneIn<'a> for ObjectPat<'src> {
         ObjectPat {
             span: self.span.clone_in(allocator),
             props: self.props.clone_in(allocator),
+            rest: self.rest.clone_in(allocator),
             optional: self.optional.clone_in(allocator),
         }
     }
@@ -1362,7 +1363,6 @@ impl<'a, 'src> CloneIn<'a> for ObjectPatProp<'src> {
         match self {
             Self::KeyValue(it) => ObjectPatProp::KeyValue(it.clone_in(allocator)),
             Self::Assign(it) => ObjectPatProp::Assign(it.clone_in(allocator)),
-            Self::Rest(it) => ObjectPatProp::Rest(it.clone_in(allocator)),
         }
     }
 }

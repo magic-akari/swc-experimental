@@ -49,16 +49,15 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                 for pat in arr.elems.iter().flatten() {
                     self.pat_is_valid_argument_in_strict(pat);
                 }
+                if let Some(rest) = &arr.rest {
+                    self.pat_is_valid_argument_in_strict(&rest.arg);
+                }
             }
-            Pat::Rest(r) => self.pat_is_valid_argument_in_strict(&r.arg),
             Pat::Object(obj) => {
                 for prop in obj.props.iter() {
                     match prop {
                         ObjectPatProp::KeyValue(key_value) => {
                             self.pat_is_valid_argument_in_strict(&key_value.value)
-                        }
-                        ObjectPatProp::Rest(rest) => {
-                            self.pat_is_valid_argument_in_strict(&rest.arg)
                         }
                         ObjectPatProp::Assign(assign) => {
                             let key = &assign.key;
@@ -72,6 +71,9 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                         #[cfg(swc_ast_unknown)]
                         _ => unreachable!(),
                     }
+                }
+                if let Some(rest) = &obj.rest {
+                    self.pat_is_valid_argument_in_strict(&rest.arg);
                 }
             }
             Pat::Assign(a) => self.pat_is_valid_argument_in_strict(&a.left),
@@ -230,87 +232,91 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                 let props = object.props;
                 let len = props.len();
 
-                let props = self.collect_vec(|p, obj_props| {
-                    for (idx, prop) in props.into_iter().enumerate() {
-                        let span = prop.span();
-                        let prop = match prop {
-                            PropOrSpread::Prop(prop) => match Box::into_inner(prop) {
+                let mut obj_props = self.vec();
+                let mut rest = None;
+                for (idx, prop) in props.into_iter().enumerate() {
+                    let span = prop.span();
+                    match prop {
+                        PropOrSpread::Prop(prop) => {
+                            let prop = match Box::into_inner(prop) {
                                 Prop::Shorthand(id) => {
                                     let id = Box::into_inner(id);
                                     let span = id.span();
-                                    let binding_ident = p.ast.box_binding_ident(p.boxed(id));
-                                    p.ast
-                                        .object_pat_prop_assign_pat_prop(span, binding_ident, None)
+                                    let binding_ident = self.ast.box_binding_ident(self.boxed(id));
+                                    self.ast.object_pat_prop_assign_pat_prop(
+                                        span,
+                                        binding_ident,
+                                        None,
+                                    )
                                 }
                                 Prop::KeyValue(kv_prop) => {
                                     let kv_prop = Box::into_inner(kv_prop);
                                     let pat =
-                                        p.reparse_expr_as_pat(pat_ty.element(), kv_prop.value)?;
-                                    p.ast.object_pat_prop_key_value_pat_prop(kv_prop.key, pat)
+                                        self.reparse_expr_as_pat(pat_ty.element(), kv_prop.value)?;
+                                    self.ast
+                                        .object_pat_prop_key_value_pat_prop(kv_prop.key, pat)
                                 }
                                 Prop::Assign(assign_prop) => {
                                     let assign_prop = Box::into_inner(assign_prop);
                                     let id = assign_prop.key;
-                                    let key = p.ast.box_binding_ident(id);
+                                    let key = self.ast.box_binding_ident(id);
                                     let value = assign_prop.value;
-                                    p.ast
+                                    self.ast
                                         .object_pat_prop_assign_pat_prop(span, key, Some(value))
                                 }
-                                _ => syntax_error!(p, span, SyntaxError::InvalidPat),
-                            },
+                                _ => syntax_error!(self, span, SyntaxError::InvalidPat),
+                            };
 
-                            PropOrSpread::Spread(spread) => {
-                                let spread = Box::into_inner(spread);
-                                let dot_3_token = spread.dot3_token;
-                                let expr = spread.expr;
-                                if idx != len - 1 {
-                                    p.emit_err(span, SyntaxError::NonLastRestParam)
-                                } else if let Some(trailing_comma) =
-                                    p.state().trailing_commas.get(&object_span.start)
-                                {
-                                    p.emit_err(*trailing_comma, SyntaxError::CommaAfterRestElement);
-                                };
+                            obj_props.push(prop);
+                        }
+                        PropOrSpread::Spread(spread) => {
+                            let spread = Box::into_inner(spread);
+                            let dot_3_token = spread.dot3_token;
+                            let expr = spread.expr;
+                            if idx != len - 1 {
+                                self.emit_err(span, SyntaxError::NonLastRestParam)
+                            } else if let Some(trailing_comma) =
+                                self.state().trailing_commas.get(&object_span.start)
+                            {
+                                self.emit_err(*trailing_comma, SyntaxError::CommaAfterRestElement);
+                            };
 
-                                let element_pat_ty = pat_ty.element();
-                                let pat = if let PatType::BindingElement = element_pat_ty {
-                                    if let Expr::Ident(i) = expr {
-                                        Pat::Ident(p.ast.box_binding_ident(i))
-                                    } else {
-                                        p.emit_err(span, SyntaxError::DotsWithoutIdentifier);
-                                        p.ast.pat_invalid()
-                                    }
+                            let element_pat_ty = pat_ty.element();
+                            let pat = if let PatType::BindingElement = element_pat_ty {
+                                if let Expr::Ident(i) = expr {
+                                    Pat::Ident(self.ast.box_binding_ident(i))
                                 } else {
-                                    p.reparse_expr_as_pat(element_pat_ty, expr)?
-                                };
-                                if let Pat::Assign(_) = pat {
-                                    p.emit_err(span, SyntaxError::TS1048)
-                                };
-                                p.ast.object_pat_prop_rest_pat(span, dot_3_token, pat)
-                            }
-                            #[cfg(swc_ast_unknown)]
-                            _ => unreachable!(),
-                        };
-
-                        obj_props.push(prop);
+                                    self.emit_err(span, SyntaxError::DotsWithoutIdentifier);
+                                    self.ast.pat_invalid()
+                                }
+                            } else {
+                                self.reparse_expr_as_pat(element_pat_ty, expr)?
+                            };
+                            if let Pat::Assign(_) = pat {
+                                self.emit_err(span, SyntaxError::TS1048)
+                            };
+                            rest = Some(self.ast.box_rest_pat(span, dot_3_token, pat));
+                        }
+                        #[cfg(swc_ast_unknown)]
+                        _ => unreachable!(),
                     }
+                }
 
-                    Ok(())
-                })?;
-
-                Ok(self.ast.pat_object_pat(object_span, props, false))
+                Ok(self.ast.pat_object_pat(object_span, obj_props, rest, false))
             }
             Expr::Ident(ident) => Ok(Pat::Ident(self.ast.box_binding_ident(ident))),
             Expr::Array(array) => {
                 let array = Box::into_inner(array);
                 let mut exprs = array.elems;
                 if exprs.is_empty() {
-                    return Ok(self.ast.pat_array_pat(span, self.vec(), false));
+                    return Ok(self.ast.pat_array_pat(span, self.vec(), None, false));
                 }
                 // Trailing comma may exist. We should remove those commas.
                 let count_of_trailing_comma =
                     exprs.iter().rev().take_while(|e| e.is_none()).count();
                 let len = exprs.len();
                 let mut params = self.vec();
+                let mut rest = None;
                 // Comma or other pattern cannot follow a rest pattern.
                 let idx_of_rest_not_allowed = if count_of_trailing_comma == 0 {
                     len - 1
@@ -345,7 +351,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                 if count_of_trailing_comma == 0 {
                     let mut exprs = exprs;
                     let expr = exprs.remove(0);
-                    let last = match expr {
+                    match expr {
                         // Rest
                         Some(expr_or_spread) => {
                             let expr_or_spread = Box::into_inner(expr_or_spread);
@@ -368,23 +374,27 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                     let expr_span = expr.span();
                                     let spread_span = spread;
 
-                                    Some(self.reparse_expr_as_pat(pat_ty.element(), expr).map(
-                                        |pat| self.ast.pat_rest_pat(expr_span, spread_span, pat),
-                                    )?)
+                                    let pat = self.reparse_expr_as_pat(pat_ty.element(), expr)?;
+                                    rest = Some(self.ast.box_rest_pat(
+                                        Span::new(spread_span.start, expr_span.end),
+                                        spread_span,
+                                        pat,
+                                    ));
                                 }
                                 None => {
                                     // TODO: is BindingPat correct?
-                                    Some(self.reparse_expr_as_pat(pat_ty.element(), expr)?)
+                                    params.push(Some(
+                                        self.reparse_expr_as_pat(pat_ty.element(), expr)?,
+                                    ));
                                 }
                             }
                         }
                         // TODO: syntax error if last element is ellison and ...rest exists.
-                        None => None,
-                    };
-                    params.push(last);
+                        None => params.push(None),
+                    }
                 }
 
-                Ok(self.ast.pat_array_pat(span, params, false))
+                Ok(self.ast.pat_array_pat(span, params, rest, false))
             }
 
             // Invalid patterns.
@@ -451,6 +461,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         self.assert_and_bump(Token::LBracket);
 
         let mut elems = self.vec();
+        let mut rest = None;
 
         let mut rest_span = Span::default();
 
@@ -474,8 +485,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                 let pat = self.parse_binding_pat_or_ident(false)?;
                 rest_span = self.span(start);
 
-                let pat = self.ast.pat_rest_pat(rest_span, dot3_token, pat);
-                elems.push(Some(pat));
+                rest = Some(self.ast.box_rest_pat(rest_span, dot3_token, pat));
             } else {
                 elems.push(Some(self.parse_binding_element()?));
             }
@@ -492,7 +502,9 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         let optional = (self.input().syntax().dts() || self.ctx().contains(Context::InDeclare))
             && self.input_mut().eat(Token::QuestionMark);
 
-        Ok(self.ast.pat_array_pat(self.span(start), elems, optional))
+        Ok(self
+            .ast
+            .pat_array_pat(self.span(start), elems, rest, optional))
     }
 
     /// spec: 'FormalParameter'
@@ -722,9 +734,6 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                         }
                     }
                 }
-                AssignTargetOrSpread::Pat(Pat::Rest(..)) => {
-                    self.emit_err(expr.span(), SyntaxError::TS1014)
-                }
                 AssignTargetOrSpread::Pat(pat) => {
                     let span = pat.span();
                     let decorators = self.vec();
@@ -768,11 +777,6 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                 }
             },
             AssignTargetOrSpread::Pat(pat) => {
-                if let Some(trailing_comma) = trailing_comma
-                    && let Pat::Rest(..) = pat
-                {
-                    self.emit_err(trailing_comma, SyntaxError::CommaAfterRestElement);
-                }
                 let span = pat.span();
                 let decorators = self.vec();
                 let param = self.make_param_from_pat(span, decorators, pat);

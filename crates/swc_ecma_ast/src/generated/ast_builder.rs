@@ -1272,18 +1272,12 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         elems: Vec<'a, Option<Pat<'a>>>,
+        rest: Option<Box<'a, RestPat<'a>>>,
         optional: bool,
     ) -> ForHead<'a> {
         ForHead::Pat(
             self.allocator
-                .boxed(Pat::Array(self.box_array_pat(span, elems, optional))),
-        )
-    }
-    #[inline]
-    pub fn for_head_pat_rest_pat(&self, span: Span, dot3_token: Span, arg: Pat<'a>) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator
-                .boxed(Pat::Rest(self.box_rest_pat(span, dot3_token, arg))),
+                .boxed(Pat::Array(self.box_array_pat(span, elems, rest, optional))),
         )
     }
     #[inline]
@@ -1291,12 +1285,12 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         props: Vec<'a, ObjectPatProp<'a>>,
+        rest: Option<Box<'a, RestPat<'a>>>,
         optional: bool,
     ) -> ForHead<'a> {
-        ForHead::Pat(
-            self.allocator
-                .boxed(Pat::Object(self.box_object_pat(span, props, optional))),
-        )
+        ForHead::Pat(self.allocator.boxed(Pat::Object(
+            self.box_object_pat(span, props, rest, optional),
+        )))
     }
     #[inline]
     pub fn for_head_pat_assign_pat(
@@ -3957,10 +3951,11 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         elems: Vec<'a, Option<Pat<'a>>>,
+        rest: Option<Box<'a, RestPat<'a>>>,
         optional: bool,
     ) -> AssignTarget<'a> {
         AssignTarget::Pat(self.allocator.boxed(AssignTargetPat::Array(
-            self.box_array_pat(span, elems, optional),
+            self.box_array_pat(span, elems, rest, optional),
         )))
     }
     #[inline]
@@ -3968,10 +3963,11 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         props: Vec<'a, ObjectPatProp<'a>>,
+        rest: Option<Box<'a, RestPat<'a>>>,
         optional: bool,
     ) -> AssignTarget<'a> {
         AssignTarget::Pat(self.allocator.boxed(AssignTargetPat::Object(
-            self.box_object_pat(span, props, optional),
+            self.box_object_pat(span, props, rest, optional),
         )))
     }
     #[inline]
@@ -3986,18 +3982,20 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         elems: Vec<'a, Option<Pat<'a>>>,
+        rest: Option<Box<'a, RestPat<'a>>>,
         optional: bool,
     ) -> AssignTargetPat<'a> {
-        AssignTargetPat::Array(self.box_array_pat(span, elems, optional))
+        AssignTargetPat::Array(self.box_array_pat(span, elems, rest, optional))
     }
     #[inline]
     pub fn assign_target_pat_object_pat(
         &self,
         span: Span,
         props: Vec<'a, ObjectPatProp<'a>>,
+        rest: Option<Box<'a, RestPat<'a>>>,
         optional: bool,
     ) -> AssignTargetPat<'a> {
-        AssignTargetPat::Object(self.box_object_pat(span, props, optional))
+        AssignTargetPat::Object(self.box_object_pat(span, props, rest, optional))
     }
     #[inline]
     pub fn assign_target_pat_invalid(&self) -> AssignTargetPat<'a> {
@@ -4753,22 +4751,20 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         elems: Vec<'a, Option<Pat<'a>>>,
+        rest: Option<Box<'a, RestPat<'a>>>,
         optional: bool,
     ) -> Pat<'a> {
-        Pat::Array(self.box_array_pat(span, elems, optional))
-    }
-    #[inline]
-    pub fn pat_rest_pat(&self, span: Span, dot3_token: Span, arg: Pat<'a>) -> Pat<'a> {
-        Pat::Rest(self.box_rest_pat(span, dot3_token, arg))
+        Pat::Array(self.box_array_pat(span, elems, rest, optional))
     }
     #[inline]
     pub fn pat_object_pat(
         &self,
         span: Span,
         props: Vec<'a, ObjectPatProp<'a>>,
+        rest: Option<Box<'a, RestPat<'a>>>,
         optional: bool,
     ) -> Pat<'a> {
-        Pat::Object(self.box_object_pat(span, props, optional))
+        Pat::Object(self.box_object_pat(span, props, rest, optional))
     }
     #[inline]
     pub fn pat_assign_pat(&self, span: Span, left: Pat<'a>, right: Expr<'a>) -> Pat<'a> {
@@ -5138,11 +5134,13 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         elems: Vec<'a, Option<Pat<'a>>>,
+        rest: Option<Box<'a, RestPat<'a>>>,
         optional: bool,
     ) -> ArrayPat<'a> {
         ArrayPat {
             span,
             elems,
+            rest,
             optional,
         }
     }
@@ -5151,20 +5149,24 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         elems: Vec<'a, Option<Pat<'a>>>,
+        rest: Option<Box<'a, RestPat<'a>>>,
         optional: bool,
     ) -> Box<'a, ArrayPat<'a>> {
-        self.allocator.boxed(self.array_pat(span, elems, optional))
+        self.allocator
+            .boxed(self.array_pat(span, elems, rest, optional))
     }
     #[inline]
     pub fn object_pat(
         &self,
         span: Span,
         props: Vec<'a, ObjectPatProp<'a>>,
+        rest: Option<Box<'a, RestPat<'a>>>,
         optional: bool,
     ) -> ObjectPat<'a> {
         ObjectPat {
             span,
             props,
+            rest,
             optional,
         }
     }
@@ -5173,9 +5175,11 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         props: Vec<'a, ObjectPatProp<'a>>,
+        rest: Option<Box<'a, RestPat<'a>>>,
         optional: bool,
     ) -> Box<'a, ObjectPat<'a>> {
-        self.allocator.boxed(self.object_pat(span, props, optional))
+        self.allocator
+            .boxed(self.object_pat(span, props, rest, optional))
     }
     #[inline]
     pub fn assign_pat(&self, span: Span, left: Pat<'a>, right: Expr<'a>) -> AssignPat<'a> {
@@ -5218,15 +5222,6 @@ impl<'a> AstBuilder<'a> {
         value: Option<Expr<'a>>,
     ) -> ObjectPatProp<'a> {
         ObjectPatProp::Assign(self.box_assign_pat_prop(span, key, value))
-    }
-    #[inline]
-    pub fn object_pat_prop_rest_pat(
-        &self,
-        span: Span,
-        dot3_token: Span,
-        arg: Pat<'a>,
-    ) -> ObjectPatProp<'a> {
-        ObjectPatProp::Rest(self.box_rest_pat(span, dot3_token, arg))
     }
     #[inline]
     pub fn key_value_pat_prop(&self, key: PropName<'a>, value: Pat<'a>) -> KeyValuePatProp<'a> {
