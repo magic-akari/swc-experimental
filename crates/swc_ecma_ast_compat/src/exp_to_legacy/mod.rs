@@ -636,22 +636,56 @@ impl<'a> AstConvert<'a> {
                 self.boxed(self.convert_ident(assign.key)),
                 self.convert_expr(*assign.value),
             ),
-            legacy::Prop::Getter(getter) => self.ast.prop_getter_prop(
-                convert_span(getter.span),
-                self.convert_prop_name(getter.key),
-                getter
-                    .body
-                    .map(|body| self.boxed(self.convert_block_stmt(body))),
-            ),
-            legacy::Prop::Setter(setter) => self.ast.prop_setter_prop(
-                convert_span(setter.span),
-                self.convert_prop_name(setter.key),
-                setter.this_param.map(|param| self.convert_pat(param)),
-                self.convert_pat(*setter.param),
-                setter
-                    .body
-                    .map(|body| self.boxed(self.convert_block_stmt(body))),
-            ),
+            legacy::Prop::Getter(getter) => {
+                let span = convert_span(getter.span);
+                self.ast.prop_getter_prop(
+                    span,
+                    self.convert_prop_name(getter.key),
+                    self.ast.box_function(
+                        span,
+                        self.empty_vec(),
+                        self.empty_vec(),
+                        getter.body.map_or_else(
+                            || self.ast.box_block_stmt(span, self.empty_vec()),
+                            |body| self.boxed(self.convert_block_stmt(body)),
+                        ),
+                        false,
+                        false,
+                    ),
+                )
+            }
+            legacy::Prop::Setter(setter) => {
+                let span = convert_span(setter.span);
+                let mut params = self.empty_vec();
+                if let Some(this_param) = setter.this_param {
+                    params.push(self.ast.param(
+                        span,
+                        self.empty_vec(),
+                        self.convert_pat(this_param),
+                    ));
+                }
+                params.push(self.ast.param(
+                    span,
+                    self.empty_vec(),
+                    self.convert_pat(*setter.param),
+                ));
+
+                self.ast.prop_setter_prop(
+                    span,
+                    self.convert_prop_name(setter.key),
+                    self.ast.box_function(
+                        span,
+                        params,
+                        self.empty_vec(),
+                        setter.body.map_or_else(
+                            || self.ast.box_block_stmt(span, self.empty_vec()),
+                            |body| self.boxed(self.convert_block_stmt(body)),
+                        ),
+                        false,
+                        false,
+                    ),
+                )
+            }
             legacy::Prop::Method(method) => self.ast.prop_method_prop(
                 self.convert_prop_name(method.key),
                 self.boxed(self.convert_function(*method.function)),

@@ -310,9 +310,11 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                     p.emit_err(key_span, SyntaxError::TS1056);
                                 }
 
-                                let body = Some(function.body);
-                                p.ast
-                                    .prop_or_spread_prop_getter_prop(p.span(start), key, body)
+                                p.ast.prop_or_spread_prop_getter_prop(
+                                    p.span(start),
+                                    key,
+                                    p.boxed(function),
+                                )
                             });
                     }
 
@@ -348,25 +350,10 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                 false,
                             )
                             .map(|function| {
-                                let mut this = None;
-                                let mut params = function.params;
-                                if params.len() >= 2 {
-                                    this = Some(params.remove(0).pat);
-                                }
-
-                                let param =
-                                    params.into_iter().next().map(|v| v.pat).unwrap_or_else(|| {
-                                        p.emit_err(key_span, SyntaxError::SetterParam);
-                                        p.ast.pat_invalid()
-                                    });
-
-                                let body = Some(function.body);
                                 p.ast.prop_or_spread_prop_setter_prop(
                                     p.span(start),
                                     key,
-                                    this,
-                                    param,
-                                    body,
+                                    p.boxed(function),
                                 )
                             });
                     }
