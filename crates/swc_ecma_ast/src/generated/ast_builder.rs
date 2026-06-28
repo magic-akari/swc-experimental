@@ -1462,6 +1462,21 @@ impl<'a> AstBuilder<'a> {
         )
     }
     #[inline]
+    pub fn for_head_pat_expr_import_expr(
+        &self,
+        span: Span,
+        source: Expr<'a>,
+        options: Option<Expr<'a>>,
+        phase: ImportPhase,
+    ) -> ForHead<'a> {
+        ForHead::Pat(
+            self.allocator
+                .boxed(Pat::Expr(self.allocator.boxed(Expr::Import(
+                    self.box_import_expr(span, source, options, phase),
+                )))),
+        )
+    }
+    #[inline]
     pub fn for_head_pat_expr_call_expr(
         &self,
         span: Span,
@@ -1910,6 +1925,18 @@ impl<'a> AstBuilder<'a> {
             self.allocator
                 .boxed(Expr::Cond(self.box_cond_expr(span, test, cons, alt))),
         )
+    }
+    #[inline]
+    pub fn var_decl_or_expr_expr_import_expr(
+        &self,
+        span: Span,
+        source: Expr<'a>,
+        options: Option<Expr<'a>>,
+        phase: ImportPhase,
+    ) -> VarDeclOrExpr<'a> {
+        VarDeclOrExpr::Expr(self.allocator.boxed(Expr::Import(
+            self.box_import_expr(span, source, options, phase),
+        )))
     }
     #[inline]
     pub fn var_decl_or_expr_expr_call_expr(
@@ -2415,6 +2442,16 @@ impl<'a> AstBuilder<'a> {
         Expr::Cond(self.box_cond_expr(span, test, cons, alt))
     }
     #[inline]
+    pub fn expr_import_expr(
+        &self,
+        span: Span,
+        source: Expr<'a>,
+        options: Option<Expr<'a>>,
+        phase: ImportPhase,
+    ) -> Expr<'a> {
+        Expr::Import(self.box_import_expr(span, source, options, phase))
+    }
+    #[inline]
     pub fn expr_call_expr(
         &self,
         span: Span,
@@ -2898,6 +2935,32 @@ impl<'a> AstBuilder<'a> {
         self.allocator.boxed(self.cond_expr(span, test, cons, alt))
     }
     #[inline]
+    pub fn import_expr(
+        &self,
+        span: Span,
+        source: Expr<'a>,
+        options: Option<Expr<'a>>,
+        phase: ImportPhase,
+    ) -> ImportExpr<'a> {
+        ImportExpr {
+            span,
+            source,
+            options,
+            phase,
+        }
+    }
+    #[inline]
+    pub fn box_import_expr(
+        &self,
+        span: Span,
+        source: Expr<'a>,
+        options: Option<Expr<'a>>,
+        phase: ImportPhase,
+    ) -> Box<'a, ImportExpr<'a>> {
+        self.allocator
+            .boxed(self.import_expr(span, source, options, phase))
+    }
+    #[inline]
     pub fn call_expr(
         &self,
         span: Span,
@@ -3074,10 +3137,6 @@ impl<'a> AstBuilder<'a> {
         Callee::Super(self.box_super(span))
     }
     #[inline]
-    pub fn callee_import(&self, span: Span, phase: ImportPhase) -> Callee<'a> {
-        Callee::Import(self.box_import(span, phase))
-    }
-    #[inline]
     pub fn callee_expr_this_expr(&self, span: Span) -> Callee<'a> {
         Callee::Expr(self.allocator.boxed(Expr::This(self.box_this_expr(span))))
     }
@@ -3196,6 +3255,18 @@ impl<'a> AstBuilder<'a> {
             self.allocator
                 .boxed(Expr::Cond(self.box_cond_expr(span, test, cons, alt))),
         )
+    }
+    #[inline]
+    pub fn callee_expr_import_expr(
+        &self,
+        span: Span,
+        source: Expr<'a>,
+        options: Option<Expr<'a>>,
+        phase: ImportPhase,
+    ) -> Callee<'a> {
+        Callee::Expr(self.allocator.boxed(Expr::Import(
+            self.box_import_expr(span, source, options, phase),
+        )))
     }
     #[inline]
     pub fn callee_expr_call_expr(
@@ -3460,14 +3531,6 @@ impl<'a> AstBuilder<'a> {
         self.allocator.boxed(self.super_(span))
     }
     #[inline]
-    pub fn import(&self, span: Span, phase: ImportPhase) -> Import {
-        Import { span, phase }
-    }
-    #[inline]
-    pub fn box_import(&self, span: Span, phase: ImportPhase) -> Box<'a, Import> {
-        self.allocator.boxed(self.import(span, phase))
-    }
-    #[inline]
     pub fn expr_or_spread(&self, spread: Option<Span>, expr: Expr<'a>) -> ExprOrSpread<'a> {
         ExprOrSpread { spread, expr }
     }
@@ -3611,6 +3674,18 @@ impl<'a> AstBuilder<'a> {
             self.allocator
                 .boxed(Expr::Cond(self.box_cond_expr(span, test, cons, alt))),
         )
+    }
+    #[inline]
+    pub fn block_stmt_or_expr_expr_import_expr(
+        &self,
+        span: Span,
+        source: Expr<'a>,
+        options: Option<Expr<'a>>,
+        phase: ImportPhase,
+    ) -> BlockStmtOrExpr<'a> {
+        BlockStmtOrExpr::Expr(self.allocator.boxed(Expr::Import(
+            self.box_import_expr(span, source, options, phase),
+        )))
     }
     #[inline]
     pub fn block_stmt_or_expr_expr_call_expr(
@@ -4842,6 +4917,18 @@ impl<'a> AstBuilder<'a> {
         )
     }
     #[inline]
+    pub fn pat_expr_import_expr(
+        &self,
+        span: Span,
+        source: Expr<'a>,
+        options: Option<Expr<'a>>,
+        phase: ImportPhase,
+    ) -> Pat<'a> {
+        Pat::Expr(self.allocator.boxed(Expr::Import(
+            self.box_import_expr(span, source, options, phase),
+        )))
+    }
+    #[inline]
     pub fn pat_expr_call_expr(
         &self,
         span: Span,
@@ -5521,6 +5608,18 @@ impl<'a> AstBuilder<'a> {
             self.allocator
                 .boxed(Expr::Cond(self.box_cond_expr(span, test, cons, alt))),
         )
+    }
+    #[inline]
+    pub fn jsx_expr_expr_import_expr(
+        &self,
+        span: Span,
+        source: Expr<'a>,
+        options: Option<Expr<'a>>,
+        phase: ImportPhase,
+    ) -> JSXExpr<'a> {
+        JSXExpr::Expr(self.allocator.boxed(Expr::Import(
+            self.box_import_expr(span, source, options, phase),
+        )))
     }
     #[inline]
     pub fn jsx_expr_expr_call_expr(

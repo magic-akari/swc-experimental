@@ -560,6 +560,48 @@ pub(crate) trait CompatImpl {
                         alt: self.compat_expr(c.alt),
                     })
                 }
+                experimental::Expr::Import(i) => {
+                    let i = AstBox::into_inner(i);
+                    let mut args =
+                        std::vec::Vec::with_capacity(if i.options.is_some() { 2 } else { 1 });
+                    args.push(legacy::ExprOrSpread {
+                        spread: None,
+                        expr: self.compat_expr(i.source),
+                    });
+                    if let Some(options) = i.options {
+                        args.push(legacy::ExprOrSpread {
+                            spread: None,
+                            expr: self.compat_expr(options),
+                        });
+                    }
+                    let callee_len = match i.phase {
+                        experimental::ImportPhase::Evaluation => "import".len(),
+                        experimental::ImportPhase::Source => "import.source".len(),
+                        experimental::ImportPhase::Defer => "import.defer".len(),
+                    } as u32;
+
+                    legacy::Expr::Call(legacy::CallExpr {
+                        span: compat_span(i.span),
+                        ctxt: Default::default(),
+                        callee: legacy::Callee::Import(legacy::Import {
+                            // The experimental AST does not retain a separate span for the
+                            // `import` callee.
+                            span: compat_span(experimental::Span {
+                                start: i.span.start,
+                                end: i.span.end.min(i.span.start.saturating_add(callee_len)),
+                            }),
+                            phase: match i.phase {
+                                experimental::ImportPhase::Evaluation => {
+                                    legacy::ImportPhase::Evaluation
+                                }
+                                experimental::ImportPhase::Source => legacy::ImportPhase::Source,
+                                experimental::ImportPhase::Defer => legacy::ImportPhase::Defer,
+                            },
+                        }),
+                        args,
+                        type_args: None,
+                    })
+                }
                 experimental::Expr::Call(c) => {
                     let c = AstBox::into_inner(c);
                     legacy::Expr::Call(legacy::CallExpr {
@@ -569,22 +611,6 @@ pub(crate) trait CompatImpl {
                             experimental::Callee::Super(s) => {
                                 legacy::Callee::Super(legacy::Super {
                                     span: compat_span(s.span),
-                                })
-                            }
-                            experimental::Callee::Import(i) => {
-                                legacy::Callee::Import(legacy::Import {
-                                    span: compat_span(i.span),
-                                    phase: match i.phase {
-                                        experimental::ImportPhase::Evaluation => {
-                                            legacy::ImportPhase::Evaluation
-                                        }
-                                        experimental::ImportPhase::Source => {
-                                            legacy::ImportPhase::Source
-                                        }
-                                        experimental::ImportPhase::Defer => {
-                                            legacy::ImportPhase::Defer
-                                        }
-                                    },
                                 })
                             }
                             experimental::Callee::Expr(e) => {

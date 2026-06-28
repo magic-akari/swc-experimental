@@ -24,6 +24,7 @@ pub enum Expr<'a> {
     Member(Box<'a, MemberExpr<'a>>),
     SuperProp(Box<'a, SuperPropExpr<'a>>),
     Cond(Box<'a, CondExpr<'a>>),
+    Import(Box<'a, ImportExpr<'a>>),
     Call(Box<'a, CallExpr<'a>>),
     New(Box<'a, NewExpr<'a>>),
     Seq(Box<'a, SeqExpr<'a>>),
@@ -187,6 +188,15 @@ pub struct CondExpr<'a> {
 
 #[ast]
 #[derive(Debug)]
+pub struct ImportExpr<'a> {
+    pub span: Span,
+    pub source: Expr<'a>,
+    pub options: Option<Expr<'a>>,
+    pub phase: ImportPhase,
+}
+
+#[ast]
+#[derive(Debug)]
 pub struct CallExpr<'a> {
     pub span: Span,
     pub callee: Callee<'a>,
@@ -291,7 +301,6 @@ pub struct ParenExpr<'a> {
 #[derive(Debug)]
 pub enum Callee<'a> {
     Super(Box<'a, Super>),
-    Import(Box<'a, Import>),
     Expr(Box<'a, Expr<'a>>),
 }
 
@@ -299,13 +308,6 @@ pub enum Callee<'a> {
 #[derive(Debug)]
 pub struct Super {
     pub span: Span,
-}
-
-#[ast]
-#[derive(Debug)]
-pub struct Import {
-    pub span: Span,
-    pub phase: ImportPhase,
 }
 
 #[ast(skip_span)]

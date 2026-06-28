@@ -1653,6 +1653,10 @@ impl<'a> Expr<'a> {
         matches!(self, Self::Cond { .. })
     }
     #[inline]
+    pub const fn is_import(&self) -> bool {
+        matches!(self, Self::Import { .. })
+    }
+    #[inline]
     pub const fn is_call(&self) -> bool {
         matches!(self, Self::Call { .. })
     }
@@ -1810,6 +1814,13 @@ impl<'a> Expr<'a> {
     pub fn as_cond(&self) -> Option<&CondExpr<'a>> {
         match self {
             Self::Cond(it) => Some(it),
+            _ => None,
+        }
+    }
+    #[inline]
+    pub fn as_import(&self) -> Option<&ImportExpr<'a>> {
+        match self {
+            Self::Import(it) => Some(it),
             _ => None,
         }
     }
@@ -2038,6 +2049,13 @@ impl<'a> Expr<'a> {
         }
     }
     #[inline]
+    pub fn as_mut_import(&mut self) -> Option<&mut ImportExpr<'a>> {
+        match self {
+            Self::Import(it) => Some(it),
+            _ => None,
+        }
+    }
+    #[inline]
     pub fn as_mut_call(&mut self) -> Option<&mut CallExpr<'a>> {
         match self {
             Self::Call(it) => Some(it),
@@ -2200,6 +2218,7 @@ impl<'a> GetSpan for Expr<'a> {
             Self::Member(it) => it.span(),
             Self::SuperProp(it) => it.span(),
             Self::Cond(it) => it.span(),
+            Self::Import(it) => it.span(),
             Self::Call(it) => it.span(),
             Self::New(it) => it.span(),
             Self::Seq(it) => it.span(),
@@ -2239,6 +2258,7 @@ impl<'a> SetSpan for Expr<'a> {
             Self::Member(it) => it.set_span(span),
             Self::SuperProp(it) => it.set_span(span),
             Self::Cond(it) => it.set_span(span),
+            Self::Import(it) => it.set_span(span),
             Self::Call(it) => it.set_span(span),
             Self::New(it) => it.set_span(span),
             Self::Seq(it) => it.set_span(span),
@@ -2609,6 +2629,18 @@ impl<'a> SetSpan for CondExpr<'a> {
         self.span = span;
     }
 }
+impl<'a> GetSpan for ImportExpr<'a> {
+    #[inline]
+    fn span(&self) -> Span {
+        self.span
+    }
+}
+impl<'a> SetSpan for ImportExpr<'a> {
+    #[inline]
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
+    }
+}
 impl<'a> GetSpan for CallExpr<'a> {
     #[inline]
     fn span(&self) -> Span {
@@ -2747,10 +2779,6 @@ impl<'a> Callee<'a> {
         matches!(self, Self::Super { .. })
     }
     #[inline]
-    pub const fn is_import(&self) -> bool {
-        matches!(self, Self::Import { .. })
-    }
-    #[inline]
     pub const fn is_expr(&self) -> bool {
         matches!(self, Self::Expr { .. })
     }
@@ -2758,13 +2786,6 @@ impl<'a> Callee<'a> {
     pub fn as_super(&self) -> Option<&Super> {
         match self {
             Self::Super(it) => Some(it),
-            _ => None,
-        }
-    }
-    #[inline]
-    pub fn as_import(&self) -> Option<&Import> {
-        match self {
-            Self::Import(it) => Some(it),
             _ => None,
         }
     }
@@ -2783,13 +2804,6 @@ impl<'a> Callee<'a> {
         }
     }
     #[inline]
-    pub fn as_mut_import(&mut self) -> Option<&mut Import> {
-        match self {
-            Self::Import(it) => Some(it),
-            _ => None,
-        }
-    }
-    #[inline]
     pub fn as_mut_expr(&mut self) -> Option<&mut Expr<'a>> {
         match self {
             Self::Expr(it) => Some(it),
@@ -2802,7 +2816,6 @@ impl<'a> GetSpan for Callee<'a> {
     fn span(&self) -> Span {
         match self {
             Self::Super(it) => it.span(),
-            Self::Import(it) => it.span(),
             Self::Expr(it) => it.span(),
         }
     }
@@ -2812,7 +2825,6 @@ impl<'a> SetSpan for Callee<'a> {
     fn set_span(&mut self, span: Span) {
         match self {
             Self::Super(it) => it.set_span(span),
-            Self::Import(it) => it.set_span(span),
             Self::Expr(it) => it.set_span(span),
         }
     }
@@ -2824,18 +2836,6 @@ impl GetSpan for Super {
     }
 }
 impl SetSpan for Super {
-    #[inline]
-    fn set_span(&mut self, span: Span) {
-        self.span = span;
-    }
-}
-impl GetSpan for Import {
-    #[inline]
-    fn span(&self) -> Span {
-        self.span
-    }
-}
-impl SetSpan for Import {
     #[inline]
     fn set_span(&mut self, span: Span) {
         self.span = span;

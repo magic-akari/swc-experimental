@@ -138,6 +138,7 @@ pub enum SyntaxError {
     CommaAfterRestElement,
     NonLastRestParam,
     SpreadInParenExpr,
+    SpreadInsideImport,
     /// `()`
     EmptyParenExpr,
     InvalidPat,
@@ -389,6 +390,9 @@ impl SyntaxError {
             SyntaxError::NonLastRestParam => "Rest element must be final element".into(),
             SyntaxError::SpreadInParenExpr => {
                 "Parenthesized expression cannot contain spread operator".into()
+            }
+            SyntaxError::SpreadInsideImport => {
+                "Spread is not allowed inside import(...) arguments".into()
             }
             SyntaxError::EmptyParenExpr => "Parenthesized expression cannot be empty".into(),
             SyntaxError::InvalidPat => "Not a pattern".into(),

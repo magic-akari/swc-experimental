@@ -163,6 +163,7 @@ impl<'a> ExprExt for Expr<'a> {
             | Expr::Yield(_)
             | Expr::Member(_)
             | Expr::SuperProp(_)
+            | Expr::Import(_)
             | Expr::Update(_)
             | Expr::Assign(_) => true,
 

@@ -86,7 +86,7 @@ impl ExprExt for Expr<'_> {
             },
 
             Expr::SuperProp(..) => true,
-            Expr::New(..) | Expr::Call(..) => false,
+            Expr::New(..) | Expr::Call(..) | Expr::Import(..) => false,
             Expr::MetaProp(..) => false,
             Expr::Update(..) => false,
             Expr::Unary(..) | Expr::Await(..) => false,
