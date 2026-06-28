@@ -81,10 +81,12 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                 self.emit_err(orig_ident.span(), SyntaxError::TS2207);
                             }
 
+                            let orig = ModuleExportName::Ident(self.boxed(possibly_orig));
+                            let exported = orig.clone_in(self.ast.allocator);
                             return Ok(self.ast.export_named_specifier(
                                 self.span(start),
-                                ModuleExportName::Ident(self.boxed(possibly_orig)),
-                                None,
+                                orig,
+                                exported,
                                 true,
                             ));
                         }
@@ -109,7 +111,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                 return Ok(self.ast.export_named_specifier(
                                     Span::new(start, orig_ident.span_hi()),
                                     ModuleExportName::Ident(self.boxed(possibly_orig)),
-                                    Some(ModuleExportName::Ident(self.boxed(exported))),
+                                    ModuleExportName::Ident(self.boxed(exported)),
                                     true,
                                 ));
                             } else {
@@ -117,7 +119,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                                 return Ok(self.ast.export_named_specifier(
                                     Span::new(start, orig_ident.span_hi()),
                                     ModuleExportName::Ident(orig_ident),
-                                    Some(ModuleExportName::Ident(self.boxed(maybe_as))),
+                                    ModuleExportName::Ident(self.boxed(maybe_as)),
                                     false,
                                 ));
                             }
@@ -126,7 +128,7 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
                             return Ok(self.ast.export_named_specifier(
                                 Span::new(start, orig_ident.span_hi()),
                                 ModuleExportName::Ident(orig_ident),
-                                Some(ModuleExportName::Ident(self.boxed(maybe_as))),
+                                ModuleExportName::Ident(self.boxed(maybe_as)),
                                 false,
                             ));
                         }
@@ -148,9 +150,9 @@ impl<'a, I: Tokens<'a>> Parser<'a, I> {
         };
 
         let exported = if self.input_mut().eat(Token::As) {
-            Some(self.parse_module_export_name()?)
+            self.parse_module_export_name()?
         } else {
-            None
+            orig.clone_in(self.ast.allocator)
         };
 
         Ok(self

@@ -929,10 +929,15 @@ pub(crate) trait CompatImpl {
             }
             experimental::ExportSpecifier::Named(n) => {
                 let n = AstBox::into_inner(n);
+                let exported = if n.is_shorthand() {
+                    None
+                } else {
+                    Some(self.compat_module_export_name(n.exported))
+                };
                 legacy::ExportSpecifier::Named(legacy::ExportNamedSpecifier {
                     span: compat_span(n.span),
                     orig: self.compat_module_export_name(n.orig),
-                    exported: n.exported.map(|me| self.compat_module_export_name(me)),
+                    exported,
                     is_type_only: n.is_type_only,
                 })
             }

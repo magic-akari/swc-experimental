@@ -792,7 +792,10 @@ impl<'ast> Visit<'ast> for Resolver<'ast> {
     }
 
     fn visit_export_named_specifier(&mut self, e: &ExportNamedSpecifier<'ast>) {
-        e.visit_children_with(self);
+        e.orig.visit_with(self);
+        if !e.is_shorthand() {
+            e.exported.visit_with(self);
+        }
         // if self.config.handle_types {
         //     match &mut e.orig {
         //         ModuleExportName::Ident(orig) => {
