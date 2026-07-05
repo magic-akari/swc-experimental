@@ -2,13 +2,13 @@ use colored::Colorize;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use swc_experimental_allocator::Allocator;
 
+use crate::legacy;
 use crate::{
     AppArgs,
     cases::Case,
     runner::{
         ParseResult,
         codegen::{format_code_diff, generate_code},
-        conformance::{LegacyParseResult, parse_legacy},
         parse,
     },
     suite::TestResult,
@@ -18,12 +18,7 @@ pub struct CodegenConformanceRunner;
 
 impl CodegenConformanceRunner {
     pub fn run<C: Case>(args: &AppArgs, cases: &[C]) -> Vec<TestResult> {
-        #[cfg(not(miri))]
         let iter = cases.par_iter();
-
-        #[cfg(miri)]
-        let iter = cases.iter();
-
         iter.filter_map(|case| {
             if args.debug {
                 println!("[{}] {:?}", "Debug".green(), case.relative_path());
@@ -48,8 +43,8 @@ impl CodegenConformanceRunner {
                 ParseResult::Succ(ret) => ret,
                 _ => return None,
             };
-            let legacy_root = match parse_legacy(case) {
-                LegacyParseResult::Succ(ret) => ret,
+            let legacy_root = match legacy::parse(case) {
+                legacy::ParseResult::Succ(ret) => ret,
                 _ => return None,
             };
 

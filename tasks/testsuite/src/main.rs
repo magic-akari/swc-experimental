@@ -9,25 +9,25 @@ use crate::{
         Case, test262,
         test262_parser::{self},
     },
+    conformance::{
+        codegen::CodegenConformanceRunner, parser::ParserConformanceRunner,
+        remove_paren::RemoveParenConformanceRunner, semantic::SemanticConformanceRunner,
+    },
     runner::{
-        codegen::CodegenRunner,
-        conformance::{
-            codegen::CodegenConformanceRunner, parser::ParserConformanceRunner,
-            semantic::SemanticConformanceRunner,
-            transform_remove_paren::RemoveParenConformanceRunner,
-        },
-        parser::ParserRunner,
-        semantic::SemanticRunner,
-        transform_remove_paren::RemoveParenRunner,
+        ast_convert::AstConvertRunner, codegen::CodegenRunner, parser::ParserRunner,
+        remove_paren::RemoveParenRunner, semantic::SemanticRunner,
     },
     suite::TestResult,
     util::crate_root,
 };
 
-mod cases;
-mod runner;
-mod suite;
-mod util;
+pub(crate) mod ast_compare;
+pub(crate) mod cases;
+pub(crate) mod conformance;
+pub(crate) mod legacy;
+pub(crate) mod runner;
+pub(crate) mod suite;
+pub(crate) mod util;
 
 pub struct AppArgs {
     pub debug: bool,
@@ -40,6 +40,7 @@ pub struct AppArgs {
 const PARSER_RUNNER: &str = "parser";
 const SEMANTIC_RUNNER: &str = "semantic";
 const CODEGEN_RUNNER: &str = "codegen";
+const AST_CONVERT_RUNNER: &str = "ast_convert";
 const PARSER_CONFORMANCE_RUNNER: &str = "parser_conformance";
 const SEMANTIC_CONFORMANCE_RUNNER: &str = "semantic_conformance";
 const CODEGEN_CONFORMANCE_RUNNER: &str = "codegen_conformance";
@@ -98,6 +99,10 @@ fn test_normal(args: &AppArgs) {
 
     if args.runners.is_empty() || args.runners.contains(REMOVE_PAREN_RUNNER) {
         results.extend(RemoveParenRunner::run(args, &test262_parser_cases));
+    }
+
+    if args.runners.is_empty() || args.runners.contains(AST_CONVERT_RUNNER) {
+        results.extend(AstConvertRunner::run(args, &test262_parser_cases));
     }
 
     // Collect results
@@ -224,6 +229,15 @@ fn test_test262_snapshots(args: &AppArgs) {
         let results = CodegenRunner::run(args, &cases);
         fs::write(
             snapshot_dir.join("codegen_test262.snap"),
+            to_snapshot(&results),
+        )
+        .unwrap();
+    }
+
+    if args.runners.is_empty() || args.runners.contains(AST_CONVERT_RUNNER) {
+        let results = AstConvertRunner::run(args, &cases);
+        fs::write(
+            snapshot_dir.join("ast_convert_test262.snap"),
             to_snapshot(&results),
         )
         .unwrap();

@@ -4,15 +4,11 @@ use swc_experimental_allocator::Allocator;
 
 use crate::{
     AppArgs,
+    ast_compare::ast_compare,
     cases::Case,
-    runner::{
-        ParseResult,
-        conformance::{
-            LegacyParseResult, collect_legacy_node_spans, compat_experimental_program,
-            format_node_span_mismatch, parse_legacy,
-        },
-        parse,
-    },
+    conformance::convert_experimental_program,
+    legacy,
+    runner::{ParseResult, parse},
     suite::TestResult,
 };
 
@@ -20,12 +16,7 @@ pub struct ParserConformanceRunner;
 
 impl ParserConformanceRunner {
     pub fn run<C: Case>(args: &AppArgs, cases: &[C]) -> Vec<TestResult> {
-        #[cfg(not(miri))]
         let iter = cases.par_iter();
-
-        #[cfg(miri)]
-        let iter = cases.iter();
-
         iter.filter_map(|case| {
             if args.debug {
                 println!("[{}] {:?}", "Debug".green(), case.relative_path());
@@ -46,19 +37,12 @@ impl ParserConformanceRunner {
                 ParseResult::Succ(ret) => ret,
                 _ => return None,
             };
-            let legacy_root = match parse_legacy(case) {
-                LegacyParseResult::Succ(ret) => ret,
+            let legacy_root = match legacy::parse(case) {
+                legacy::ParseResult::Succ(ret) => ret,
                 _ => return None,
             };
-            let experimental_root = compat_experimental_program(experimental_root);
-
-            let legacy_nodes = collect_legacy_node_spans(&legacy_root);
-            let experimental_nodes = collect_legacy_node_spans(&experimental_root);
-            if let Some(error) = format_node_span_mismatch(
-                "Parser node conformance mismatch",
-                &legacy_nodes,
-                &experimental_nodes,
-            ) {
+            let experimental_root = convert_experimental_program(experimental_root);
+            if let Some(error) = ast_compare(&legacy_root, &experimental_root) {
                 return Some(TestResult::Failed {
                     path: case.relative_path().to_owned(),
                     error,

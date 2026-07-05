@@ -1,26 +1,27 @@
 use colored::Colorize;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use swc_core::ecma::{
+    transforms::base::fixer::paren_remover as legacy_paren_remover,
+    visit::VisitMutWith as LegacyVisitMutWith,
+};
 use swc_experimental_allocator::Allocator;
-use swc_experimental_ecma_ast::{ParenExpr, Visit};
 use swc_experimental_ecma_transforms_base::remove_paren;
 
 use crate::{
     AppArgs,
+    ast_compare::ast_compare,
     cases::Case,
+    conformance::convert_experimental_program,
+    legacy,
     runner::{ParseResult, parse},
     suite::TestResult,
 };
 
-pub struct RemoveParenRunner;
+pub struct RemoveParenConformanceRunner;
 
-impl RemoveParenRunner {
+impl RemoveParenConformanceRunner {
     pub fn run<C: Case>(args: &AppArgs, cases: &[C]) -> Vec<TestResult> {
-        #[cfg(not(miri))]
         let iter = cases.par_iter();
-
-        #[cfg(miri)]
-        let iter = cases.iter();
-
         iter.filter_map(|case| {
             if args.debug {
                 println!("[{}] {:?}", "Debug".green(), case.relative_path());
@@ -32,19 +33,27 @@ impl RemoveParenRunner {
                 });
             }
 
+            if case.should_fail() {
+                return None;
+            }
+
             let allocator = Allocator::new();
-            let mut root = match parse(&allocator, case) {
+            let mut experimental_root = match parse(&allocator, case) {
                 ParseResult::Succ(ret) => ret,
                 _ => return None,
             };
+            let mut legacy_root = match legacy::parse(case) {
+                legacy::ParseResult::Succ(ret) => ret,
+                _ => return None,
+            };
 
-            remove_paren::remove_paren(&mut root, &allocator, None);
-            let mut collector = ParenCollector { count: 0 };
-            collector.visit_program(&root);
-            if collector.count > 0 {
+            remove_paren::remove_paren(&mut experimental_root, &allocator, None);
+            legacy_root.visit_mut_with(&mut legacy_paren_remover(None));
+            let experimental_root = convert_experimental_program(experimental_root);
+            if let Some(error) = ast_compare(&legacy_root, &experimental_root) {
                 return Some(TestResult::Failed {
                     path: case.relative_path().to_owned(),
-                    error: format!("ParenExpr is detected {}", collector.count),
+                    error,
                 });
             }
 
@@ -53,15 +62,5 @@ impl RemoveParenRunner {
             })
         })
         .collect()
-    }
-}
-
-struct ParenCollector {
-    count: usize,
-}
-
-impl<'a> Visit<'a> for ParenCollector {
-    fn visit_paren_expr(&mut self, _node: &ParenExpr<'a>) {
-        self.count += 1;
     }
 }

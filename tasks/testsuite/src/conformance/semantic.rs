@@ -21,11 +21,8 @@ use swc_experimental_ecma_semantic::resolver::{Semantic, resolver};
 use crate::{
     AppArgs,
     cases::Case,
-    runner::{
-        ParseResult,
-        conformance::{LegacyParseResult, parse_legacy_with_current_globals},
-        parse,
-    },
+    legacy,
+    runner::{ParseResult, parse},
     suite::TestResult,
 };
 
@@ -46,12 +43,7 @@ pub struct SemanticConformanceRunner;
 
 impl SemanticConformanceRunner {
     pub fn run<C: Case>(args: &AppArgs, cases: &[C]) -> Vec<TestResult> {
-        #[cfg(not(miri))]
         let iter = cases.par_iter();
-
-        #[cfg(miri)]
-        let iter = cases.iter();
-
         iter.filter_map(|case| {
             if args.debug {
                 println!("[{}] {:?}", "Debug".green(), case.relative_path());
@@ -176,8 +168,8 @@ fn collect_legacy_semantics<C: Case>(case: &C) -> Option<LegacySemantics> {
         debug_assert_eq!(unresolved_mark.as_u32(), 1);
         debug_assert_eq!(top_level_mark.as_u32(), 2);
 
-        let mut program = match parse_legacy_with_current_globals(case) {
-            LegacyParseResult::Succ(program) => program,
+        let mut program = match legacy::parse(case) {
+            legacy::ParseResult::Succ(program) => program,
             _ => return None,
         };
 
