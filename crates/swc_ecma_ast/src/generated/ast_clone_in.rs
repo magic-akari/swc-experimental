@@ -1233,7 +1233,7 @@ impl<'a, 'src> CloneIn<'a> for GetterProp<'src> {
         GetterProp {
             span: self.span.clone_in(allocator),
             key: self.key.clone_in(allocator),
-            body: self.body.clone_in(allocator),
+            function: self.function.clone_in(allocator),
         }
     }
 }
@@ -1244,9 +1244,7 @@ impl<'a, 'src> CloneIn<'a> for SetterProp<'src> {
         SetterProp {
             span: self.span.clone_in(allocator),
             key: self.key.clone_in(allocator),
-            this_param: self.this_param.clone_in(allocator),
-            param: self.param.clone_in(allocator),
-            body: self.body.clone_in(allocator),
+            function: self.function.clone_in(allocator),
         }
     }
 }

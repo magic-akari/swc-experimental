@@ -2,7 +2,7 @@ use crate::Span;
 use swc_experimental_allocator::boxed::Box;
 use swc_experimental_ast_macros::ast;
 
-use crate::ast::{BigInt, BlockStmt, Expr, Function, Ident, IdentName, Number, Pat, Str};
+use crate::ast::{BigInt, Expr, Function, Ident, IdentName, Number, Str};
 
 #[ast]
 #[derive(Debug)]
@@ -37,17 +37,14 @@ pub struct AssignProp<'a> {
 pub struct GetterProp<'a> {
     pub span: Span,
     pub key: PropName<'a>,
-    // type_ann: Option<TsTypeAnn>,
-    pub body: Option<Box<'a, BlockStmt<'a>>>,
+    pub function: Box<'a, Function<'a>>,
 }
 #[ast]
 #[derive(Debug)]
 pub struct SetterProp<'a> {
     pub span: Span,
     pub key: PropName<'a>,
-    pub this_param: Option<Pat<'a>>,
-    pub param: Pat<'a>,
-    pub body: Option<Box<'a, BlockStmt<'a>>>,
+    pub function: Box<'a, Function<'a>>,
 }
 #[ast]
 #[derive(Debug)]

@@ -2698,11 +2698,11 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         key: PropName<'a>,
-        body: Option<Box<'a, BlockStmt<'a>>>,
+        function: Box<'a, Function<'a>>,
     ) -> PropOrSpread<'a> {
         PropOrSpread::Prop(
             self.allocator
-                .boxed(Prop::Getter(self.box_getter_prop(span, key, body))),
+                .boxed(Prop::Getter(self.box_getter_prop(span, key, function))),
         )
     }
     #[inline]
@@ -2710,13 +2710,12 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         key: PropName<'a>,
-        this_param: Option<Pat<'a>>,
-        param: Pat<'a>,
-        body: Option<Box<'a, BlockStmt<'a>>>,
+        function: Box<'a, Function<'a>>,
     ) -> PropOrSpread<'a> {
-        PropOrSpread::Prop(self.allocator.boxed(Prop::Setter(
-            self.box_setter_prop(span, key, this_param, param, body),
-        )))
+        PropOrSpread::Prop(
+            self.allocator
+                .boxed(Prop::Setter(self.box_setter_prop(span, key, function))),
+        )
     }
     #[inline]
     pub fn prop_or_spread_prop_method_prop(
@@ -4617,20 +4616,18 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         key: PropName<'a>,
-        body: Option<Box<'a, BlockStmt<'a>>>,
+        function: Box<'a, Function<'a>>,
     ) -> Prop<'a> {
-        Prop::Getter(self.box_getter_prop(span, key, body))
+        Prop::Getter(self.box_getter_prop(span, key, function))
     }
     #[inline]
     pub fn prop_setter_prop(
         &self,
         span: Span,
         key: PropName<'a>,
-        this_param: Option<Pat<'a>>,
-        param: Pat<'a>,
-        body: Option<Box<'a, BlockStmt<'a>>>,
+        function: Box<'a, Function<'a>>,
     ) -> Prop<'a> {
-        Prop::Setter(self.box_setter_prop(span, key, this_param, param, body))
+        Prop::Setter(self.box_setter_prop(span, key, function))
     }
     #[inline]
     pub fn prop_method_prop(&self, key: PropName<'a>, function: Box<'a, Function<'a>>) -> Prop<'a> {
@@ -4671,34 +4668,34 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         key: PropName<'a>,
-        body: Option<Box<'a, BlockStmt<'a>>>,
+        function: Box<'a, Function<'a>>,
     ) -> GetterProp<'a> {
-        GetterProp { span, key, body }
+        GetterProp {
+            span,
+            key,
+            function,
+        }
     }
     #[inline]
     pub fn box_getter_prop(
         &self,
         span: Span,
         key: PropName<'a>,
-        body: Option<Box<'a, BlockStmt<'a>>>,
+        function: Box<'a, Function<'a>>,
     ) -> Box<'a, GetterProp<'a>> {
-        self.allocator.boxed(self.getter_prop(span, key, body))
+        self.allocator.boxed(self.getter_prop(span, key, function))
     }
     #[inline]
     pub fn setter_prop(
         &self,
         span: Span,
         key: PropName<'a>,
-        this_param: Option<Pat<'a>>,
-        param: Pat<'a>,
-        body: Option<Box<'a, BlockStmt<'a>>>,
+        function: Box<'a, Function<'a>>,
     ) -> SetterProp<'a> {
         SetterProp {
             span,
             key,
-            this_param,
-            param,
-            body,
+            function,
         }
     }
     #[inline]
@@ -4706,12 +4703,9 @@ impl<'a> AstBuilder<'a> {
         &self,
         span: Span,
         key: PropName<'a>,
-        this_param: Option<Pat<'a>>,
-        param: Pat<'a>,
-        body: Option<Box<'a, BlockStmt<'a>>>,
+        function: Box<'a, Function<'a>>,
     ) -> Box<'a, SetterProp<'a>> {
-        self.allocator
-            .boxed(self.setter_prop(span, key, this_param, param, body))
+        self.allocator.boxed(self.setter_prop(span, key, function))
     }
     #[inline]
     pub fn method_prop(

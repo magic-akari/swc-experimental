@@ -929,15 +929,13 @@ impl<'ast> Visit<'ast> for Resolver<'ast> {
         self.strict_mode = old_strict_mode;
     }
 
-    fn visit_getter_prop(&mut self, f: &GetterProp<'ast>) {
+    fn visit_getter_prop(&mut self, g: &GetterProp<'ast>) {
         let old = self.ident_type;
         self.ident_type = IdentType::Ref;
-        f.key.visit_with(self);
+        g.key.visit_with(self);
         self.ident_type = old;
 
-        // f.type_ann.visit_with(self);
-
-        f.body.visit_with(self);
+        self.with_child(ScopeKind::Fn, |child| g.function.visit_with(child));
     }
 
     // fn visit_jsx_element_name(&mut self, node: &mut JSXElementName) {
@@ -1153,14 +1151,7 @@ impl<'ast> Visit<'ast> for Resolver<'ast> {
     fn visit_setter_prop(&mut self, n: &SetterProp<'ast>) {
         n.key.visit_with(self);
 
-        {
-            self.with_child(ScopeKind::Fn, |child| {
-                child.ident_type = IdentType::Binding;
-                // n.this_param.visit_with(child);
-                n.param.visit_with(child);
-                n.body.visit_with(child);
-            });
-        };
+        self.with_child(ScopeKind::Fn, |child| n.function.visit_with(child));
     }
 
     fn visit_stmts(&mut self, stmts: &ArenaVec<'ast, Stmt<'ast>>) {

@@ -1018,21 +1018,42 @@ pub(crate) trait AstConvert {
             }
             experimental::Prop::Getter(g) => {
                 let g = AstBox::into_inner(g);
+                let function = AstBox::into_inner(g.function);
                 legacy::Prop::Getter(legacy::GetterProp {
                     span: convert_span(g.span),
                     key: self.convert_prop_name(g.key),
                     type_ann: None,
-                    body: g.body.map(|b| self.convert_block_stmt(b)),
+                    body: Some(self.convert_block_stmt(function.body)),
                 })
             }
             experimental::Prop::Setter(s) => {
                 let s = AstBox::into_inner(s);
+                let function = AstBox::into_inner(s.function);
+                let function_span = function.span;
+                let mut params = function.params;
+                let this_param = if params.len() >= 2 {
+                    Some(self.convert_pat(params.remove(0).pat))
+                } else {
+                    None
+                };
+                let param = params
+                    .into_iter()
+                    .next()
+                    .map(|p| alloc_box!(self, self.convert_pat(p.pat)))
+                    .unwrap_or_else(|| {
+                        alloc_box!(
+                            self,
+                            legacy::Pat::Invalid(legacy::Invalid {
+                                span: convert_span(function_span),
+                            })
+                        )
+                    });
                 legacy::Prop::Setter(legacy::SetterProp {
                     span: convert_span(s.span),
                     key: self.convert_prop_name(s.key),
-                    this_param: s.this_param.map(|p| self.convert_pat(p)),
-                    param: alloc_box!(self, self.convert_pat(s.param)),
-                    body: s.body.map(|b| self.convert_block_stmt(b)),
+                    this_param,
+                    param,
+                    body: Some(self.convert_block_stmt(function.body)),
                 })
             }
             experimental::Prop::Method(m) => {
